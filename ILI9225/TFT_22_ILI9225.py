@@ -5,59 +5,63 @@ TFT_22_ILI9225.py
 Driver for the ILI9225 chip for MicroPython.
 """
 
-from .compatibility import Compatibility
+from utils.compatibility import Compatibility, Boards
+from utils.common import RGB16BitColor
 
 
-class RGB16BitColor:
-    """
-    RGB 16-bit color table definition (RG565)
-    """
-    COLOR_BLACK       = 0x0000  #   0,   0,   0
-    COLOR_WHITE       = 0xFFFF  # 255, 255, 255
-    COLOR_BLUE        = 0x001F  #   0,   0, 255
-    COLOR_GREEN       = 0x07E0  #   0, 255,   0
-    COLOR_RED         = 0xF800  # 255,   0,   0
-    COLOR_NAVY        = 0x000F  #   0,   0, 128
-    COLOR_DARKBLUE    = 0x0011  #   0,   0, 139
-    COLOR_DARKGREEN   = 0x03E0  #   0, 128,   0
-    COLOR_DARKCYAN    = 0x03EF  #   0, 128, 128
-    COLOR_CYAN        = 0x07FF  #   0, 255, 255
-    COLOR_TURQUOISE   = 0x471A  #  64, 224, 208
-    COLOR_INDIGO      = 0x4810  #  75,   0, 130
-    COLOR_DARKRED     = 0x8000  # 128,   0,   0
-    COLOR_OLIVE       = 0x7BE0  # 128, 128,   0
-    COLOR_GRAY        = 0x8410  # 128, 128, 128
-    COLOR_GREY        = 0x8410  # 128, 128, 128
-    COLOR_SKYBLUE     = 0x867D  # 135, 206, 235
-    COLOR_BLUEVIOLET  = 0x895C  # 138,  43, 226
-    COLOR_LIGHTGREEN  = 0x9772  # 144, 238, 144
-    COLOR_DARKVIOLET  = 0x901A  # 148,   0, 211
-    COLOR_YELLOWGREEN = 0x9E66  # 154, 205,  50
-    COLOR_BROWN       = 0xA145  # 165,  42,  42
-    COLOR_DARKGRAY    = 0x7BEF  # 128, 128, 128
-    COLOR_DARKGREY    = 0x7BEF  # 128, 128, 128
-    COLOR_SIENNA      = 0xA285  # 160,  82,  45
-    COLOR_LIGHTBLUE   = 0xAEDC  # 172, 216, 230
-    COLOR_GREENYELLOW = 0xAFE5  # 173, 255,  47
-    COLOR_SILVER      = 0xC618  # 192, 192, 192
-    COLOR_LIGHTGRAY   = 0xC618  # 192, 192, 192
-    COLOR_LIGHTGREY   = 0xC618  # 192, 192, 192
-    COLOR_LIGHTCYAN   = 0xE7FF  # 224, 255, 255
-    COLOR_VIOLET      = 0xEC1D  # 238, 130, 238
-    COLOR_AZUR        = 0xF7FF  # 240, 255, 255
-    COLOR_BEIGE       = 0xF7BB  # 245, 245, 220
-    COLOR_MAGENTA     = 0xF81F  # 255,   0, 255
-    COLOR_TOMATO      = 0xFB08  # 255,  99,  71
-    COLOR_GOLD        = 0xFEA0  # 255, 215,   0
-    COLOR_ORANGE      = 0xFD20  # 255, 165,   0
-    COLOR_SNOW        = 0xFFDF  # 255, 250, 250
-    COLOR_YELLOW      = 0xFFE0  # 255, 255,   0
+class TFTException(Exception):
+    pass
 
 
-class ILI9225Registers:
+class AutoIncMode:
+    R2L_BOTTOM_UP = 0
+    BOTTOM_UP_R2L = 1
+    L2R_BOTTOM_UP = 2
+    BOTTOM_UP_L2R = 3
+    R2L_TOP_DOWN = 4
+    TOP_DOWN_R2L = 5
+    L2R_TOP_DOWN = 6
+    TOP_DOWN_L2R = 7
+
+
+class CurrentFont:
+    font = 0
+    width = 0
+    height = 0
+    offset = 0
+    numchars = 0
+    nbrows = 0
+    mono_sp = False
+
+
+class GFXGlyph:
+
+    def __init__(self, glyph):
+        self.bitmap_offset = glyph[0] # GFXFont.bitmap
+        self.width = glyph[1]         # Bitmap dimensions in pixels
+        self.height = glyph[2]
+        self.x_advance = glyph[3]     # Distance to advance cursor (x axis)
+        self.x_offset = glyph[4]      # Dist from cursor pos to UL corner
+        self.y_offset = glyph[5]
+
+
+class GFXFont:
+
+    def __init__(self, font):
+        self.bitmap = font[0]    # Glyph bitmaps, concatenated
+        self.glyph = font[1]     # Glyph class
+        self.first = font[3]     # ASCII extents
+        self.last = font[4]
+        self.y_advance = font[5] # Newline distance (y axis)
+
+
+class ILI9225(Compatibility):
     """
-    ILI9225 LCD Registers
+    Main ILI9225 class.
     """
+    LCD_WIDTH = 176
+    LCD_HEIGHT = 220
+
     DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
     LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
     ENTRY_MODE              = 0x03  # Entry Mode
@@ -98,56 +102,6 @@ class ILI9225Registers:
     INVOFF                  = 0x20  # Invert off
     INVON                   = 0x21  # Invert on
 
-
-class AutoIncMode:
-    R2L_BOTTOM_UP = 0
-    BOTTOM_UP_R2L = 1
-    L2R_BOTTOM_UP = 2
-    BOTTOM_UP_L2R = 3
-    R2L_TOP_DOWN = 4
-    TOP_DOWN_R2L = 5
-    L2R_TOP_DOWN = 6
-    TOP_DOWN_L2R = 7
-
-
-class CurrentFont:
-    font = 0
-    width = 0
-    height = 0
-    offset = 0
-    numchars = 0
-    nbrows = 0
-    mono_sp = False
-
-
-class GFXGlyph:
-
-    def __init__(self, glyph):
-        self.bitmap_offset = glyph[0] # GFXFont.bitmap
-        self.width = glyph[1]         # Bitmap dimensions in pixels.
-        self.height = glyph[2]
-        self.x_advance = glyph[3]     # Distance to advance cursor (x axis)
-        self.x_offset = glyph[4]      # Dist from cursor pos to UL corner.
-        self.y_offset = glyph[5]
-
-
-class GFXFont:
-
-    def __init__(self, font):
-        self.bitmap = font[0]    # Glyph bitmaps, concatenated
-        self.glyph = font[1]     # Glyph class
-        self.first = font[3]     # ASCII extents
-        self.last = font[4]
-        self.y_advance = font[5] # Newline distance (y axis)
-
-
-class ILI9225(Compatibility):
-    """
-    Main class
-    """
-    LCD_WIDTH = 176
-    LCD_HEIGHT = 220
-
     # 1: pixel width of 1 font character, 2: pixel height
     FONT_HEADER_SIZE = 4
 
@@ -167,7 +121,8 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, cs, led, sdi=-1, clk=-1, brightness=255):
+    def __init__(self, rst, rs, cs, led, sdi=-1, clk=-1, brightness=255,
+                 platform=None):
         """
         Initialize the ILI9225 class.
 
@@ -216,6 +171,10 @@ class ILI9225(Compatibility):
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
+        self.platform(platform)
+
+        if self.PLATFORM is None:
+            raise TFTException("Platform not set")
 
     def begin(self, spi=None): # spi=spi
         pass
@@ -728,9 +687,9 @@ class ILI9225(Compatibility):
         if not ((x0 >= self._max_x) or (y0 >= self._max_y)):
             self._orient_coordinates(x0, y0)
             self.__start_write()
-            self._write_register(ILI9225Registers.RAM_ADDR_SET1, x0)
-            self._write_register(ILI9225Registers.RAM_ADDR_SET2, y0)
-            self._write_register(ILI9225Registers.GRAM_DATA_REG, color)
+            self._write_register(self.RAM_ADDR_SET1, x0)
+            self._write_register(self.RAM_ADDR_SET2, y0)
+            self._write_register(self.GRAM_DATA_REG, color)
             self.__end_write()
 
     def draw_text(self, x, y, s, color=RGB16BitColor.COLOR_WHITE):
@@ -1127,10 +1086,10 @@ class ILI9225(Compatibility):
         pass
 
     def _reset_window(self):
-        self._write_register(ILI9225Registers.HORIZONTAL_WINDOW_ADDR1, 0x00AF)
-        self._write_register(ILI9225Registers.HORIZONTAL_WINDOW_ADDR2, 0x0000)
-        self._write_register(ILI9225Registers.HORIZONTAL_WINDOW_ADDR1, 0x00DB)
-        self._write_register(ILI9225Registers.HORIZONTAL_WINDOW_ADDR2, 0x0000)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, 0x00AF)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0x0000)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, 0x00DB)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0x0000)
 
     def _write_register(self, reg, data):
         pass
