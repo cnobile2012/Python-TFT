@@ -59,7 +59,7 @@ class Compatibility:
         if platform not in {v: k for k, v in Boards.__dict__.items()
                             if not k.startswith('__')}:
             raise CompatibilityException(
-                'The {} board is not supported.'.format(platform))
+                'Error: The {} board is not supported.'.format(platform))
 
         self.PLATFORM = platform
 

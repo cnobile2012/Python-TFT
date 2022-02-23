@@ -5,7 +5,7 @@ TFT_22_ILI9225.py
 Driver for the ILI9225 chip for MicroPython.
 """
 
-from utils.compatibility import Compatibility, Boards
+from utils.compatibility import Compatibility, Boards, CompatibilityException
 from utils.common import RGB16BitColor
 
 
@@ -35,6 +35,9 @@ class CurrentFont:
 
 
 class GFXGlyph:
+    """
+    Glyph structure data.
+    """
 
     def __init__(self, glyph):
         self.bitmap_offset = glyph[0] # GFXFont.bitmap
@@ -46,6 +49,9 @@ class GFXGlyph:
 
 
 class GFXFont:
+    """
+    Font meta data.
+    """
 
     def __init__(self, font):
         self.bitmap = font[0]    # Glyph bitmaps, concatenated
@@ -147,7 +153,7 @@ class ILI9225(Compatibility):
         @param led: The LED pin on the display.
         @type led: int
         @param sdi: The SDI (serial data input) pin on the display. Sometimes
-                    marke the SDA pin.
+                    marked the SDA pin.
         @type sdi: int
         @param clk: The CLK (clock) pin on the display.
         @type clk: int
@@ -171,10 +177,16 @@ class ILI9225(Compatibility):
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
-        self.platform(platform)
 
-        if self.PLATFORM is None:
-            raise TFTException("Platform not set")
+        if platform is not None:
+            try:
+                self.platform(platform)
+            except CompatibilityException as e:
+                print(e)
+        else:
+            print("Warning: The platform has not been set. The platform "
+                  "keyword argument must be passed during instantiation or "
+                  "the platform() method must be run after instantiation.")
 
     def begin(self, spi=None): # spi=spi
         pass
@@ -879,7 +891,7 @@ class ILI9225(Compatibility):
         byte_width = (w + 7) / 8
         byte = 0
         mask_bit = 0x01 if x_bit else 0x80
-        # Adjust window hight/width to display dimensions
+        # Adjust window height/width to display dimensions
         # DEBUG ONLY -- DB_PRINT("DrawBitmap.. maxX=%d, maxY=%d", _maxX,_maxY);
         wx0 = 0 if x < 0 else x
         wy0 = 0 if y < 0 else x
