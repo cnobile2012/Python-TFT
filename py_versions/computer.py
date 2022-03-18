@@ -1,0 +1,71 @@
+# -*- coding: utf-8 -*-
+"""
+py_versions/computer.py
+
+The personal computer compatibility file.
+"""
+
+from RTk import GPIO
+from time import sleep
+
+
+class PiVersion:
+    """
+    This class implements the Raspberry Pi version of the low level
+    functionality.
+    """
+    HIGH = GPIO.HIGH
+    LOW = GPIO.LOW
+    INPUT = GPIO.IN
+    OUTPUT = GPIO.OUT
+    INPUT_PULLUP = GPIO.PUD_UP
+    INPUT_PULLDOWN = GPIO.PUD_DOWN
+    INPUT_PULLOFF = GPIO.PUD_OFF
+
+    def __init__(self, mode=GPIO.BCM):
+        """
+        Constructor
+
+        @param mode: The Raspberry PI board mode (GPIO.BOARD or GPIO.BCM).
+                     The default is GPIO.BCM.
+        @type mode: int
+        """
+        mode = mode if mode is not None else GPIO.BCM
+        GPIO.setmode(mode)
+
+    def pin_mode(self, pin, direction, *, pull=GPIO.PUD_OFF, default=None,
+                 alt=-1):
+        """
+        Set a pin, direction, pull, mode, and default.
+
+        @param pin: The pin identifier.
+        @type pin: int
+        @param direction: The direction IN or OUT based on the board.
+        @type direction: int
+        @param pull: Sets either a pull up or pull down resistor internal to
+                     the RPi (GPIO.PUD_UP, GPIO.PUD_DOWN, or GPIO.PUD_OFF).
+        @type pull: int
+        @param default: Set a default value of the pin.
+        @type default: int
+        @param alt: Not used on the RPi.
+        @type alt: int
+        """
+        GPIO.setup(pin, direction, pull_up_down=pull)
+        if default is not None: GPIO.output(pin, default)
+
+    def digital_write(self, pin, high_low):
+        GPIO.output(pin, high_low)
+
+    def delay(self, ms):
+        sleep(ms/1000) # Convert to floating point.
+
+    def spi_start_transaction(self):
+        from utils.compatibility import Boards
+        freq = Boards.get_frequency(self.get_board())
+        print(freq)
+
+    def spi_end_transaction(self):
+        pass
+
+    def spi_write(self, value):
+        pass

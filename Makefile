@@ -31,8 +31,8 @@ python-api:
 #----------------------------------------------------------------------
 clean	:
 	$(shell $(RM_CMD))
-	@(cd ${DOCS_DIR}; make clean)
+#	@(cd ${DOCS_DIR}; make clean)
 
 clobber	: clean
-	@(cd $(DOCS_DIR); make clobber)
+#	@(cd $(DOCS_DIR); make clobber)
 	@rm -rf build dist ${PACKAGE_DIR}.egg-info

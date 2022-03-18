@@ -25,13 +25,21 @@ class AutoIncMode:
 
 
 class CurrentFont:
-    font = 0
-    width = 0
-    height = 0
-    offset = 0
-    numchars = 0
-    nbrows = 0
-    mono_sp = False
+    """
+    Stores the currently used font.
+    """
+
+    def __init__(self, args=((), 0, 0, 0, 0, 0, False)):
+        self.set_font(args)
+
+    def set_font(self, args):
+        self.font = args[0]
+        self.width = args[1]
+        self.height = args[2]
+        self.offset = args[3]
+        self.numchars = args[4]
+        self.nbrows = int(args[5])
+        self.mono_sp = args[6]
 
 
 class GFXGlyph:
@@ -44,7 +52,7 @@ class GFXGlyph:
         self.width = glyph[1]         # Bitmap dimensions in pixels
         self.height = glyph[2]
         self.x_advance = glyph[3]     # Distance to advance cursor (x axis)
-        self.x_offset = glyph[4]      # Dist from cursor pos to UL corner
+        self.x_offset = glyph[4]      # Distance from cursor pos to UL corner
         self.y_offset = glyph[5]
 
 
@@ -67,6 +75,8 @@ class ILI9225(Compatibility):
     """
     LCD_WIDTH = 176
     LCD_HEIGHT = 220
+    INVOFF                  = 0x20  # Invert off
+    INVON                   = 0x21  # Invert on
 
     DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
     LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
@@ -105,14 +115,12 @@ class ILI9225(Compatibility):
     GAMMA_CTRL8             = 0x57  # Gamma Control 8
     GAMMA_CTRL9             = 0x58  # Gamma Control 9
     GAMMA_CTRL10            = 0x59  # Gamma Control 10
-    INVOFF                  = 0x20  # Invert off
-    INVON                   = 0x21  # Invert on
 
     # 1: pixel width of 1 font character, 2: pixel height
-    FONT_HEADER_SIZE = 4
+    _CFONT_HEADER_SIZE = 4
 
     # Corresponding modes when orientation changes.
-    MODE_TAB = (
+    _MODE_TAB = (
         (AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP,
          AutoIncMode.TOP_DOWN_L2R, AutoIncMode.L2R_TOP_DOWN,
          AutoIncMode.BOTTOM_UP_R2L, AutoIncMode.R2L_BOTTOM_UP,
@@ -127,8 +135,8 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, cs, led, sdi=-1, clk=-1, brightness=255,
-                 platform=None):
+    def __init__(self, rst, rs, cs, led, *, sdi=-1, clk=-1, brightness=255,
+                 board=None, mode=None):
         """
         Initialize the ILI9225 class.
 
@@ -159,7 +167,13 @@ class ILI9225(Compatibility):
         @type clk: int
         @param brightness: Set the brightness from 0..255 (default=255).
         @type brightness: int
+        @param board: The board this will run on. e.g. Boards.ESP32
+        @type board: int
+        @param mode: Only applies to the Raspberry Pi and Computer boards.
+                     Default GPIO.BCM
+        @type mode: int
         """
+        super().__init__(mode=mode)
         self._rst = rst
         self._rs = rs
         self._cs = cs
@@ -178,18 +192,157 @@ class ILI9225(Compatibility):
         self._cfont = CurrentFont()
         self._gfx_font = None
 
-        if platform is not None:
+        if board is not None:
             try:
-                self.platform(platform)
+                self.set_board(board)
             except CompatibilityException as e:
                 print(e)
         else:
-            print("Warning: The platform has not been set. The platform "
+            print("Warning: The board has not been set. The board "
                   "keyword argument must be passed during instantiation or "
-                  "the platform() method must be run after instantiation.")
+                  "the set_board() method must be run after instantiation.")
 
-    def begin(self, spi=None): # spi=spi
-        pass
+    def begin(self, spi=None):
+        self._spi = spi
+
+        # Setup reset pin.
+        if self._rst > 0:
+            self.pin_mode(self._rst, self.OUTPUT)
+            self.digital_write(self._rst, self.LOW)
+
+        # Set up backlight pin, turn off initially.
+        if self._led > 0:
+            self.pin_mode(self._led, self.OUTPUT)
+            self.set_backlight(False)
+
+        # Control pins
+        self.pin_mode(self._rs, self.OUTPUT);
+        self.digital_write(self._rs, self.LOW);
+        self.pin_mode(self._cs, self.OUTPUT);
+        self.digital_write(self._cs, self.HIGH)
+
+        # Software SPI
+        if self._clk >= 0:
+            self.pin_mode(self._sdi, self.OUTPUT)
+            self.digital_write(self._sdi, self.LOW);
+            self.pin_mode(self._clk, self.OUTPUT)
+            self.digital_write(self._clk, self.HIGH);
+        else:
+            clkport = 0
+            clkpinmask = 0
+            mosiport = 0
+            mosipinmask = 0
+
+        if self._rst > 0:
+            # Pull the reset pin high to release the ILI9225C from the reset
+            # status.
+            self.digital_write(self._rst, self.HIGH)
+            self.delay(1)
+            # Pull the reset pin low to reset the ILI9225.
+            self.digital_write(self._rst, self.LOW)
+            self.delay(10)
+            # Pull the reset pin high to release the ILI9225C from the reset
+            # status.
+            self.digital_write(self._rst, self.HIGH)
+            self.delay(50)
+
+        # Start initial sequence.
+        # Set SS bit and direction output from S528 to S1
+        self.__start_write()
+        # Set SAP,DSTB,STB
+        self._write_register(self.POWER_CTRL1, 0x0000)
+        # Set APON,PON,AON,VCI1EN,VC
+        self._write_register(self.POWER_CTRL2, 0x0000)
+        # Set BT,DC1,DC2,DC3
+        self._write_register(self.POWER_CTRL3, 0x0000)
+        # Set GVDD
+        self._write_register(self.POWER_CTRL4, 0x0000)
+        # Set VCOMH/VCOML voltage
+        self._write_register(self.POWER_CTRL4, 0x0000)
+        self.__end_write()
+        self.delay(40)
+
+        # Power-on sequence
+        self.__start_write()
+        # Set APON,PON,AON,VCI1EN,VC
+        self._write_register(self.POWER_CTRL2, 0x0018)
+        # Set BT,DC1,DC2,DC3
+        self._write_register(self.POWER_CTRL3, 0x6121)
+        # Set GVDD (007F 0088)
+        self._write_register(self.POWER_CTRL4, 0x006F)
+        # Set VCOMH/VCOML voltage
+        self._write_register(self.POWER_CTRL4, 0x495F)
+        # Set SAP,DSTB,STB
+        self._write_register(self.POWER_CTRL1, 0x0800)
+        self.__end_write()
+        self.delay(10)
+        self.__start_write()
+        # Set APON,PON,AON,VCI1EN,VC
+        self._write_register(self.POWER_CTRL2, 0x103B)
+        self.__end_write()
+        self.delay(50)
+
+        self.__start_write()
+        # Set the display line number and display direction
+        self._write_register(self.DRIVER_OUTPUT_CTRL, 0x011C)
+        # Set 1 line inversion
+        self._write_register(self.LCD_AC_DRIVING_CTRL, 0x0100)
+        # Set GRAM write direction and BGR=1.
+        self._write_register(self.ENTRY_MODE, 0x1038)
+        # Display off
+        self._write_register(self.DISP_CTRL1, 0x0000)
+        # Set the back porch and front porch
+        self._write_register(self.BLANK_PERIOD_CTRL1, 0x0808)
+        # Set the clocks number per line
+        self._write_register(self.FRAME_CYCLE_CTRL, 0x1100)
+        # CPU interface
+        self._write_register(self.INTERFACE_CTRL, 0x0000)
+        # 0e01
+        self._write_register(self.OSC_CTRL, 0x0D01)
+        # Set VCI recycling
+        self._write_register(self.VCI_RECYCLING, 0x0020)
+        # RAM Address
+        self._write_register(self.RAM_ADDR_SET1, 0x0000)
+        self._write_register(self.RAM_ADDR_SET2, 0x0000)
+
+        # Set GRAM area
+        self._write_register(self.GATE_SCAN_CTRL, 0x0000)
+        self._write_register(self.VERTICAL_SCROLL_CTRL1, 0x00DB)
+        self._write_register(self.VERTICAL_SCROLL_CTRL2, 0x0000)
+        self._write_register(self.VERTICAL_SCROLL_CTRL3, 0x0000)
+        self._write_register(self.PARTIAL_DRIVING_POS1, 0x00DB)
+        self._write_register(self.PARTIAL_DRIVING_POS2, 0x0000)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, 0x00AF)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0x0000)
+        self._write_register(self.VERTICAL_WINDOW_ADDR1, 0x00DB)
+        self._write_register(self.VERTICAL_WINDOW_ADDR2, 0x0000)
+
+        # Set GAMMA curve
+        self._write_register(self.GAMMA_CTRL1, 0x0000)
+        self._write_register(self.GAMMA_CTRL2, 0x0808)
+        self._write_register(self.GAMMA_CTRL3, 0x080A)
+        self._write_register(self.GAMMA_CTRL4, 0x000A)
+        self._write_register(self.GAMMA_CTRL5, 0x0A08)
+        self._write_register(self.GAMMA_CTRL6, 0x0808)
+        self._write_register(self.GAMMA_CTRL7, 0x0000)
+        self._write_register(self.GAMMA_CTRL8, 0x0A00)
+        self._write_register(self.GAMMA_CTRL9, 0x0710)
+        self._write_register(self.GAMMA_CTRL10, 0x0710)
+
+        self._write_register(self.DISP_CTRL1, 0x0012)
+        self.__end_write()
+        self.delay(50)
+        self.__start_write()
+        self._write_register(self.DISP_CTRL1, 0x1017)
+        self.__end_write()
+
+        # Turn on backlight
+        self.set_backlight(True)
+        self.set_orientation(0)
+
+        # Initialize variables
+        self.set_background_color(RGB16BitColor.COLOR_BLACK)
+        self.clear()
 
     def clear(self):
         old_orientation = self._orientation
@@ -197,7 +350,7 @@ class ILI9225(Compatibility):
         self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1,
                             self.COLOR_BLACK)
         self.set_orientation(old_orientation)
-        self._delay(10)
+        self.delay(10)
 
     def invert(self, flag):
         """
@@ -207,7 +360,7 @@ class ILI9225(Compatibility):
         @type flag: bool
         """
         self.__start_write()
-        self._write_command_16_bit(self.INVON if flag else self.INVOFF)
+        self.spi_write(self.INVON if flag else self.INVOFF)
         self.__end_write()
 
     def set_backlight(self, flag):
@@ -244,21 +397,21 @@ class ILI9225(Compatibility):
             self._write_register(0x00ff, 0x0000)
             self._write_register(POWER_CTRL1, 0x0000)
             self.__end_write()
-            self._delay(50)
+            self.delay(50)
             self.__start_write()
             self._write_register(DISP_CTRL1, 0x1017)
             self.__end_write()
-            self._delay(200)
+            self.delay(200)
         else:
             self.__start_write()
             self._write_register(0x00ff, 0x0000)
             self._write_register(DISP_CTRL1, 0x0000)
             self.__end_write()
-            self._delay(50)
+            self.delay(50)
             self.__start_write()
             self._write_register(POWER_CTRL1, 0x0003)
             self.__end_write()
-            self._delay(200)
+            self.delay(200)
 
     def set_background_color(self, color=RGB16BitColor.COLOR_BLACK):
         """
@@ -300,54 +453,9 @@ class ILI9225(Compatibility):
         """
         return self._orientation
 
-# Not sure these methods are used anymore.
-    def set_font(self, font, mono_sp=False):
-        """
-        Set the current font.
-
-        @param font: The name of the font.
-        @type font: str
-        @param mono_sp: True = Mono spaced, False = Proportional
-        @type mono_sp: bool
-        """
-        self._cfont.font     = font
-        self._cfont.width    = self._read_font_byte(0)
-        self._cfont.height   = self._read_font_byte(1)
-        self._cfont.offset   = self._read_font_byte(2)
-        self._cfont.numchars = self._read_font_byte(3)
-        self._cfont.nbrows   = self._cfont.height / 8
-        self._cfont.mono_sp  = mono_sp
-
-    def get_font(self):
-        """
-        Get the current font.
-
-        @rtype Return the current font.
-        """
-        return self._cfont
-
-    def get_font_x(self):
-        """
-        NOT USED IN C++ VERSION
-        Get horizontal size of font.
-
-        @rtype Horizontal size of current font in pixels.
-        """
-        pass
-
-    def get_font_y(self):
-        """
-        NOT USED IN C++ VERSION
-        Get vertical size of font.
-
-        @rtype Vertical size of current font in pixels.
-        """
-        pass
-# End unused methods.
-
     def get_screen_max_x(self):
         """
-        ORIGINAL NAME maxX
+        ORIGINAL NAME maxX()
 
         Get the screen max x size.
 
@@ -361,7 +469,7 @@ class ILI9225(Compatibility):
 
     def get_screen_max_y(self):
         """
-        ORIGINAL NAME maxY
+        ORIGINAL NAME maxY()
 
         Get the screen max y size.
 
@@ -372,6 +480,280 @@ class ILI9225(Compatibility):
         @rtype Vertical size of the screen in pixels.
         """
         return self._max_y
+
+    #
+    # Beginning of standard font methods.
+    #
+    def set_font(self, font, mono_sp=False):
+        """
+        Set the current font.
+
+        @param font: The name of the font.
+        @type font: str
+        @param mono_sp: True = Mono spaced, False = Proportional
+        @type mono_sp: bool
+        """
+        #       font, width,   height,  offset,  numchars, height / 8
+        args = (font, font[0], font[1], font[2], font[3], font[1] / 8,
+                mono_sp)
+        self._cfont.set_font(args)
+
+    def get_font(self):
+        """
+        Get the current font.
+
+        @rtype Return the current font.
+        """
+        return self._cfont
+
+    ## def get_font_x(self):
+    ##     """
+    ##     NEVER IMPLIMENTED IN C++ VERSION (fontX(void))
+    ##     Get horizontal size of font.
+
+    ##     @rtype Horizontal size of current font in pixels.
+    ##     """
+    ##     pass
+
+    ## def get_font_y(self):
+    ##     """
+    ##     NEVER IMPLIMENTED IN C++ VERSION (fontY(void))
+    ##     Get vertical size of font.
+
+    ##     @rtype Vertical size of current font in pixels.
+    ##     """
+    ##     pass
+
+    def draw_char(self, x, y, ch, color=RGB16BitColor.COLOR_WHITE):
+        """
+        Draw a character.
+
+        @param x: Point coordinate (x-axis).
+        @type x: int
+        @param y: Point coordinate (y-axis).
+        @type y: int
+        @param ch: The character to draw on the display.
+        @type ch: str
+        @param color: A 16-bit color (default=white).
+        @type color: int
+        @rtype Width of character in display pixels.
+        """
+        self._is_font_set()
+        char_offset = self.__get_offset(ch)
+
+        # Monospaced: Get char width from font.
+        if self._cfont.mono_sp:
+            char_width = self._cfont.width
+        else:
+            char_width = self._read_font_byte(char_offset)
+
+        char_offset += 1
+        # Use autoincrement/decrement feature, if character fits
+        # completely on screen.
+        fast_mode = ((x - char_width + 1) < self._max_x
+                     and (y + self._cfont.height - 1) < self._max_y)
+
+        self.__start_write()
+
+        # Set character window.
+        if fast_mode:
+            self._set_window(x, y, x + char_width + 1,
+                             y + self._cfont.height + 1)
+
+        # Each font "column" (+1 blank column for spacing).
+        for i in range(char_width + 1):
+            h = 0  # Keep track of char height.
+
+            for j in range(self._cfont.nbrows): # Each column byte.
+                if i == char_width:
+                    charData = 0x0  # Insert blank column
+                else:
+                    char_data = self._read_font_byte(char_offset)
+
+                char_offset += 1
+
+                for k in range(8): # Process every row in font character.
+                    if h >= self._cfont.height: break
+
+                    if fast_mode:
+                        self.spi_write(color if self._bit_read(
+                            char_data, k) else self._bg_color)
+                    else:
+                        self.drawPixel(
+                            x + i, y + (j * 8) + k, color
+                            if self._bit_read(char_data, k)
+                            else self._bg_color)
+
+                    h += 1
+
+        self.__end_write()
+        self._reset_window()
+        return char_width
+
+    def get_char_width(self, ch):
+        """
+        Width of an ASCII character (pixel).
+
+        @param ch: The ASCII character.
+        @type ch: str
+        @rtype Character width.
+        """
+        self._is_font_set()
+        char_offset = self.__get_offset(ch)
+        return self._read_font_byte(char_offset) # Get font width from 1st byte.
+
+    def __get_offset(self, ch):
+        # Bytes used by each character.
+        char_offset = (self._cfont.width * self._cfont.nbrows) + 1
+        # char offset (add 4 for font header)
+        return (char_offset * (ch - self._cfont.offset)
+                ) + self._CFONT_HEADER_SIZE
+
+    def _is_font_set(self):
+        if len(self._cfont.font) <= 0:
+            raise TFTException("Please set a standard font before using "
+                               "this method.")
+
+    def _read_font_byte(self, index):
+        return self._cfont.font[index]
+
+    def _bit_read(self, value, bit):
+        """
+        Is bit out-of-range for value.
+
+        @param value: The integer value.
+        @type value: int
+        @param bit: The bit within the value.
+        @type bit: int
+        @rtype Return a 1 if the bit is within the value range and 0 if
+               out-of-range.
+        """
+        return ((value) >> (bit)) & 0x01
+    #
+    # End of standard font methods.
+    #
+    # Beginning of GFX font methods.
+    #
+
+    def set_gfx_font(self, font=None):
+        """
+        Set the GFX font.
+
+        @param font: GFX font name defined in include file.
+        @type font: str
+        """
+        self._gfx_font = GFXFont(font)
+
+    def draw_gfx_text(self, x, y, s, color=RGB16BitColor.COLOR_WHITE):
+        """
+        @param x: Point coordinate (x-axis).
+        @type x: int
+        @param y: Point coordinate (y-axis).
+        @type y: int
+        @param s: The string to draw on the display.
+        @type s: str
+        @param color: A 16-bit color (default=white).
+        @type color: int
+        """
+        currx = x
+
+        if self._gfx_font:
+            # Draw every character in the string.
+            for ch in s:
+                currx += self.draw_gfx_char(currx, y, ch, color) + 1
+
+    def get_gfx_text_extent(self, x, y, s):
+        """
+        Get the width & height of a text string with the current GFX font
+
+        @param x: Point coordinate (x-axis).
+        @type x: int
+        @param y: Point coordinate (y-axis).
+        @type y: int
+        @param s: The string to draw on the display.
+        @type s: str
+        @param w: Character width.
+        @type w: int
+        @param h: Character height.
+        @type h: int
+        @rtype A tuple of the width and height (width, height).
+        """
+        h = 0
+
+        for ch in range(s):
+            gw, gh, xa = self.get_gfx_char_extent(ch)
+            if gh > h: h = gh
+            w += xa
+
+        return w, h
+
+    def draw_gfx_char(self, x, y, ch, color=RGB16BitColor.COLOR_WHITE):
+        """
+        Draw a single character with the current GFX font.
+
+        @param x: Point coordinate (x-axis).
+        @type x: int
+        @param y: Point coordinate (y-axis).
+        @type y: int
+        @param ch: Character to draw on the display.
+        @type ch: int
+        @param color: A 16-bit color (default=white).
+        @type color: int
+        """
+        ch -= self._gfx_font.first
+        glyph = GFXGlyph(self._gfx_font.glyph[ch])
+        bitmap = self._gfx_font.bitmap
+        bo = glyph.bitmap_offset
+        w = glyph.width
+        h = glyph.height
+        xa = glyph.x_advance
+        xo = glyph.x_offset
+        yo = glyph.y_offset
+        bits = bit = 0
+
+        # Add character clipping here one day.
+        self.__start_write()
+
+        for yy in range(h):
+            for xx in range(w):
+                bit += 1
+
+                if not (bit & 7):
+                    bo += 1
+                    bits = bitmap[bo]
+
+                if bits & 0x80:
+                    self.draw_pixel(x + xo + xx, y + yo + yy, color)
+
+                bits <<= 1
+
+        self.__end_write()
+        return xa
+
+    def get_gfx_char_extent(self, x, y, ch, color):
+        """
+        Draw a single character with the current GFX font.
+
+        @param x: Point coordinate (x-axis).
+        @type x: int
+        @param y: Point coordinate (y-axis).
+        @type y: int
+        @param ch: The character to draw on the display.
+        @type ch: str
+        @param color: A 16-bit color.
+        @type color: int
+        """
+        # Is char present in this font?
+        if self._gfx_font.first <= ch >= self._gfx_font.last:
+            glyph = GFXGlyph(self._gfx_font.glyph[ch])
+            gw = glyph.width
+            gh = glyph.height
+            xa = glyph.x_advance
+
+        return gw, gh, xa
+    #
+    # End of GFX font methods.
+    #
 
     def draw_rectangle(self, x0, y0, x1, y1, color):
         """
@@ -414,7 +796,7 @@ class ILI9225(Compatibility):
         self.__start_write()
 
         for t in range((y1 - y0 + 1) * (x1 - x0 + 1)):
-            self._write_data_16_bit(color)
+            self.spi_write(color)
 
         self.__end_write()
         self._reset_window()
@@ -778,74 +1160,6 @@ class ILI9225(Compatibility):
         blu = (rgb & 0b0000000000011111) << 3
         return red, grn, blu
 
-    def draw_char(self, x, y, ch, color=RGB16BitColor.COLOR_WHITE):
-        """
-        Draw a character.
-
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param ch: The character to draw on the display.
-        @type ch: str
-        @param color: A 16-bit color (default=white).
-        @type color: int
-        @rtype Width of character in display pixels.
-        """
-        # Bytes used by each character.
-        char_offset = (self._cfont.width * self._cfont.nbrows) + 1
-        # char offset (add 4 for font header)
-        char_offset = (char_offset * (ch - self._cfont.offset)
-                       ) + self.FONT_HEADER_SIZE
-
-        # Monospaced: Get char width from font.
-        if self._cfont.mono_sp:
-            char_width = self._cfont.width
-        else:
-            char_width = self._read_font_byte(char_offset)
-
-        char_offset += 1
-        self.__start_write()
-
-        # Use autoincrement/decrement feature, if character fits
-        # completely on screen.
-        fast_mode = ((x - char_width + 1) < self._max_x
-                     and (y + self._cfont.height - 1) < self._max_y)
-
-        # Set character window.
-        if fast_mode:
-            self._set_window(x, y, x + char_width + 1,
-                             y + self._cfont.height + 1)
-
-        # Each font "column" (+1 blank column for spacing).
-        for i in range(char_width + 1):
-            h = 0  # Keep track of char height.
-
-            for j in range(self._cfont.nbrows): # Each column byte.
-                if i == char_width:
-                    charData = 0x0  # Insert blank column
-                else:
-                    char_data = self._read_font_byte(char_offset)
-
-                char_offset += 1
-
-                for k in range(8): # Process every row in font character.
-                    if h >= self._cfont.height: break
-
-                    if fast_mode:
-                        self._write_data_16_bit(color if self._bit_read(
-                            char_data, k) else self._bg_color)
-                    else:
-                        self.drawPixel(
-                            x + i, y + (j * 8) + k, color
-                            if self._bit_read(charData, k) else self._bg_color)
-
-                    h += 1
-
-        self.__end_write()
-        self._reset_window()
-        return char_width
-
     def draw_bitmap(self, x, y, bitmap, w, h, color,
                     bg=RGB16BitColor.COLOR_BLACK, transparent=False,
                     x_bit=False):
@@ -927,147 +1241,6 @@ class ILI9225(Compatibility):
 
         self.__end_write()
 
-    def get_char_width(ch):
-        """
-        Width of an ASCII character (pixel).
-
-        @param ch: The ASCII character.
-        @type ch: str
-        @rtype Character width.
-        """
-        # Bytes used by each character.
-        char_offset = (self._cfont.width * self._cfont.nbrows) + 1
-        # Char offset (add 4 for font header).
-        char_offset = ((char_offset * (ch - self._cfont.offset))
-                       + self.FONT_HEADER_SIZE)
-        return self._read_font_byte(char_offset) # Get font width from 1st byte.
-
-    def set_gfx_font(self, font=None):
-        """
-        Set the GFX font.
-
-        @param font: GFX font name defined in include file.
-        @type font: str
-        """
-        self._gfx_font = GFXFont(font)
-
-    def draw_gfx_text(self, x, y, s, color=RGB16BitColor.COLOR_WHITE):
-        """
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param s: The string to draw on the display.
-        @type s: str
-        @param color: A 16-bit color (default=white).
-        @type color: int
-        """
-        currx = x
-
-        if self._gfx_font:
-            # Print every character in the string.
-            for ch in s:
-                currx += self.draw_gfx_char(currx, y, ch, color) + 1
-
-    def get_gfx_text_extent(self, x, y, s):
-        """
-        Get the width & height of a text string with the current GFX font
-
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param s: The string to draw on the display.
-        @type s: str
-        @param w: Character width.
-        @type w: int
-        @param h: Character height.
-        @type h: int
-        @rtype A tuple of the width and height (width, height).
-        """
-        h = 0
-
-        for ch in range(s):
-            gw, gh, xa = self.get_gfx_char_extent(ch)
-
-            if gh > h:
-                h = gh
-
-            w += xa
-
-        return w, h
-
-    def draw_gfx_char(self, x, y, ch, color=RGB16BitColor.COLOR_WHITE):
-        """
-        Draw a single character with the current GFX font.
-
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param ch: Character to draw on the display.
-        @type ch: int
-        @param color: A 16-bit color (default=white).
-        @type color: int
-        """
-        ch -= self._gfx_font.first
-        glyph = GFXGlyph(self._gfx_font.glyph[ch])
-        bitmap = self._gfx_font.bitmap
-        bo = glyph.bitmap_offset
-        w = glyph.width
-        h = glyph.height
-        xa = glyph.x_advance
-        xo = glyph.x_offset
-        yo = glyph.y_offset
-        bits = bit = 0
-
-        # Add character clipping here one day.
-        self.__start_write()
-
-        for yy in range(h):
-            for xx in range(w):
-                bit += 1
-
-                if not (bit & 7):
-                    bo += 1
-                    bits = bitmap[bo]
-
-                if bits & 0x80:
-                    self.draw_pixel(x + xo + xx, y + yo + yy, color)
-
-                bits <<= 1
-
-        self.__end_write()
-        return xa
-
-    def get_gfx_char_extent(self, x, y, ch, color):
-        """
-        Draw a single character with the current GFX font.
-
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param ch: The character to draw on the display.
-        @type ch: str
-        @param color: A 16-bit color.
-        @type color: int
-        """
-        # Is char present in this font?
-        if self._gfx_font.first <= ch >= self._gfx_font.last:
-            glyph = GFXGlyph(self._gfx_font.glyph[ch])
-            gw = glyph.width
-            gh = glyph.height
-            xa = glyph.x_advance
-
-        return gw, gh, xa
-
-    def _bit_read(value, bit):
-        """
-        #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-        """
-        return ((value) >> (bit)) & 0x01
-
     def _orient_coordinates(self, x, y):
         if self._orientation == 1:
             y = self._max_y - y - 1
@@ -1082,50 +1255,75 @@ class ILI9225(Compatibility):
         # if self._orientation == 0: We fall through.
         return x, y
 
-    def _spi_write(self, v):
-        pass
-
-    def _spi_write_16_bit(self, v):
-        pass
-
-    def _spi_write_command(self, c):
-        pass
-
-    def _spi_write_data(self, d):
-        pass
-
     def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):
-        pass
+        # Clip to TFT-Dimensions
+        x0 = min(x0, self._max_x - 1)
+        x1 = min(x1, self._max_x - 1)
+        y0 = min(y0, self._max_y - 1)
+        y1 = min(y1, self._max_y - 1)
+        self._orient_coordinates(x0, y0)
+        self._orient_coordinates(x1, y1)
+
+        if x1 < x0: x0, x1 = x1, x0
+        if y1 < y0: y0, y1 = y1, y0
+
+        # Autoincrement mode
+        if self._orientation > 0:
+            orient = self._orientation - 1
+
+            try:
+                mode = self._MODE_TAB[orient][mode]
+            except IndexError as e:
+                msg = ("Invalid orientation: {} (0..2) or mode: {} (0..7), "
+                       "{}").format(self._orientation, mode, e)
+                raise TFTException(msg)
+
+        self.__start_write()
+        self._write_register(self.ENTRY_MODE, 0x000 | (mode << 3))
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, x1)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, x0)
+        self._write_register(self.VERTICAL_WINDOW_ADDR1, y1)
+        self._write_register(self.VERTICAL_WINDOW_ADDR2, y0)
+
+        # Starting position within window and increment/decrement direction
+        pos = mode >> 1
+
+        if pos == 0:
+            self._write_register(self.RAM_ADDR_SET1, x1)
+            self._write_register(self.RAM_ADDR_SET2, y1)
+        elif pos == 1:
+            self._write_register(self.RAM_ADDR_SET1, x0)
+            self._write_register(self.RAM_ADDR_SET2, y1)
+        elif pos == 2:
+            self._write_register(self.RAM_ADDR_SET1, x1)
+            self._write_register(self.RAM_ADDR_SET2, y0)
+        elif pos == 3:
+            self._write_register(self.RAM_ADDR_SET1, x0)
+            self._write_register(self.RAM_ADDR_SET2, y0)
+
+        self.spi_write(self.GRAM_DATA_REG)
+        self.__end_write()
 
     def _reset_window(self):
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, 0x00AF)
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0x0000)
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, 0x00DB)
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0x0000)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, self.LCD_WIDTH - 1)
+        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0)
+        self._write_register(self.VERTICAL_WINDOW_ADDR1, self.LCD_HEIGHT - 1)
+        self._write_register(self.VERTICAL_WINDOW_ADDR2, 0)
 
     def _write_register(self, reg, data):
-        pass
-
-    def _write_data(self, hi, lo):
-        pass
-
-    def _write_data_16_bit(self, hilo):
-        pass
-
-    def _write_command(self, hi, lo):
-        pass
-
-    def _write_command_16_bit(self, hilo):
-        pass
+        self.spi_write(reg)
+        self.spi_write(data)
 
     def __start_write(self):
         self._write_function_level += 1
 
         if self._write_function_level == 0:
-            pass
+            self.spi_start_transaction()
+            self.digital_write(self._cs, self.LOW) # SPI_CS_LOW();
 
     def __end_write(self):
         self._write_function_level -= 1
 
         if self._write_function_level == 0:
-            pass
+            self.digital_write(self._cs, self.HIGH) # SPI_CS_HIGH();
+            self.spi_end_transaction()

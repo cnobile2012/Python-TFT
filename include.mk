@@ -2,7 +2,7 @@
 # include.mk
 #
 
-# Restycode version and date info (DO NOT MODIFY)
+# Version and date info (DO NOT MODIFY)
 MAJORVERSION	= 0
 MINORVERSION	= 1
 PATCHLEVEL	= 0
