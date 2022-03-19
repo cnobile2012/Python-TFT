@@ -2,6 +2,15 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.py[cod]
+*.*~
+.#*
+*#*#
+.DS_Store
+#*.txt
+*.pdf
+.~lock.*
+old
 
 # C extensions
 *.so
