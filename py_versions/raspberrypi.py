@@ -76,6 +76,7 @@ class PiVersion:
         ##     self._spi.write(value)
         ## finally:
         ##     self.__pin_state[self._cs].high()
+        pass
 
     def set_spi_port(self, port=0):
         """
