@@ -1,0 +1,5 @@
+# This requirements file calls base.txt.
+-r base.txt
+
+RPi.GPIO
+gpiozero
