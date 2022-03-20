@@ -14,6 +14,7 @@ class PiVersion:
     This class implements the Raspberry Pi version of the low level
     functionality.
     """
+    PLATFORM = "Computer (RTk.GPIO)"
     HIGH = GPIO.HIGH
     LOW = GPIO.LOW
     INPUT = GPIO.IN

@@ -14,6 +14,7 @@ class PiVersion:
     This class implements the Micropython version of the low level
     functionality.
     """
+    PLATFORM = "MicroPython"
     HIGH = True
     LOW = False
     INPUT = Pin.IN
@@ -27,7 +28,7 @@ class PiVersion:
         self._sclk = None
         self._mosi = None
         self._miso = None
-        self._id = 0
+        self._port = 0
 
     def pin_mode(self, pin, direction, *, pull=-1, default=None, alt=-1):
         """
@@ -62,7 +63,7 @@ class PiVersion:
         sleep_ms(ms)
 
     def spi_start_transaction(self):
-        self._spi = SPI(self._id)
+        self._spi = SPI(self._port)
 
     def spi_end_transaction(self):
         self._spi.deinit()
@@ -76,12 +77,13 @@ class PiVersion:
         finally:
             self.__pin_state[self._cs].high()
 
-    def set_spi_id(self, id=0):
+    def set_spi_port(self, port=0):
         """
         This sets the ports to use assuming the board has multiple SPI ports.
+        MicroPython refers to the as the id.
 
-        @param id: Value 0, 1 etc. Depends on the MCU and board used.
-                   Defaults is 0.
-        @type id: int
+        @param port: Value 0, 1 etc. Depends on the MCU and board used.
+                     Defaults is 0.
+        @type port: int
         """
-        self._id = id
+        self._port = port

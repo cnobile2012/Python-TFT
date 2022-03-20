@@ -1327,3 +1327,7 @@ class ILI9225(Compatibility):
         if self._write_function_level == 0:
             self.digital_write(self._cs, self.HIGH) # SPI_CS_HIGH();
             self.spi_end_transaction()
+
+    def __repr__(self):
+        return "<{} object using {}>".format(
+            self.__class__.__name__, self.PLATFORM)

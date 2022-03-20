@@ -1,0 +1,4 @@
+# This requirements file calls base.txt.
+-r base.txt
+
+pyserial

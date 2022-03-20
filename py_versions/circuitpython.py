@@ -16,6 +16,7 @@ class PiVersion:
     This class implements the Raspberry Pi version of the low level
     functionality.
     """
+    PLATFORM = "CircuitPython"
     HIGH = True
     LOW = False
     INPUT = Direction.IN
