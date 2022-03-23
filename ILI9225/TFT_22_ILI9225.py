@@ -135,7 +135,7 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, cs, led, *, sdi=-1, clk=-1, brightness=255,
+    def __init__(self, rst, rs, cs, *, led=-1, sdi=-1, clk=-1, brightness=255,
                  board=None, mode=None):
         """
         Initialize the ILI9225 class.
@@ -152,7 +152,7 @@ class ILI9225(Compatibility):
              pins specific to each board type (_hw_spi=True). Adds backlight
              brightness 0-255
 
-        @param rst: The RST (reset) pin on the display.
+        @param rst: The RST (reset) pin on the display. (RTD on some devices.)
         @type rst: int
         @param rs: The RS (command/data) pin on the display. 0: command, 1: data
         @type rs: int
@@ -204,12 +204,11 @@ class ILI9225(Compatibility):
 
     def begin(self):
         # Setup reset pin.
-        if self._rst > 0:
-            self.pin_mode(self._rst, self.OUTPUT)
-            self.digital_write(self._rst, self.LOW)
+        self.pin_mode(self._rst, self.OUTPUT)
+        self.digital_write(self._rst, self.LOW)
 
         # Set up backlight pin, turn off initially.
-        if self._led > 0:
+        if self._led >= 0:
             self.pin_mode(self._led, self.OUTPUT)
             self.set_backlight(False)
 
@@ -220,29 +219,23 @@ class ILI9225(Compatibility):
         self.digital_write(self._cs, self.HIGH)
 
         # Software SPI
-        if self._clk >= 0:
+        if self._clk >= 0 and self._sdi >= 0:
             self.pin_mode(self._sdi, self.OUTPUT)
             self.digital_write(self._sdi, self.LOW);
             self.pin_mode(self._clk, self.OUTPUT)
             self.digital_write(self._clk, self.HIGH);
-        else:
-            clkport = 0
-            clkpinmask = 0
-            mosiport = 0
-            mosipinmask = 0
 
-        if self._rst > 0:
-            # Pull the reset pin high to release the ILI9225C from the reset
-            # status.
-            self.digital_write(self._rst, self.HIGH)
-            self.delay(1)
-            # Pull the reset pin low to reset the ILI9225.
-            self.digital_write(self._rst, self.LOW)
-            self.delay(10)
-            # Pull the reset pin high to release the ILI9225C from the reset
-            # status.
-            self.digital_write(self._rst, self.HIGH)
-            self.delay(50)
+        # Pull the reset pin high to release the ILI9225C from the reset
+        # status.
+        self.digital_write(self._rst, self.HIGH)
+        self.delay(1)
+        # Pull the reset pin low to reset the ILI9225.
+        self.digital_write(self._rst, self.LOW)
+        self.delay(10)
+        # Pull the reset pin high to release the ILI9225C from the reset
+        # status.
+        self.digital_write(self._rst, self.HIGH)
+        self.delay(50)
 
         # Start initial sequence.
         # Set SS bit and direction output from S528 to S1
