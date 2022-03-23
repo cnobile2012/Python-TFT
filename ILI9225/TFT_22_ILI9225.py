@@ -1309,6 +1309,10 @@ class ILI9225(Compatibility):
             self.spi_start_transaction()
             self.digital_write(self._cs, self.LOW) # SPI_CS_LOW()
             self._write_function_level += 1
+        else:
+            msg = ("Could not start write, _write_function_level = {}."
+                   ).format(self._write_function_level)
+            print(msg)
 
     def __end_write(self):
         self._write_function_level -= 1
@@ -1316,6 +1320,10 @@ class ILI9225(Compatibility):
         if self._write_function_level == 0:
             self.digital_write(self._cs, self.HIGH) # SPI_CS_HIGH()
             self.spi_end_transaction()
+        else:
+            msg = ("Could not end write, _write_function_level = {}."
+                   ).format(self._write_function_level)
+            print(msg)
 
     def __repr__(self):
         return "<{} object using {}>".format(
