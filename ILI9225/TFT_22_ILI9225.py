@@ -158,13 +158,13 @@ class ILI9225(Compatibility):
         @type rs: int
         @param cs: The CS (chip select) pin on the display.
         @type cs: int
-        @param led: The LED pin on the display.
-        @type led: int
         @param sdi: The SDI (serial data input) pin on the display. Sometimes
                     marked the SDA pin.
         @type sdi: int
         @param clk: The CLK (clock) pin on the display.
         @type clk: int
+        @param led: The LED pin on the display.
+        @type led: int
         @param brightness: Set the brightness from 0..255 (default=255).
         @type brightness: int
         @param board: The board this will run on. e.g. Boards.ESP32

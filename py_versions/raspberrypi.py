@@ -85,8 +85,8 @@ class PiVersion:
         if self._spi is None or not reuse:
             from utils.compatibility import Boards
             self._spi = SpiDev()
-            port, device = self.spi_port_device(self._clk, self._sda, None,
-                                                self._cs)
+            port, device = self.spi_port_device(self._clk, self._sdi,
+                                                None, self._cs)
             self._spi.open(port, device)
 
     def spi_end_transaction(self):
