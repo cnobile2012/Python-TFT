@@ -55,15 +55,24 @@ class PiVersion:
         if default is not None: GPIO.output(pin, default)
 
     def digital_write(self, pin, high_low):
+        """
+        Set the given pin either high or low.
+
+        @param pin: The pin to set.
+        @type pin: int
+        @param high_low: Set HIGH (True) or LOW (False).
+        @type high_low: bool
+        """
         GPIO.output(pin, high_low)
 
     def delay(self, ms):
         sleep(ms/1000) # Convert to floating point.
 
-    def spi_start_transaction(self):
-        from utils.compatibility import Boards
-        freq = Boards.get_frequency(self.get_board())
-        print(freq)
+    def spi_start_transaction(self, reuse=False):
+        if self._spi is None or not reuse:
+            from utils.compatibility import Boards
+            freq = Boards.get_frequency(self.get_board())
+            print(freq)
 
     def spi_end_transaction(self):
         pass

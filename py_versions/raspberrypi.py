@@ -5,7 +5,8 @@ py_versions/raspberrypi.py
 The Raspberry Pi Linux compatibility file.
 """
 
-from gpiozero import SPIDevice
+from RPi import GPIO
+from spidev import SpiDev
 from time import sleep
 
 
@@ -23,6 +24,18 @@ class PiVersion:
     INPUT_PULLDOWN = GPIO.PUD_DOWN
     INPUT_PULLOFF = GPIO.PUD_OFF
 
+    # To get second port put "dtoverlay=spi1-3cs" in "/boot/config.txt".
+    _SPI_HARDWARE_PINS = {
+        0: {'clock':  11,
+            'mosi':   10,
+            'miso':   9,
+            'select': (8, 7)},
+        1: {'clock':  21,
+            'mosi':   20,
+            'miso':   19,
+            'select': (18, 17, 16)}
+        }
+
     def __init__(self, mode=GPIO.BCM):
         """
         Constructor
@@ -33,9 +46,8 @@ class PiVersion:
         """
         mode = mode if mode is not None else GPIO.BCM
         GPIO.setmode(mode)
-        self._port = 0
 
-    def pin_mode(self, pin, direction, *, pull=GPIO.PUD_OFF, default=None,
+    def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None,
                  alt=-1):
         """
         Set a pin, direction, pull, mode, and default.
@@ -56,43 +68,33 @@ class PiVersion:
         if default is not None: GPIO.output(pin, default)
 
     def digital_write(self, pin, high_low):
+        """
+        Set the given pin either high or low.
+
+        @param pin: The pin to set.
+        @type pin: int
+        @param high_low: Set HIGH (True) or LOW (False).
+        @type high_low: bool
+        """
         GPIO.output(pin, high_low)
 
     def delay(self, ms):
         sleep(ms/1000) # Convert to floating point.
 
-
-    def spi_start_transaction(self):
-        self._spi = SPIDevice(port=self._port)
+    def spi_start_transaction(self, reuse=False):
+        if self._spi is None or not reuse:
+            from utils.compatibility import Boards
+            self._spi = SpiDev()
+            self._spi.open(self.spi_port_device())
 
     def spi_end_transaction(self):
         self._spi.close()
 
     def spi_write(self, value):
-        ## self.digital_write(self._rs, self.LOW)
+        self.digital_write(self._rs, self.LOW)
 
-        ## try:
-        ##     self.__pin_state[self._cs].low()
-        ##     self._spi.write(value)
-        ## finally:
-        ##     self.__pin_state[self._cs].high()
-        pass
-
-    def set_spi_port(self, port=0):
-        """
-        This sets the ports to use assuming the board has multiple SPI ports.
-
-        .. note::
-
-          There are two SPI ports on the Raspberry Pi port = 0
-          SPI0: MOSI (GPIO10); MISO (GPIO9); SCLK (GPIO11); CE0 (GPIO8);
-          CE1 (GPIO7)
-          and port = 1
-          SPI1: MOSI (GPIO20); MISO (GPIO19); SCLK (GPIO21); CE0 (GPIO18);
-          CE1 (GPIO17); CE2 (GPIO16)
-
-        @param port: Value 0, 1 etc. Depends on the version of the
-                     Raspberry Pi. Defaults is 0.
-        @type port: int
-        """
-        self._port = port
+        try:
+            self.digital_write(self._cs, self.LOW)
+            self._spi.write(value)
+        finally:
+            self.digital_write(self._cs, self.HIGH)

@@ -43,16 +43,17 @@ class Boards:
     ARDUINO_ARCH_STM32F1 = 3
     STM32F1 = 4
     ARDUINO_FEATHER52 = 5
-    TEENSYDUINO = 6
-    ESP8266 = 7
-    ESP32 = 8
-    #ESP32_C3 = 9
+    RP2040 = 6
+    TEENSYDUINO = 7
+    ESP8266 = 8
+    ESP32 = 9
+    #ESP32_C3 = 10
     # With CPUs
-    RASPI = 20
-    COMPUTER = 21
+    RASPI = 50
+    COMPUTER = 51
     # Architectures
-    AVR = 40
-    ARM = 41
+    AVR = 70
+    ARM = 71
 
     _BOARDS = {
         ARDUINO_STM32_FEATHER: 'ARDUINO_STM32_Reather',
@@ -71,25 +72,17 @@ class Boards:
 
     _FREQUENCY = {
         ARDUINO_ARCH_STM32: 16000000,
+        ARDUINO_ARCH_STM32F1: 18000000
         AVR: 8000000,
-        TEENSYDUINO: 8000000,
+        COMPUTER: 80000000,
+        RP2040: 1000000,
         ESP8266: 40000000,
         ESP32: 40000000,
         RASPI: 80000000,
-        COMPUTER: 80000000,
-        ARDUINO_ARCH_STM32F1: 18000000
+        TEENSYDUINO: 8000000,
         }
 
     _MSBFIRST = {} # Seems to be 1 for eveything.
-
-    #define SPI_MODE0 0x02
-    #define SPI_MODE1 0x00
-    #define SPI_MODE2 0x03
-    #define SPI_MODE3 0x01
-    #SPI_MODE0 = 0,
-    #SPI_MODE1 = 1,
-    #SPI_MODE2 = 2,
-    #SPI_MODE3 = 3,
 
     _SPI_MODE0 = {}
 
@@ -112,6 +105,7 @@ class Compatibility(PiVersion):
             super().__init__(mode)
 
         self.BOARD = None
+        self._spi = None
 
     def _get_board_name(self, board=None):
         board = board if board is not None else self.BOARD
@@ -128,3 +122,23 @@ class Compatibility(PiVersion):
                 'Error: The {} board is not supported.'.format(board_name))
 
         self.BOARD = board
+
+    def spi_port_device(self, clock_pin, mosi_pin, miso_pin, select_pin):
+        """
+        Convert a mapping of pin definitions, which must contain 'clock_pin',
+        and 'select_pin' at a minimum, to a hardware SPI port, device tuple.
+        Raises `CompatibilityException` if the pins do not represent a valid
+        hardware SPI device.
+        """
+        # The port variable is sometimes refered to as the bus.
+        for port, pins in self._SPI_HARDWARE_PINS.items():
+            if all((
+                clock_pin  == pins['clock'],
+                mosi_pin   in (None, pins['mosi']),
+                miso_pin   in (None, pins['miso']),
+                select_pin in pins['select']
+                )):
+                device = pins['select'].index(select_pin)
+                return (port, device)
+            raise CompatibilityException(
+                'Invalid pin selection for hardware SPI')

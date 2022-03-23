@@ -2,7 +2,7 @@
 """
 TFT_22_ILI9225.py
 
-Driver for the ILI9225 chip for MicroPython.
+Driver for the ILI9225 chip TFT LCD displays.
 """
 
 from utils.compatibility import Compatibility, Boards, CompatibilityException
@@ -202,9 +202,7 @@ class ILI9225(Compatibility):
                   "keyword argument must be passed during instantiation or "
                   "the set_board() method must be run after instantiation.")
 
-    def begin(self, spi=None):
-        self._spi = spi
-
+    def begin(self):
         # Setup reset pin.
         if self._rst > 0:
             self.pin_mode(self._rst, self.OUTPUT)

@@ -54,22 +54,42 @@ class PiVersion:
                                     value=default, alt=alt)
 
     def digital_write(self, pin, high_low):
-        try:
-            self.__pin_state[pin].value(high_low)
-        except KeyError as e:
-            print("Error: Pin {} has not been set, {}".format(pin, e))
+        """
+        Set the given pin either high or low.
+
+        @param pin: The pin to set.
+        @type pin: int
+        @param high_low: Set HIGH (True) or LOW (False).
+        @type high_low: bool
+        """
+        self.__pin_state[pin].value(high_low)
 
     def delay(self, ms):
         sleep_ms(ms)
 
-    def spi_start_transaction(self):
-        self._spi = SPI(self._port)
+    def spi_start_transaction(self, reuse=False):
+        if self._spi is None or not reuse:
+            from utils.compatibility import Boards
+            self._spi = SPI(self._port, baudrate=Boards.get_frequency())
 
     def spi_end_transaction(self):
         self._spi.deinit()
 
     def spi_write(self, value):
-        self.digital_write(self._rs, self.LOW)
+        """
+        Write data to the SPI port. First set the rs pin to command mode
+        then the cs (chip select) pin to low (selected) then write the data
+        then set the cs pin to high (unselected).
+
+        .. note::
+
+          This method can raise the KeyError exception if the pin_mode()
+          method was not called first on the pins used in this method.
+
+        @param value: The value to write to the SPI port.
+        @type value: str
+        """
+        self.__pin_state[self._rs].low()
 
         try:
             self.__pin_state[self._cs].low()

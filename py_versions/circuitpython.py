@@ -37,14 +37,14 @@ class PiVersion:
 
         .. notes::
 
-          See the Circuitython documentation on https://bit.ly/36yPHPl
+          See the CircuitPython documentation on https://bit.ly/36yPHPl
 
         @param pin: The pin identifier.
         @type pin: int
         @param direction: The direction IN or OUT based on the board.
         @type direction: int
-        @param pull: Sets either a pull up or pull down resistor internal to
-                     the board (Pull.UP or Pull.DOWN).
+        @param pull: Sets either a pull up or pull down resistor internal
+                     to the board (Pull.UP or Pull.DOWN).
         @type pull: int
         @param default: Set a default value of the pin.
         @type default: int
@@ -56,27 +56,33 @@ class PiVersion:
         if default is not None: pin.value = default
 
     def digital_write(self, pin, high_low):
-        try:
-            self.__pin_state[pin].value = high_low
-        except KeyError as e:
-            print("Error: Pin {} has not been set, {}".format(pin, e))
+        """
+        Set the given pin either high or low.
+
+        @param pin: The pin to set.
+        @type pin: int
+        @param high_low: Set HIGH (True) or LOW (False).
+        @type high_low: bool
+        """
+        self.__pin_state[pin].value = high_low
 
     def delay(self, ms):
         sleep_ms(ms)
 
-    def spi_start_transaction(self):
-        from utils.compatibility import Boards
-        freq = Boards.get_frequency()
-        self._spi = SPI(self._sclk, self._mosi, self._miso)
-        while self._spi.try_lock(): pass
-        self._spi.configure(baudrate=freq)
-        self._spi.unlock()
+    def spi_start_transaction(self, reuse=False):
+        if self._spi is None or not reuse:
+            from utils.compatibility import Boards
+            freq = Boards.get_frequency()
+            self._spi = SPI(self._sclk, self._mosi, self._miso)
+            while self._spi.try_lock(): pass
+            self._spi.configure(baudrate=freq)
+            self._spi.unlock()
 
     def spi_end_transaction(self):
         self._spi.deinit()
 
     def spi_write(self, value):
-        self.digital_write(self._rs, self.LOW)
+        self.__pin_state[self._rs].value = self.LOW
 
         try:
             self.__pin_state[self._cs].value = self.LOW
