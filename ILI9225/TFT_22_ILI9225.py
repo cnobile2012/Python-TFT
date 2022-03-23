@@ -135,7 +135,7 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, cs, *, led=-1, sdi=-1, clk=-1, brightness=255,
+    def __init__(self, rst, rs, cs, sdi, clk, *, led=-1, brightness=255,
                  board=None, mode=None):
         """
         Initialize the ILI9225 class.
@@ -213,17 +213,16 @@ class ILI9225(Compatibility):
             self.set_backlight(False)
 
         # Control pins
-        self.pin_mode(self._rs, self.OUTPUT);
-        self.digital_write(self._rs, self.LOW);
-        self.pin_mode(self._cs, self.OUTPUT);
+        self.pin_mode(self._rs, self.OUTPUT)
+        self.digital_write(self._rs, self.LOW)
+        self.pin_mode(self._cs, self.OUTPUT)
         self.digital_write(self._cs, self.HIGH)
 
-        # Software SPI
-        if self._clk >= 0 and self._sdi >= 0:
-            self.pin_mode(self._sdi, self.OUTPUT)
-            self.digital_write(self._sdi, self.LOW);
-            self.pin_mode(self._clk, self.OUTPUT)
-            self.digital_write(self._clk, self.HIGH);
+        # Setup SPI clock and data inputs.
+        self.pin_mode(self._sdi, self.OUTPUT)
+        self.digital_write(self._sdi, self.LOW)
+        self.pin_mode(self._clk, self.OUTPUT)
+        self.digital_write(self._clk, self.HIGH)
 
         # Pull the reset pin high to release the ILI9225C from the reset
         # status.
@@ -363,7 +362,7 @@ class ILI9225(Compatibility):
         """
         self._bl_state = flag
         # #ifndef ESP32
-        #     if (_led) analogWrite(_led, blState ? _brightness : 0);
+        #     if (_led) analogWrite(_led, blState ? _brightness : 0)
         # #endif
 
     def set_backlight_brightness(self, brightness):
@@ -1197,7 +1196,7 @@ class ILI9225(Compatibility):
         byte = 0
         mask_bit = 0x01 if x_bit else 0x80
         # Adjust window height/width to display dimensions
-        # DEBUG ONLY -- DB_PRINT("DrawBitmap.. maxX=%d, maxY=%d", _maxX,_maxY);
+        # DEBUG ONLY -- DB_PRINT("DrawBitmap.. maxX=%d, maxY=%d", _maxX,_maxY)
         wx0 = 0 if x < 0 else x
         wy0 = 0 if y < 0 else x
         wx1 = (self._max_x if x + w > self._max_x else x + w) - 1
@@ -1213,7 +1212,7 @@ class ILI9225(Compatibility):
                     if x_bit: byte >>= 1
                     else: byte <<= 1
                 else:
-                    # pgm_read_byte(bitmap + j * byteWidth + i / 8);
+                    # pgm_read_byte(bitmap + j * byteWidth + i / 8)
                     byte = bitmap[j * byteWidth + i / 8]
 
                 if wx0 <= x + i <= wx1:
@@ -1308,14 +1307,14 @@ class ILI9225(Compatibility):
     def __start_write(self):
         if self._write_function_level == 0:
             self.spi_start_transaction()
-            self.digital_write(self._cs, self.LOW) # SPI_CS_LOW();
+            self.digital_write(self._cs, self.LOW) # SPI_CS_LOW()
             self._write_function_level += 1
 
     def __end_write(self):
         self._write_function_level -= 1
 
         if self._write_function_level == 0:
-            self.digital_write(self._cs, self.HIGH) # SPI_CS_HIGH();
+            self.digital_write(self._cs, self.HIGH) # SPI_CS_HIGH()
             self.spi_end_transaction()
 
     def __repr__(self):
