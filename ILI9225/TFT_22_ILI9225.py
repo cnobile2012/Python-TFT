@@ -1306,11 +1306,10 @@ class ILI9225(Compatibility):
         self.spi_write(data)
 
     def __start_write(self):
-        self._write_function_level += 1
-
         if self._write_function_level == 0:
             self.spi_start_transaction()
             self.digital_write(self._cs, self.LOW) # SPI_CS_LOW();
+            self._write_function_level += 1
 
     def __end_write(self):
         self._write_function_level -= 1
