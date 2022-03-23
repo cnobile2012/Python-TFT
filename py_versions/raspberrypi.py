@@ -24,7 +24,7 @@ class PiVersion:
     INPUT_PULLDOWN = GPIO.PUD_DOWN
     INPUT_PULLOFF = GPIO.PUD_OFF
 
-    # To get second port put "dtoverlay=spi1-3cs" in "/boot/config.txt".
+    # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".
     _SPI_HARDWARE_PINS = {
         0: {'clock':  11,
             'mosi':   10,
