@@ -1310,7 +1310,7 @@ class ILI9225(Compatibility):
             self.digital_write(self._cs, self.LOW) # SPI_CS_LOW()
             self._write_function_level += 1
         else:
-            msg = ("Could not start write, _write_function_level = {}."
+            msg = ("DEBUG: Could not start write, _write_function_level = {}."
                    ).format(self._write_function_level)
             print(msg)
 
@@ -1321,7 +1321,7 @@ class ILI9225(Compatibility):
             self.digital_write(self._cs, self.HIGH) # SPI_CS_HIGH()
             self.spi_end_transaction()
         else:
-            msg = ("Could not end write, _write_function_level = {}."
+            msg = ("DEBUG: Could not end write, _write_function_level = {}."
                    ).format(self._write_function_level)
             print(msg)
 
