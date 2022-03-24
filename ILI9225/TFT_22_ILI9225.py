@@ -136,7 +136,7 @@ class ILI9225(Compatibility):
         )
 
     def __init__(self, rst, rs, cs, sdi, clk, *, led=-1, brightness=255,
-                 board=None, mode=None):
+                 board=None, rpi_mode=None):
         """
         Initialize the ILI9225 class.
 
@@ -169,11 +169,11 @@ class ILI9225(Compatibility):
         @type brightness: int
         @param board: The board this will run on. e.g. Boards.ESP32
         @type board: int
-        @param mode: Only applies to the Raspberry Pi and Computer boards.
-                     Default GPIO.BCM
-        @type mode: int
+        @param rpi_mode: Only applies to the Raspberry Pi and Computer boards.
+                         Default GPIO.BCM
+        @type rpi_mode: int
         """
-        super().__init__(mode=mode)
+        super().__init__(mode=rpi_mode)
         self._rst = rst
         self._rs = rs
         self._cs = cs

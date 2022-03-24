@@ -78,6 +78,12 @@ class PiVersion:
         """
         GPIO.output(pin, high_low)
 
+    def pin_cleanup(self):
+        """
+        To be run after this API is no longer to be used.
+        """
+        GPIO.cleanup()
+
     def delay(self, ms):
         sleep(ms/1000) # Convert to floating point.
 
