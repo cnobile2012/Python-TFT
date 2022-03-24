@@ -338,7 +338,7 @@ class ILI9225(Compatibility):
         old_orientation = self._orientation
         self.set_orientation(0)
         self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1,
-                            self.COLOR_BLACK)
+                            RGB16BitColor.COLOR_BLACK)
         self.set_orientation(old_orientation)
         self.delay(10)
 
