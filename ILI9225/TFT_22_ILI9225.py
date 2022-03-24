@@ -576,8 +576,8 @@ class ILI9225(Compatibility):
 
                     h += 1
 
-        self.__end_write()
         self._reset_window()
+        self.__end_write()
         return char_width
 
     def get_char_width(self, ch):
@@ -788,8 +788,8 @@ class ILI9225(Compatibility):
         for t in range((y1 - y0 + 1) * (x1 - x0 + 1)):
             self.spi_write(color)
 
-        self.__end_write()
         self._reset_window()
+        self.__end_write()
 
     def draw_circle(self, x0, y0, radius, color):
         """
