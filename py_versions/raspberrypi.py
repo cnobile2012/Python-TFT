@@ -105,6 +105,8 @@ class PiVersion:
 
         try:
             self.digital_write(self._cs, self.LOW)
-            self._spi.writebytes2(value)
+            msb = value >> 8
+            lsb = value & 0xFF
+            self._spi.xfer([msb, lsb])
         finally:
             self.digital_write(self._cs, self.HIGH)
