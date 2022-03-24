@@ -423,17 +423,17 @@ class ILI9225(Compatibility):
         self._orientation = orientation % 4
 
         if self._orientation == 0:
-            self._max_x = LCD_WIDTH
-            self._max_y = LCD_HEIGHT
+            self._max_x = self.LCD_WIDTH
+            self._max_y = self.LCD_HEIGHT
         elif self._orientation == 1:
-            self._max_x = LCD_HEIGHT
-            self._max_y = LCD_WIDTH
+            self._max_x = self.LCD_HEIGHT
+            self._max_y = self.LCD_WIDTH
         elif self._orientation == 2:
-            self._max_x = LCD_WIDTH
-            self._max_y = LCD_HEIGHT
+            self._max_x = self.LCD_WIDTH
+            self._max_y = self.LCD_HEIGHT
         elif self._orientation == 3:
-            self._max_x = LCD_HEIGHT
-            self._max_y = LCD_WIDTH
+            self._max_x = self.LCD_HEIGHT
+            self._max_y = self.LCD_WIDTH
 
     def get_orientation(self):
         """
