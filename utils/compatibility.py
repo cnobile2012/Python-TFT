@@ -132,12 +132,10 @@ class Compatibility(PiVersion):
         """
         # The port variable is sometimes refered to as the bus.
         for port, pins in self._SPI_HARDWARE_PINS.items():
-            if all((
-                clock_pin  == pins['clock'],
-                mosi_pin   in (None, pins['mosi']),
-                miso_pin   in (None, pins['miso']),
-                select_pin in pins['select']
-                )):
+            if all((clock_pin  == pins['clock'],
+                    mosi_pin   in (None, pins['mosi']),
+                    miso_pin   in (None, pins['miso']),
+                    select_pin in pins['select'])):
                 device = pins['select'].index(select_pin)
                 return (port, device)
             raise CompatibilityException(

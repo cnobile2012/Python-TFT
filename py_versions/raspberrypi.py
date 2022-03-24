@@ -83,20 +83,28 @@ class PiVersion:
 
     def spi_start_transaction(self, reuse=False):
         if self._spi is None or not reuse:
-            from utils.compatibility import Boards
-            self._spi = SpiDev()
-            port, device = self.spi_port_device(
-                self._clk, self._sdi, None, self._cs)
-            self._spi.open(port, device)
+            from utils.compatibility import Boards, CompatibilityException
+
+            try:
+                self._spi = SpiDev()
+                port, device = self.spi_port_device(
+                    self._clk, self._sdi, None, self._cs)
+                self._spi.open(port, device)
+                self._spi.max_speed_hz = Boards.get_frequency(self.BOARD)
+            except Exception as e:
+                self.spi_end_transaction()
+                raise CompatibilityException(e)
 
     def spi_end_transaction(self):
-        self._spi.close()
+        if self._spi:
+            self._spi.close()
+            self._spi = None
 
     def spi_write(self, value):
         self.digital_write(self._rs, self.LOW)
 
         try:
             self.digital_write(self._cs, self.LOW)
-            self._spi.xfer(value)
+            self._spi.writebytes2(value)
         finally:
             self.digital_write(self._cs, self.HIGH)
