@@ -543,12 +543,12 @@ class ILI9225(Compatibility):
         fast_mode = ((x - char_width + 1) < self._max_x
                      and (y + self._cfont.height - 1) < self._max_y)
 
-        self.__start_write()
-
         # Set character window.
         if fast_mode:
             self._set_window(x, y, x + char_width + 1,
                              y + self._cfont.height + 1)
+
+        self.__start_write()
 
         # Each font "column" (+1 blank column for spacing).
         for i in range(char_width + 1):
@@ -576,8 +576,8 @@ class ILI9225(Compatibility):
 
                     h += 1
 
-        self._reset_window()
         self.__end_write()
+        self._reset_window()
         return char_width
 
     def get_char_width(self, ch):
@@ -702,8 +702,6 @@ class ILI9225(Compatibility):
         bits = bit = 0
 
         # Add character clipping here one day.
-        self.__start_write()
-
         for yy in range(h):
             for xx in range(w):
                 bit += 1
@@ -717,7 +715,6 @@ class ILI9225(Compatibility):
 
                 bits <<= 1
 
-        self.__end_write()
         return xa
 
     def get_gfx_char_extent(self, x, y, ch, color):
@@ -788,8 +785,8 @@ class ILI9225(Compatibility):
         for t in range((y1 - y0 + 1) * (x1 - x0 + 1)):
             self.spi_write(color)
 
-        self._reset_window()
         self.__end_write()
+        self._reset_window()
 
     def draw_circle(self, x0, y0, radius, color):
         """
@@ -810,7 +807,6 @@ class ILI9225(Compatibility):
         x = 0
         y = radius
 
-        self.__start_write()
         self.draw_pixel(x0, y0 + radius, color)
         self.draw_pixel(x0, y0 - radius, color)
         self.draw_pixel(x0 + radius, y0, color)
@@ -835,8 +831,6 @@ class ILI9225(Compatibility):
             self.draw_pixel(x0 + y, y0 - x, color)
             self.draw_pixel(x0 - y, y0 - x, color)
 
-        self.__end_write()
-
     def fill_circle(self, x0, y0, radius, color):
         """
         Fill a circle.
@@ -856,8 +850,6 @@ class ILI9225(Compatibility):
         x = 0
         y = radius
 
-        self.__start_write()
-
         while x < y:
             if f >= 0:
                 y += 1
@@ -873,7 +865,6 @@ class ILI9225(Compatibility):
             self._draw_line(x0 + y, y0 - x, x0 + y, y0 + x, color) # right
             self._draw_line(x0 - y, y0 - x, x0 - y, y0 + x, color) # left
 
-        self.__end_write()
         self.fill_rectangle(x0 - x, y0 - y, x0 + x, y0 + y, color)
 
     def draw_triangle(self, x0, y0, x1, y1, x2, y2, color):
@@ -895,11 +886,9 @@ class ILI9225(Compatibility):
         @param color: A 16-bit color.
         @type color: int
         """
-        self.__start_write()
         self._draw_line(x0, y0, x1, y1, color)
         self._draw_line(x1, y1, x2, y2, color)
         self._draw_line(x2, y2, x0, y0, color)
-        self.__end_write()
 
     def fill_triangle(self, x0, y0, x1, y1, x2, y2, color):
         """
@@ -932,8 +921,6 @@ class ILI9225(Compatibility):
         if y0 > y1:
             y0, y1 = y1, y0
             x0, x1 = x1, x0
-
-        self.__start_write()
 
         # Handle awkward all-on-same-line case as its own thing.
         if y0 == y2:
@@ -1001,8 +988,6 @@ class ILI9225(Compatibility):
             self.draw_line(a, y, b, y, color)
             y += 1
 
-        self.__end_write()
-
     def draw_line(self, x0, y0, x1, y1, color):
         """
         Draw a line using rectangular coordinates.
@@ -1039,8 +1024,6 @@ class ILI9225(Compatibility):
         else:
             ystep = -1
 
-        self.__start_write()
-
         while x0 <= x2:
             if steep:
                 self.draw_pixel(y0, x0, color)
@@ -1054,8 +1037,6 @@ class ILI9225(Compatibility):
                 err += dx
 
             x0 += 1
-
-        self.__end_write()
 
     def draw_pixel(self, x0, y0, color):
         """
@@ -1204,7 +1185,6 @@ class ILI9225(Compatibility):
         wh = wy1 - wy0 + 1
 
         self._set_window(wx0, wy0, wx1, wy1, AutoIncMode.L2R_TOP_DOWN)
-        self.__start_write()
 
         for j in range((0 if y >= 0 else -y) + wh):
             for i in range(w):
@@ -1223,13 +1203,15 @@ class ILI9225(Compatibility):
                         self.draw_pixel(x + i, y + j, color)
                         no_auto_inc = False
                     else:
-                        self._write_data_16_bit(color)
+                        self.__start_write()
+                        self.spi_write(color)
+                        self.__end_write()
                 elif transparent:
                     no_auto_inc = True # No autoincrement in transparent area!
                 else:
-                    self._write_data_16_bit(bg)
-
-        self.__end_write()
+                    self.__start_write()
+                    self.spi_write(bg)
+                    self.__end_write()
 
     def _orient_coordinates(self, x, y):
         if self._orientation == 1:
@@ -1295,10 +1277,12 @@ class ILI9225(Compatibility):
         self.__end_write()
 
     def _reset_window(self):
+        self.__start_write()
         self._write_register(self.HORIZONTAL_WINDOW_ADDR1, self.LCD_WIDTH - 1)
         self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0)
         self._write_register(self.VERTICAL_WINDOW_ADDR1, self.LCD_HEIGHT - 1)
         self._write_register(self.VERTICAL_WINDOW_ADDR2, 0)
+        self.__end_write()
 
     def _write_register(self, reg, data):
         self.spi_write(reg)
