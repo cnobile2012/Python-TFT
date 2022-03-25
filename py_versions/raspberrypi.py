@@ -106,13 +106,26 @@ class PiVersion:
             self._spi.close()
             self._spi = None
 
-    def spi_write(self, value):
+    def spi_write(self, values):
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+        elif isinstance(value, tuple):
+            values = list(values)
+
         self.digital_write(self._rs, self.LOW)
+        items = []
+
+        for value in values:
+            if value > 0xFF:
+                msb = value >> 8
+                lsb = value & 0xFF
+                items.append(msb)
+                items.append(lsb)
+            else:
+                items.append(value)
 
         try:
             self.digital_write(self._cs, self.LOW)
-            msb = value >> 8
-            lsb = value & 0xFF
-            self._spi.xfer([msb, lsb])
+            self._spi.xfer(items)
         finally:
             self.digital_write(self._cs, self.HIGH)
