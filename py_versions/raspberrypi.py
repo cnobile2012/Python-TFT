@@ -126,6 +126,6 @@ class PiVersion:
 
         try:
             self.digital_write(self._cs, self.LOW)
-            self._spi.xfer(items)
+            self._spi.writebytes(items)
         finally:
             self.digital_write(self._cs, self.HIGH)
