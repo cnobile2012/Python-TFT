@@ -1291,7 +1291,7 @@ class ILI9225(Compatibility):
     def __start_write(self):
         if self._write_function_level == 0:
             self.spi_start_transaction()
-            self.digital_write(self._cs, self.LOW) # SPI_CS_LOW()
+            self.digital_write(self._cs, self.LOW)
             self._write_function_level += 1
         else:
             msg = ("DEBUG: Could not start write, _write_function_level = {}."
@@ -1302,7 +1302,7 @@ class ILI9225(Compatibility):
         self._write_function_level -= 1
 
         if self._write_function_level == 0:
-            self.digital_write(self._cs, self.HIGH) # SPI_CS_HIGH()
+            self.digital_write(self._cs, self.HIGH)
             self.spi_end_transaction()
         else:
             msg = ("DEBUG: Could not end write, _write_function_level = {}."

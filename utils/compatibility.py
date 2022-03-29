@@ -13,10 +13,10 @@ class CompatibilityException(Exception):
     pass
 
 
-try: # Micropython
+try: # MicroPython
     from time import sleep_ms
 except:
-    try: # Circuitpython
+    try: # CircuitPython
         from uasyncio import sleep_ms
     except:
         try: # A PC with the RTx.GPIO library and hardware
@@ -119,24 +119,24 @@ class Compatibility(PiVersion):
 
         if board_name not in [v for v in dir(Boards) if not v.startswith('_')]:
             raise CompatibilityException(
-                'Error: The {} board is not supported.'.format(board_name))
+                "Error: The {} board is not supported.".format(board_name))
 
         self.BOARD = board
 
-    def spi_port_device(self, clock_pin, mosi_pin, miso_pin, select_pin):
+    def spi_port_device(self, clock, mosi, miso, select):
         """
-        Convert a mapping of pin definitions, which must contain 'clock_pin',
-        and 'select_pin' at a minimum, to a hardware SPI port, device tuple.
+        Convert a mapping of pin definitions, which must contain 'clock',
+        and 'select' at a minimum, to a hardware SPI port, device tuple.
         Raises `CompatibilityException` if the pins do not represent a valid
         hardware SPI device.
         """
         # The port variable is sometimes refered to as the bus.
         for port, pins in self._SPI_HARDWARE_PINS.items():
-            if all((clock_pin  == pins['clock'],
-                    mosi_pin   in (None, pins['mosi']),
-                    miso_pin   in (None, pins['miso']),
-                    select_pin in pins['select'])):
-                device = pins['select'].index(select_pin)
+            if all((clock == pins['clock'],
+                    mosi in (None, pins['mosi']),
+                    miso in (None, pins['miso']),
+                    select in pins['select'])):
+                device = pins['select'].index(select)
                 return (port, device)
             raise CompatibilityException(
                 'Invalid pin selection for hardware SPI')

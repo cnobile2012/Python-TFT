@@ -124,8 +124,5 @@ class PiVersion:
             else:
                 items.append(value)
 
-        try:
-            self.digital_write(self._cs, self.LOW)
-            self._spi.writebytes(items)
-        finally:
-            self.digital_write(self._cs, self.HIGH)
+        print("POOP", items)
+        self._spi.writebytes(items)
