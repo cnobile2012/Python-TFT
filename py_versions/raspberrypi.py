@@ -109,7 +109,7 @@ class PiVersion:
     def spi_write(self, values):
         if not isinstance(values, (list, tuple)):
             values = [values]
-        elif isinstance(value, tuple):
+        elif isinstance(values, tuple):
             values = list(values)
 
         items = []
