@@ -112,7 +112,6 @@ class PiVersion:
         elif isinstance(value, tuple):
             values = list(values)
 
-        self.digital_write(self._rs, self.LOW)
         items = []
 
         for value in values:
