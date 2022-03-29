@@ -123,5 +123,4 @@ class PiVersion:
             else:
                 items.append(value)
 
-        print("POOP", items)
         self._spi.writebytes(items)

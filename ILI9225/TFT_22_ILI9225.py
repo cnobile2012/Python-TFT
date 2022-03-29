@@ -73,6 +73,8 @@ class ILI9225(Compatibility):
     """
     Main ILI9225 class.
     """
+    DEBUG = True
+
     LCD_WIDTH = 176
     LCD_HEIGHT = 220
     INVOFF                  = 0x20  # Invert off
@@ -236,6 +238,9 @@ class ILI9225(Compatibility):
         self.digital_write(self._rst, self.HIGH)
         self.delay(50)
 
+        if self.DEBUG:
+            print("Finished setting up pins.")
+
         # Start initial sequence.
         # Set SS bit and direction output from S528 to S1
         self.__start_write()
@@ -251,6 +256,9 @@ class ILI9225(Compatibility):
         self._write_register(self.POWER_CTRL4, 0x0000)
         self.__end_write()
         self.delay(40)
+
+        if self.DEBUG:
+            print("Finished initial sequence.")
 
         # Power-on sequence
         self.__start_write()
@@ -295,6 +303,9 @@ class ILI9225(Compatibility):
         self._write_register(self.RAM_ADDR_SET1, 0x0000)
         self._write_register(self.RAM_ADDR_SET2, 0x0000)
 
+        if self.DEBUG:
+            print("Finished power-on sequence.")
+
         # Set GRAM area
         self._write_register(self.GATE_SCAN_CTRL, 0x0000)
         self._write_register(self.VERTICAL_SCROLL_CTRL1, 0x00DB)
@@ -306,6 +317,9 @@ class ILI9225(Compatibility):
         self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0x0000)
         self._write_register(self.VERTICAL_WINDOW_ADDR1, 0x00DB)
         self._write_register(self.VERTICAL_WINDOW_ADDR2, 0x0000)
+
+        if self.DEBUG:
+            print("Finished set GRAM area.")
 
         # Set GAMMA curve
         self._write_register(self.GAMMA_CTRL1, 0x0000)
@@ -326,13 +340,22 @@ class ILI9225(Compatibility):
         self._write_register(self.DISP_CTRL1, 0x1017)
         self.__end_write()
 
+        if self.DEBUG:
+            print("Finished set GAMMA curve.")
+
         # Turn on backlight
         self.set_backlight(True)
         self.set_orientation(0)
 
-        # Initialize variables
+        if self.DEBUG:
+            print("Finished turning on backlight.")
+
+        # Initialize background color
         self.set_background_color(RGB16BitColor.COLOR_BLACK)
         self.clear()
+
+        if self.DEBUG:
+            print("Finished initialize background color.")
 
     def clear(self):
         old_orientation = self._orientation
@@ -1285,8 +1308,7 @@ class ILI9225(Compatibility):
         self.__end_write()
 
     def _write_register(self, reg, data):
-        self.spi_write(reg)
-        self.spi_write(data)
+        self.spi_write([reg, data])
 
     def __start_write(self):
         if self._write_function_level == 0:
