@@ -253,7 +253,7 @@ class ILI9225(Compatibility):
         # Set GVDD
         self._write_register(self.POWER_CTRL4, 0x0000)
         # Set VCOMH/VCOML voltage
-        self._write_register(self.POWER_CTRL4, 0x0000)
+        self._write_register(self.POWER_CTRL5, 0x0000)
         self.__end_write()
         self.delay(40)
 
@@ -269,7 +269,7 @@ class ILI9225(Compatibility):
         # Set GVDD (007F 0088)
         self._write_register(self.POWER_CTRL4, 0x006F)
         # Set VCOMH/VCOML voltage
-        self._write_register(self.POWER_CTRL4, 0x495F)
+        self._write_register(self.POWER_CTRL5, 0x495F)
         # Set SAP,DSTB,STB
         self._write_register(self.POWER_CTRL1, 0x0800)
         self.__end_write()
