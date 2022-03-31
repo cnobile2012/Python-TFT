@@ -1296,7 +1296,12 @@ class ILI9225(Compatibility):
         self.__end_write()
 
     def _write_register(self, reg, data):
-        self.spi_write([reg, data])
+        self.digital_write(self._rs, self.LOW)
+        self.digital_write(self._cs, self.LOW)
+        self.spi_write([reg])
+        self.digital_write(self._rs, self.HIGH)
+        self.spi_write([data])
+        self.digital_write(self._cs, self.HIGH)
 
     def __start_write(self):
         if self._write_function_level == 0:

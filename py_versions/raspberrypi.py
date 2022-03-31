@@ -106,7 +106,7 @@ class PiVersion:
             self._spi.close()
             self._spi = None
 
-    def spi_write(self, values):
+    def spi_write(self, values, bits_16=True):
         if not isinstance(values, (list, tuple)):
             values = [values]
         elif isinstance(values, tuple):
@@ -115,11 +115,9 @@ class PiVersion:
         items = []
 
         for value in values:
-            if value > 0xFF:
-                msb = value >> 8
-                lsb = value & 0xFF
-                items.append(msb)
-                items.append(lsb)
+            if bits_16:
+                items.append(value >> 8)
+                items.append(value & 0xFF)
             else:
                 items.append(value)
 
