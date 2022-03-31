@@ -29,17 +29,17 @@ class CurrentFont:
     Stores the currently used font.
     """
 
-    def __init__(self, args=((), 0, 0, 0, 0, 0, False)):
-        self.set_font(args)
+    def __init__(self, font=((), 0, 0, 0, 0, 0, False)):
+        self.set_font(font)
 
-    def set_font(self, args):
-        self.font = args[0]
-        self.width = args[1]
-        self.height = args[2]
-        self.offset = args[3]
-        self.numchars = args[4]
-        self.nbrows = int(args[5])
-        self.mono_sp = args[6]
+    def set_font(self, font):
+        self.font = font[0]
+        self.width = font[1]
+        self.height = font[2]
+        self.offset = font[3]
+        self.numchars = font[4]
+        self.nbrows = int(font[5])
+        self.mono_sp = font[6]
 
 
 class GFXGlyph:
@@ -75,8 +75,9 @@ class ILI9225(Compatibility):
     """
     DEBUG = True
 
-    LCD_WIDTH = 176
-    LCD_HEIGHT = 220
+    LCD_WIDTH               = 176
+    LCD_HEIGHT              = 220
+    MAX_BRIGHTNESS          = 255   # 0..255
     INVOFF                  = 0x20  # Invert off
     INVON                   = 0x21  # Invert on
 
@@ -137,22 +138,10 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, cs, sdi, clk, *, led=-1, brightness=255,
-                 board=None, rpi_mode=None):
+    def __init__(self, rst, rs, cs, sdi, clk, led=-1, *,
+                 brightness=MAX_BRIGHTNESS, board=None, rpi_mode=None):
         """
         Initialize the ILI9225 class.
-
-        .. note::
-
-          1. Constructor when using software SPI. All output pins are
-             configurable (_hw_spi=False).
-          2. Constructor when using software SPI. All output pins are
-             configurable (_hw_spi=False). Adds backlight brightness 0-255
-          3. Constructor when using hardware SPI. Faster, but must use SPI
-             pins specific to each board type (_hw_spi=True).
-          4. Constructor when using hardware SPI. Faster, but must use SPI
-             pins specific to each board type (_hw_spi=True). Adds backlight
-             brightness 0-255
 
         @param rst: The RST (reset) pin on the display. (RTD on some devices.)
         @type rst: int
@@ -184,7 +173,6 @@ class ILI9225(Compatibility):
         self._clk = clk
         self._brightness = brightness # Set to maximum brightness.
         self._orientation = 0
-        self._hw_spi = True if sdi == -1 and clk == -1 else False
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
@@ -350,8 +338,8 @@ class ILI9225(Compatibility):
         if self.DEBUG:
             print("Finished turning on backlight.")
 
-        # Initialize background color
-        self.set_background_color(RGB16BitColor.COLOR_BLACK)
+        # Initialize character background color
+        self.set_char_background_color(RGB16BitColor.COLOR_BLACK)
         self.clear()
 
         if self.DEBUG:
@@ -426,9 +414,9 @@ class ILI9225(Compatibility):
             self.__end_write()
             self.delay(200)
 
-    def set_background_color(self, color=RGB16BitColor.COLOR_BLACK):
+    def set_char_background_color(self, color=RGB16BitColor.COLOR_BLACK):
         """
-        Set the background color.
+        Set the character background color.
 
         @param color: Background color (default=black).
         @type color: int
@@ -571,8 +559,6 @@ class ILI9225(Compatibility):
             self._set_window(x, y, x + char_width + 1,
                              y + self._cfont.height + 1)
 
-        self.__start_write()
-
         # Each font "column" (+1 blank column for spacing).
         for i in range(char_width + 1):
             h = 0  # Keep track of char height.
@@ -586,11 +572,14 @@ class ILI9225(Compatibility):
                 char_offset += 1
 
                 for k in range(8): # Process every row in font character.
-                    if h >= self._cfont.height: break
+                    if h >= self._cfont.height:
+                        break
 
                     if fast_mode:
+                        self.__start_write()
                         self.spi_write(color if self._bit_read(
                             char_data, k) else self._bg_color)
+                        self.__end_write()
                     else:
                         self.drawPixel(
                             x + i, y + (j * 8) + k, color
@@ -599,7 +588,6 @@ class ILI9225(Compatibility):
 
                     h += 1
 
-        self.__end_write()
         self._reset_window()
         return char_width
 
