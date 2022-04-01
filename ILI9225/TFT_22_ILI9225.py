@@ -361,7 +361,7 @@ class ILI9225(Compatibility):
         @type flag: bool
         """
         self.__start_write()
-        self.spi_write(self.INVON if flag else self.INVOFF)
+        self._write_command(self.INVON if flag else self.INVOFF)
         self.__end_write()
 
     def set_backlight(self, flag):
@@ -577,7 +577,7 @@ class ILI9225(Compatibility):
 
                     if fast_mode:
                         self.__start_write()
-                        self.spi_write(color if self._bit_read(
+                        self._write_data(color if self._bit_read(
                             char_data, k) else self._bg_color)
                         self.__end_write()
                     else:
@@ -715,11 +715,10 @@ class ILI9225(Compatibility):
         # Add character clipping here one day.
         for yy in range(h):
             for xx in range(w):
-                bit += 1
-
                 if not (bit & 7):
-                    bo += 1
                     bits = bitmap[bo]
+                    bo += 1
+                    bit += 1
 
                 if bits & 0x80:
                     self.draw_pixel(x + xo + xx, y + yo + yy, color)
@@ -793,8 +792,9 @@ class ILI9225(Compatibility):
         self._set_window(x0, y0, x1, y1)
         self.__start_write()
 
-        for t in range((y1 - y0 + 1) * (x1 - x0 + 1)):
-            self.spi_write(color)
+        # Count backwards from (y1 - y0 + 1) * (x1 - x0 + 1)) + 1 ending at 1.
+        for t in range(1, ((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)[::-1]:
+            self._write_data(color)
 
         self.__end_write()
         self._reset_window()
@@ -1215,13 +1215,13 @@ class ILI9225(Compatibility):
                         no_auto_inc = False
                     else:
                         self.__start_write()
-                        self.spi_write(color)
+                        self._write_data(color)
                         self.__end_write()
                 elif transparent:
                     no_auto_inc = True # No autoincrement in transparent area!
                 else:
                     self.__start_write()
-                    self.spi_write(bg)
+                    self._write_data(bg)
                     self.__end_write()
 
     def _orient_coordinates(self, x, y):
@@ -1284,7 +1284,7 @@ class ILI9225(Compatibility):
             self._write_register(self.RAM_ADDR_SET1, x0)
             self._write_register(self.RAM_ADDR_SET2, y0)
 
-        self.spi_write(self.GRAM_DATA_REG)
+        self._write_command(self.GRAM_DATA_REG)
         self.__end_write()
 
     def _reset_window(self):
@@ -1295,12 +1295,20 @@ class ILI9225(Compatibility):
         self._write_register(self.VERTICAL_WINDOW_ADDR2, 0)
         self.__end_write()
 
-    def _write_register(self, reg, data):
+    def _write_register(self, command, data, bits_16=True):
+        self._write_command(command, bits_16=bits_16)
+        self._write_data(data, bits_16=bits_16)
+
+    def _write_command(self, command, bits_16=True):
         self.digital_write(self._rs, self.LOW)
         self.digital_write(self._cs, self.LOW)
-        self.spi_write([reg])
+        self.spi_write(command, bits_16=bits_16)
+        self.digital_write(self._cs, self.HIGH)
+
+    def _write_data(self, data, bits_16=True):
         self.digital_write(self._rs, self.HIGH)
-        self.spi_write([data])
+        self.digital_write(self._cs, self.LOW)
+        self.spi_write(data, bits_16=bits_16)
         self.digital_write(self._cs, self.HIGH)
 
     def __start_write(self):
