@@ -382,7 +382,7 @@ class ILI9225(Compatibility):
 
         if self._led:
             self.analog_write(
-                self._led, self._brightness if self.bl_state else 0)
+                self._led, self._brightness if self._bl_state else 0)
 
     def set_backlight_brightness(self, brightness):
         """
