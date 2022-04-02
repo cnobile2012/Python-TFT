@@ -380,7 +380,7 @@ class ILI9225(Compatibility):
         """
         self._bl_state = flag
 
-        if self._led:
+        if self._led >= 0:
             self.analog_write(
                 self._led, self._brightness if self._bl_state else 0)
 
