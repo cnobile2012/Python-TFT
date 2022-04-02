@@ -40,6 +40,8 @@ class CurrentFont:
         self.numchars = font[4]
         self.nbrows = int(font[5])
         self.mono_sp = font[6]
+        # Set number of bytes used by height of font in multiples of 8
+        if self.height % 8: self.nbrows += 1
 
 
 class GFXGlyph:
@@ -200,6 +202,8 @@ class ILI9225(Compatibility):
         # Set up backlight pin, turn off initially.
         if self._led >= 0:
             self.pin_mode(self._led, self.OUTPUT)
+            self.setup_pwm(self._led, self.MAX_BRIGHTNESS,
+                           duty_cycle=self.MAX_BRIGHTNESS)
             self.set_backlight(False)
 
         # Control pins
@@ -346,6 +350,9 @@ class ILI9225(Compatibility):
             print("Finished initialize background color.")
 
     def clear(self):
+        """
+        Overwrites the entire display with the color black.
+        """
         old_orientation = self._orientation
         self.set_orientation(0)
         self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1,
@@ -372,9 +379,10 @@ class ILI9225(Compatibility):
         @type flag: bool
         """
         self._bl_state = flag
-        # #ifndef ESP32
-        #     if (_led) analogWrite(_led, blState ? _brightness : 0)
-        # #endif
+
+        if self._led:
+            self.analog_write(
+                self._led, self._brightness if self.bl_state else 0)
 
     def set_backlight_brightness(self, brightness):
         """
@@ -454,6 +462,20 @@ class ILI9225(Compatibility):
         """
         return self._orientation
 
+    def _orient_coordinates(self, x, y):
+        if self._orientation == 1:
+            y = self._max_y - y - 1
+            x, y = y, x
+        elif self._orientation == 2:
+            x = self._max_x - x - 1
+            y = self._max_y - y - 1
+        elif self._orientation == 3:
+            x = self._max_x - x - 1
+            x, y = y, x
+
+        # if self._orientation == 0: We fall through.
+        return x, y
+
     def get_screen_max_x(self):
         """
         ORIGINAL NAME maxX()
@@ -462,7 +484,7 @@ class ILI9225(Compatibility):
 
         .. note::
 
-          240 decimal means 240 pixels and thus 0..239 coordinates.
+          Either 0..176 or 0..220 depending on orientation.
 
         @rtype Horizontal size of the screen in pixels.
         """
@@ -476,7 +498,7 @@ class ILI9225(Compatibility):
 
         .. note::
 
-          240 decimal means 240 pixels and thus 0..239 coordinates.
+          Either 0..176 or 0..220 depending on orientation.
 
         @rtype Vertical size of the screen in pixels.
         """
@@ -551,13 +573,13 @@ class ILI9225(Compatibility):
         char_offset += 1
         # Use autoincrement/decrement feature, if character fits
         # completely on screen.
-        fast_mode = ((x - char_width + 1) < self._max_x
+        fast_mode = ((x + char_width + 1) < self._max_x
                      and (y + self._cfont.height - 1) < self._max_y)
 
         # Set character window.
         if fast_mode:
             self._set_window(x, y, x + char_width + 1,
-                             y + self._cfont.height + 1)
+                             y + self._cfont.height - 1)
 
         # Each font "column" (+1 blank column for spacing).
         for i in range(char_width + 1):
@@ -565,7 +587,7 @@ class ILI9225(Compatibility):
 
             for j in range(self._cfont.nbrows): # Each column byte.
                 if i == char_width:
-                    charData = 0x0  # Insert blank column
+                    char_data = 0x00  # Insert blank column
                 else:
                     char_data = self._read_font_byte(char_offset)
 
@@ -582,8 +604,8 @@ class ILI9225(Compatibility):
                         self.__end_write()
                     else:
                         self.drawPixel(
-                            x + i, y + (j * 8) + k, color
-                            if self._bit_read(char_data, k)
+                            x + i, y + (j * 8) + k,
+                            color if self._bit_read(char_data, k)
                             else self._bg_color)
 
                     h += 1
@@ -606,7 +628,7 @@ class ILI9225(Compatibility):
     def __get_offset(self, ch):
         # Bytes used by each character.
         char_offset = (self._cfont.width * self._cfont.nbrows) + 1
-        # char offset (add 4 for font header)
+        # Char offset (add 4 for font header)
         return (char_offset * (ch - self._cfont.offset)
                 ) + self._CFONT_HEADER_SIZE
 
@@ -739,15 +761,43 @@ class ILI9225(Compatibility):
         @type ch: str
         @param color: A 16-bit color.
         @type color: int
+        @rtype Return a tuple (gw, gh, xa) where gw is the width in pixels
+               of the character, gh is the height, and xa is the distance
+               to advance cursor on the x axis.
         """
         # Is char present in this font?
-        if self._gfx_font.first <= ch >= self._gfx_font.last:
-            glyph = GFXGlyph(self._gfx_font.glyph[ch])
+        if self._gfx_font.first <= ch <= self._gfx_font.last:
+            glyph = GFXGlyph(self._gfx_font.glyph[ch - self._gfx_font.first])
             gw = glyph.width
             gh = glyph.height
             xa = glyph.x_advance
 
         return gw, gh, xa
+
+    def get_gfx_text_extent(self, x, y, string, color):
+        """
+        Draw a single character with the current GFX font.
+
+        @param x: Point coordinate (x-axis).
+        @type x: int
+        @param y: Point coordinate (y-axis).
+        @type y: int
+        @param string: The character to draw on the display.
+        @type string: str
+        @param color: A 16-bit color.
+        @type color: int
+        @rtype Return a tuple (w, h) where w is the width of the string and
+               h is the height.
+        """
+        w = h = 0
+
+        for ch in string:
+            gw, gh, xa = self.get_gfx_char_extent(x, y, ch, color)
+            if gh > h: h = gh
+            w += xa
+
+        return w, h
+
     #
     # End of GFX font methods.
     #
@@ -767,12 +817,10 @@ class ILI9225(Compatibility):
         @param color: A 16-bit color.
         @type color: int
         """
-        self.__start_write()
         self._draw_line(x0, y0, x0, y1, color)
         self._draw_line(x0, y0, x1, y0, color)
         self._draw_line(x0, y1, x1, y1, color)
         self._draw_line(x1, y0, x1, y1, color)
-        self.__end_write()
 
     def fill_rectangle(self, x0, y0, x1, y1, color):
         """
@@ -825,7 +873,7 @@ class ILI9225(Compatibility):
 
         while x < y:
             if f >= 0:
-                y += 1
+                y -= 1
                 ddf_y += 2
                 f += ddf_y
 
@@ -863,7 +911,7 @@ class ILI9225(Compatibility):
 
         while x < y:
             if f >= 0:
-                y += 1
+                y -= 1
                 ddf_y += 2
                 f += ddf_y
 
@@ -1061,7 +1109,7 @@ class ILI9225(Compatibility):
         @type color: int
         """
         if not ((x0 >= self._max_x) or (y0 >= self._max_y)):
-            self._orient_coordinates(x0, y0)
+            x0, y0 = self._orient_coordinates(x0, y0)
             self.__start_write()
             self._write_register(self.RAM_ADDR_SET1, x0)
             self._write_register(self.RAM_ADDR_SET2, y0)
@@ -1167,22 +1215,6 @@ class ILI9225(Compatibility):
         @param x_bit: This indicates that the left most (8th) bit is set.
         @type x_bit: bool
         """
-        #drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w,
-        #           int16_t h, uint16_t color)
-        # 1 self._draw_bitmap(x, y, bitmap, w, h, color, bg, True, False)
-
-        #drawBitmap(int16_t x, int16_t y, uint8_t *bitmap, int16_t w,
-        #           int16_t h, uint16_t color)
-        # 2 self._draw_bitmap(x, y, bitmap, w, h, color, bg, False, False)
-
-        #drawXBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w,
-        #            int16_t h, uint16_t color)
-        # 3 self._draw_bitmap(x, y, bitmap, w, h, color, bg, True, True)
-
-        #drawXBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w,
-        #            int16_t h, uint16_t color, uint16_t bg)
-        # 4 self._draw_bitmap(x, y, bitmap, w, h, color, bg, False, True)
-
         no_auto_inc = False # Flag set when transparent pixel was 'written'.
         byte_width = (w + 7) / 8
         byte = 0
@@ -1190,7 +1222,7 @@ class ILI9225(Compatibility):
         # Adjust window height/width to display dimensions
         # DEBUG ONLY -- DB_PRINT("DrawBitmap.. maxX=%d, maxY=%d", _maxX,_maxY)
         wx0 = 0 if x < 0 else x
-        wy0 = 0 if y < 0 else x
+        wy0 = 0 if y < 0 else y
         wx1 = (self._max_x if x + w > self._max_x else x + w) - 1
         wy1 = (self._max_y if y + h > self._max_y else y + h) - 1
         wh = wy1 - wy0 + 1
@@ -1204,39 +1236,27 @@ class ILI9225(Compatibility):
                     else: byte <<= 1
                 else:
                     # pgm_read_byte(bitmap + j * byteWidth + i / 8)
-                    byte = bitmap[j * byteWidth + i / 8]
+                    byte = bitmap[j * byte_width + i / 8]
 
                 if wx0 <= x + i <= wx1:
                     # Write only if pixel is within window.
-                    if no_auto_inc:
-                        # There was a transparent area,
-                        # set pixel coordinates again
-                        self.draw_pixel(x + i, y + j, color)
-                        no_auto_inc = False
+                    if byte & mask_bit:
+                        if no_auto_inc:
+                            # There was a transparent area,
+                            # set pixel coordinates again
+                            self.draw_pixel(x + i, y + j, color)
+                            no_auto_inc = False
+                        else:
+                            self.__start_write()
+                            self._write_data(color)
+                            self.__end_write()
+                    elif transparent:
+                        # No autoincrement in transparent area!
+                        no_auto_inc = True
                     else:
                         self.__start_write()
-                        self._write_data(color)
+                        self._write_data(bg)
                         self.__end_write()
-                elif transparent:
-                    no_auto_inc = True # No autoincrement in transparent area!
-                else:
-                    self.__start_write()
-                    self._write_data(bg)
-                    self.__end_write()
-
-    def _orient_coordinates(self, x, y):
-        if self._orientation == 1:
-            y = self._max_y - y - 1
-            x, y = y, x
-        elif self._orientation == 2:
-            x = self._max_x - x - 1
-            y = self._max_y - y - 1
-        elif self._orientation == 3:
-            x = self._max_x - x - 1
-            x, y = y, x
-
-        # if self._orientation == 0: We fall through.
-        return x, y
 
     def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):
         # Clip to TFT-Dimensions
@@ -1244,18 +1264,16 @@ class ILI9225(Compatibility):
         x1 = min(x1, self._max_x - 1)
         y0 = min(y0, self._max_y - 1)
         y1 = min(y1, self._max_y - 1)
-        self._orient_coordinates(x0, y0)
-        self._orient_coordinates(x1, y1)
+        x0, y0 = self._orient_coordinates(x0, y0)
+        x1, y1 = self._orient_coordinates(x1, y1)
 
         if x1 < x0: x0, x1 = x1, x0
         if y1 < y0: y0, y1 = y1, y0
 
         # Autoincrement mode
         if self._orientation > 0:
-            orient = self._orientation - 1
-
             try:
-                mode = self._MODE_TAB[orient][mode]
+                mode = self._MODE_TAB[self._orientation - 1][mode]
             except IndexError as e:
                 msg = ("Invalid orientation: {} (0..2) or mode: {} (0..7), "
                        "{}").format(self._orientation, mode, e)

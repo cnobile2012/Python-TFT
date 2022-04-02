@@ -46,6 +46,7 @@ class PiVersion:
         """
         mode = mode if mode is not None else GPIO.BCM
         GPIO.setmode(mode)
+        self.__pwm_pin_states = {}
 
     def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None,
                  alt=-1):
@@ -82,6 +83,9 @@ class PiVersion:
         """
         To be run after this API is no longer to be used.
         """
+        for obj in self.__pwm_pin_states.values():
+            obj.stop()
+
         GPIO.cleanup()
 
     def delay(self, ms):
@@ -122,3 +126,11 @@ class PiVersion:
                 items.append(value)
 
         self._spi.writebytes(items)
+
+    def setup_pwm(self, pin, freq, *, duty_cycle=None):
+        self.__pwm_pin_states[pin] = GPIO.PWM(pin, freq)
+        if duty_cycle is None: duty_cycle = freq / 2 # Set to 50%
+        self.__pwm_pin_states[pin].start(duty_cycle)
+
+    def analog_write(self, pin, value):
+        self.__pwm_pin_states[pin].ChangeDutyCycle(value)
