@@ -569,7 +569,7 @@ class ILI9225(Compatibility):
         if self._cfont.mono_sp:
             char_width = self._cfont.width
         else:
-            char_width = self._read_font_byte(char_offset)
+            char_width = self._cfont.font[char_offset]
 
         char_offset += 1
         # Use autoincrement/decrement feature, if character fits
@@ -590,7 +590,7 @@ class ILI9225(Compatibility):
                 if i == char_width:
                     char_data = 0x00  # Insert blank column
                 else:
-                    char_data = self._read_font_byte(char_offset)
+                    char_data = self._cfont.font[char_offset]
 
                 char_offset += 1
 
@@ -624,22 +624,34 @@ class ILI9225(Compatibility):
         """
         self._is_font_set()
         char_offset = self.__get_offset(ch)
-        return self._read_font_byte(char_offset) # Get font width from 1st byte.
+        return self._cfont.font[char_offset] # Get font width from 1st byte.
+
+    def get_text_width(self, s):
+        """
+        Get the text width.
+
+        @param s: Text to get the width for.
+        @type s: str
+        @rtype Return the width of the s argument.
+        """
+        width = 0
+
+        for k in range(len(s)):
+            width += self.get_char_width(s[k])
+
+        return width
 
     def __get_offset(self, ch):
         # Bytes used by each character.
         char_offset = (self._cfont.width * self._cfont.nbrows) + 1
         # Char offset (add 4 for font header)
-        return (char_offset * (ch - self._cfont.offset)
+        return (char_offset * (ord(ch) - self._cfont.offset)
                 ) + self._CFONT_HEADER_SIZE
 
     def _is_font_set(self):
         if len(self._cfont.font) <= 0:
             raise TFTException("Please set a standard font before using "
                                "this method.")
-
-    def _read_font_byte(self, index):
-        return self._cfont.font[index]
 
     def _bit_read(self, value, bit):
         """
@@ -1137,21 +1149,6 @@ class ILI9225(Compatibility):
             currx += self.draw_char(currx, y, s[k], color) + 1
 
         return currx
-
-    def get_text_width(self, s):
-        """
-        Get the text width.
-
-        @param s: Text to get the width for.
-        @type s: str
-        @rtype Return the width of the s argument.
-        """
-        width = 0
-
-        for k in range(len(s)):
-            width += self.get_char_width(s[k])
-
-        return width
 
     def calculate_rgb_color(self, red, grn, blu):
         """
