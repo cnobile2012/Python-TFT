@@ -82,6 +82,7 @@ class ILI9225(Compatibility):
     MAX_BRIGHTNESS          = 255   # 0..255
     INVOFF                  = 0x20  # Invert off
     INVON                   = 0x21  # Invert on
+    SPI_MSB_FIRST_MODE      = 1
 
     DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
     LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
