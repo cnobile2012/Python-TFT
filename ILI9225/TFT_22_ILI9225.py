@@ -6,7 +6,7 @@ Driver for the ILI9225 chip TFT LCD displays.
 """
 
 from utils.compatibility import Compatibility, Boards, CompatibilityException
-from utils.common import RGB16BitColor
+from utils.common import RGB16BitColor as Color
 
 
 class TFTException(Exception):
@@ -82,7 +82,7 @@ class ILI9225(Compatibility):
     MAX_BRIGHTNESS          = 255   # 0..255
     INVOFF                  = 0x20  # Invert off
     INVON                   = 0x21  # Invert on
-    SPI_MSB_FIRST_MODE      = 1
+    SPI_MODE                = 0
 
     DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
     LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
@@ -179,7 +179,7 @@ class ILI9225(Compatibility):
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
-        self._bg_color = RGB16BitColor.COLOR_BLACK
+        self._bg_color = Color.BLACK
         self._write_function_level = 0
         self._current_font = None
         self._cfont = CurrentFont()
@@ -344,7 +344,7 @@ class ILI9225(Compatibility):
             print("Finished turning on backlight.")
 
         # Initialize character background color
-        self.set_char_background_color(RGB16BitColor.COLOR_BLACK)
+        self.set_char_background_color(Color.BLACK)
         self.clear()
 
         if self.DEBUG:
@@ -357,7 +357,7 @@ class ILI9225(Compatibility):
         old_orientation = self._orientation
         self.set_orientation(0)
         self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1,
-                            RGB16BitColor.COLOR_BLACK)
+                            Color.BLACK)
         self.set_orientation(old_orientation)
         self.delay(10)
 
@@ -423,7 +423,7 @@ class ILI9225(Compatibility):
             self.__end_write()
             self.delay(200)
 
-    def set_char_background_color(self, color=RGB16BitColor.COLOR_BLACK):
+    def set_char_background_color(self, color=Color.BLACK):
         """
         Set the character background color.
 
@@ -548,7 +548,7 @@ class ILI9225(Compatibility):
     ##     """
     ##     pass
 
-    def draw_char(self, x, y, ch, color=RGB16BitColor.COLOR_WHITE):
+    def draw_char(self, x, y, ch, color=Color.WHITE):
         """
         Draw a character.
 
@@ -680,7 +680,7 @@ class ILI9225(Compatibility):
         """
         self._gfx_font = GFXFont(font)
 
-    def draw_gfx_text(self, x, y, s, color=RGB16BitColor.COLOR_WHITE):
+    def draw_gfx_text(self, x, y, s, color=Color.WHITE):
         """
         @param x: Point coordinate (x-axis).
         @type x: int
@@ -723,7 +723,7 @@ class ILI9225(Compatibility):
 
         return w, h
 
-    def draw_gfx_char(self, x, y, ch, color=RGB16BitColor.COLOR_WHITE):
+    def draw_gfx_char(self, x, y, ch, color=Color.WHITE):
         """
         Draw a single character with the current GFX font.
 
@@ -1129,7 +1129,7 @@ class ILI9225(Compatibility):
             self._write_register(self.GRAM_DATA_REG, color)
             self.__end_write()
 
-    def draw_text(self, x, y, s, color=RGB16BitColor.COLOR_WHITE):
+    def draw_text(self, x, y, s, color=Color.WHITE):
         """
         Draw a text string to the display.
 
@@ -1188,9 +1188,8 @@ class ILI9225(Compatibility):
         blu = (rgb & 0b0000000000011111) << 3
         return red, grn, blu
 
-    def draw_bitmap(self, x, y, bitmap, w, h, color,
-                    bg=RGB16BitColor.COLOR_BLACK, transparent=False,
-                    x_bit=False):
+    def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Color.BLACK,
+                    transparent=False, x_bit=False):
         """
         Draw a bitmap image.
 
@@ -1315,16 +1314,16 @@ class ILI9225(Compatibility):
         self._write_command(command, bits_16=bits_16)
         self._write_data(data, bits_16=bits_16)
 
-    def _write_command(self, command, bits_16=True):
+    def _write_command(self, command):
         self.digital_write(self._rs, self.LOW)
         self.digital_write(self._cs, self.LOW)
-        self.spi_write(command, bits_16=bits_16)
+        self.spi_write(command)
         self.digital_write(self._cs, self.HIGH)
 
-    def _write_data(self, data, bits_16=True):
+    def _write_data(self, data):
         self.digital_write(self._rs, self.HIGH)
         self.digital_write(self._cs, self.LOW)
-        self.spi_write(data, bits_16=bits_16)
+        self.spi_write(data)
         self.digital_write(self._cs, self.HIGH)
 
     def __start_write(self):

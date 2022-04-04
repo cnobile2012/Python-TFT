@@ -101,7 +101,8 @@ class PiVersion:
                     self._clk, self._sdi, None, self._cs)
                 self._spi.open(port, device)
                 self._spi.max_speed_hz = Boards.get_frequency(self.BOARD)
-                self._spi.mode = self.SPI_MSB_FIRST_MODE
+                self._spi.mode = self.SPI_MODE
+                #self._spi.bits_per_word = 8
             except Exception as e:
                 self.spi_end_transaction()
                 raise CompatibilityException(e)
