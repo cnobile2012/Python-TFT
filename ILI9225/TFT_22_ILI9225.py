@@ -1310,9 +1310,9 @@ class ILI9225(Compatibility):
         self._write_register(self.VERTICAL_WINDOW_ADDR2, 0)
         self.__end_write()
 
-    def _write_register(self, command, data, bits_16=True):
-        self._write_command(command, bits_16=bits_16)
-        self._write_data(data, bits_16=bits_16)
+    def _write_register(self, command, data):
+        self._write_command(command)
+        self._write_data(data)
 
     def _write_command(self, command):
         self.digital_write(self._rs, self.LOW)
