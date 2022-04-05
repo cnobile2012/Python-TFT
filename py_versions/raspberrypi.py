@@ -46,6 +46,7 @@ class PiVersion:
         """
         mode = mode if mode is not None else GPIO.BCM
         GPIO.setmode(mode)
+        GPIO.setwarnings(False)
         self.__pwm_pin_states = {}
 
     def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None,
@@ -112,7 +113,7 @@ class PiVersion:
             self._spi.close()
             self._spi = None
 
-    def spi_write(self, values, bits_16=True):
+    def spi_write(self, values):
         if not isinstance(values, (list, tuple)):
             values = [values]
         elif isinstance(values, tuple):
@@ -121,11 +122,8 @@ class PiVersion:
         items = []
 
         for value in values:
-            if bits_16:
-                items.append(value >> 8)
-                items.append(value & 0xFF)
-            else:
-                items.append(value)
+            items.append(value >> 8)
+            items.append(value & 0xFF)
 
         self._spi.writebytes(items)
 

@@ -385,6 +385,15 @@ class ILI9225(Compatibility):
             self.analog_write(
                 self._led, self._brightness if self._bl_state else 0)
 
+    def set_char_background_color(self, color=Color.BLACK):
+        """
+        Set the character background color.
+
+        @param color: Background color (default=black).
+        @type color: int
+        """
+        self._bg_color = color
+
     def set_backlight_brightness(self, brightness):
         """
         Set the backlight brightness.
@@ -422,15 +431,6 @@ class ILI9225(Compatibility):
             self._write_register(POWER_CTRL1, 0x0003)
             self.__end_write()
             self.delay(200)
-
-    def set_char_background_color(self, color=Color.BLACK):
-        """
-        Set the character background color.
-
-        @param color: Background color (default=black).
-        @type color: int
-        """
-        self._bg_color = color
 
     def set_orientation(self, orientation):
         """
@@ -529,24 +529,6 @@ class ILI9225(Compatibility):
         @rtype Return the current font.
         """
         return self._cfont
-
-    ## def get_font_x(self):
-    ##     """
-    ##     NEVER IMPLIMENTED IN C++ VERSION (fontX(void))
-    ##     Get horizontal size of font.
-
-    ##     @rtype Horizontal size of current font in pixels.
-    ##     """
-    ##     pass
-
-    ## def get_font_y(self):
-    ##     """
-    ##     NEVER IMPLIMENTED IN C++ VERSION (fontY(void))
-    ##     Get vertical size of font.
-
-    ##     @rtype Vertical size of current font in pixels.
-    ##     """
-    ##     pass
 
     def draw_char(self, x, y, ch, color=Color.WHITE):
         """
