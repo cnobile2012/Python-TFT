@@ -394,23 +394,6 @@ class ILI9225(Compatibility):
             self.analog_write(
                 self._led, self._brightness if self._bl_state else 0)
 
-    def rgb_to_16bit(self, red, green, blue):
-        """
-        Convert RGB color to 16 bit color.
-
-        @param red: The RED component in the RGB color.
-        @type red: int
-        @param green: The GREEN component in the RGB color.
-        @type green: int
-        @param blue: The BLUE component in the RGB color.
-        @type blue: int
-        @rtype Returns the 16 bit color.
-        """
-        #return ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
-        return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
-                (round((0x3F * (green + 2)) / 0xFF) << 5) |
-                round((0x1F * (blue + 4)) / 0xFF))
-
     def set_char_background_color(self, color=Color.BLACK):
         """
         Set the character background color.
@@ -1157,42 +1140,38 @@ class ILI9225(Compatibility):
 
         return currx
 
-    def calculate_rgb_color(self, red, grn, blu):
+    def rgb_to_16bit_color(self, red, green, blue):
         """
-        ORIGINAL NAME setColor
+        Convert RGB color components to a 16 bit color.
 
-        Set the color.
-
-        .. note::
-
-          Calculate an RGB 16-bit color from 8-bit RGB components.
-          RGB 16 bit = RED 5 bit + GREEN 6 bit + BLUE 5 bit
-
-        @param red: The hex values between: 0x00..0xff
+        @param red: The RED component in the RGB color.
         @type red: int
-        @param grn: The hex values between: 0x00..0xff
-        @type grn: int
-        @param blu: The hex values between: 0x00..0xff
-        @type blu: int
-        @rtype Return an RGB 16-bit color.
+        @param green: The GREEN component in the RGB color.
+        @type green: int
+        @param blue: The BLUE component in the RGB color.
+        @type blue: int
+        @rtype Return an 16 bit color.
         """
-        return (red >> 3) << 11 | (grn >> 2) << 5 | (blu >> 3)
+        #return ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
+        return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
+                (round((0x3F * (green + 2)) / 0xFF) << 5) |
+                round((0x1F * (blue + 4)) / 0xFF))
 
-    def split_rgb_color(self, rgb):
+    def split_16bit_color(self, color):
         """
-        ORIGINAL NAME splitColor
+        Split the 16 bit color to RGB components.
 
         .. note::
 
           Calculate 8-bit RGB components from an RGB 16-bit color.
 
-        @param rgb: An RGB 16-bit color.
-        @type rgb: int
+        @param color: An RGB 16-bit color.
+        @type color: int
         @rtype Return a tuple of the RGB 8-bit components, (red, grn, blu).
         """
-        red = (rgb & 0b1111100000000000) >> 11 << 3
-        grn = (rgb & 0b0000011111100000) >> 5 << 2
-        blu = (rgb & 0b0000000000011111) << 3
+        red = (color & 0b1111100000000000) >> 11 << 3
+        grn = (color & 0b0000011111100000) >> 5 << 2
+        blu = (color & 0b0000000000011111) << 3
         return red, grn, blu
 
     def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Color.BLACK,
