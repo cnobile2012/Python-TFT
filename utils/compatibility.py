@@ -78,7 +78,7 @@ class Boards:
         RP2040: 1000000,
         ESP8266: 40000000,
         ESP32: 40000000,
-        RASPI: 35000000, # RPi 3?
+        RASPI: 31200000, # RPi 3?
         TEENSYDUINO: 8000000,
         }
 

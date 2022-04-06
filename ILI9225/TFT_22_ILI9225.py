@@ -214,10 +214,11 @@ class ILI9225(Compatibility):
         self.digital_write(self._cs, self.HIGH)
 
         # Setup SPI clock and data inputs.
-        self.pin_mode(self._sdi, self.OUTPUT)
-        self.digital_write(self._sdi, self.LOW)
-        self.pin_mode(self._clk, self.OUTPUT)
-        self.digital_write(self._clk, self.HIGH)
+        if self.BOARD not in (Boards.RASPI,):
+            self.pin_mode(self._sdi, self.OUTPUT)
+            self.digital_write(self._sdi, self.LOW)
+            self.pin_mode(self._clk, self.OUTPUT)
+            self.digital_write(self._clk, self.HIGH)
 
         # Pull the reset pin high to release the ILI9225C from the reset
         # status.
@@ -1297,13 +1298,13 @@ class ILI9225(Compatibility):
         self._write_data(data)
 
     def _write_command(self, command):
-        self.digital_write(self._rs, self.LOW)
+        self.digital_write(self._rs, self.LOW) # Data/Command
         self.digital_write(self._cs, self.LOW)
         self.spi_write(command)
         self.digital_write(self._cs, self.HIGH)
 
     def _write_data(self, data):
-        self.digital_write(self._rs, self.HIGH)
+        self.digital_write(self._rs, self.HIGH) # Data/Command
         self.digital_write(self._cs, self.LOW)
         self.spi_write(data)
         self.digital_write(self._cs, self.HIGH)
