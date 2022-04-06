@@ -75,7 +75,7 @@ class ILI9225(Compatibility):
     """
     Main ILI9225 class.
     """
-    DEBUG = True
+    DEBUG = False
 
     LCD_WIDTH               = 176
     LCD_HEIGHT              = 220
@@ -355,10 +355,18 @@ class ILI9225(Compatibility):
         """
         Overwrites the entire display with the color black.
         """
+        self.set_display_background(Color.BLACK)
+
+    def set_display_background(self, color):
+        """
+        Set the background color of the display.
+
+        @param color: The color for the display, default is black.
+        @type color: int
+        """
         old_orientation = self._orientation
         self.set_orientation(0)
-        self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1,
-                            Color.BLACK)
+        self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1, color)
         self.set_orientation(old_orientation)
         self.delay(10)
 
