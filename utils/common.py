@@ -7,7 +7,7 @@ Common functionality between ILI chips.
 
 class RGB16BitColor:
     """
-    RGB 16-bit color table definition (RG565)
+    RGB 16-bit color table definition (RGB565)
     """
     BLACK       = 0x0000  #   0,   0,   0
     WHITE       = 0xFFFF  # 255, 255, 255

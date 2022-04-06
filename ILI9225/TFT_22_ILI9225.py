@@ -394,6 +394,23 @@ class ILI9225(Compatibility):
             self.analog_write(
                 self._led, self._brightness if self._bl_state else 0)
 
+    def rgb_to_16bit(self, red, green, blue):
+        """
+        Convert RGB color to 16 bit color.
+
+        @param red: The RED component in the RGB color.
+        @type red: int
+        @param green: The GREEN component in the RGB color.
+        @type green: int
+        @param blue: The BLUE component in the RGB color.
+        @type blue: int
+        @rtype Returns the 16 bit color.
+        """
+        #return ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
+        return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
+                (round((0x3F * (green + 2)) / 0xFF) << 5) |
+                round((0x1F * (blue + 4)) / 0xFF))
+
     def set_char_background_color(self, color=Color.BLACK):
         """
         Set the character background color.
@@ -1079,7 +1096,6 @@ class ILI9225(Compatibility):
 
         dx = x1 - x0
         dy = abs(y1 - y0)
-
         err = dx / 2
 
         if y0 < y1:
