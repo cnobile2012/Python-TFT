@@ -821,10 +821,10 @@ class ILI9225(Compatibility):
         @param color: A 16-bit color.
         @type color: int
         """
-        self._draw_line(x0, y0, x0, y1, color)
-        self._draw_line(x0, y0, x1, y0, color)
-        self._draw_line(x0, y1, x1, y1, color)
-        self._draw_line(x1, y0, x1, y1, color)
+        self.draw_line(x0, y0, x0, y1, color)
+        self.draw_line(x0, y0, x1, y0, color)
+        self.draw_line(x0, y1, x1, y1, color)
+        self.draw_line(x1, y0, x1, y1, color)
 
     def fill_rectangle(self, x0, y0, x1, y1, color):
         """
@@ -923,10 +923,10 @@ class ILI9225(Compatibility):
             ddf_x += 2
             f += ddf_x
 
-            self._draw_line(x0 + x, y0 + y, x0 - x, y0 + y, color) # bottom
-            self._draw_line(x0 + x, y0 - y, x0 - x, y0 - y, color) # top
-            self._draw_line(x0 + y, y0 - x, x0 + y, y0 + x, color) # right
-            self._draw_line(x0 - y, y0 - x, x0 - y, y0 + x, color) # left
+            self.draw_line(x0 + x, y0 + y, x0 - x, y0 + y, color) # bottom
+            self.draw_line(x0 + x, y0 - y, x0 - x, y0 - y, color) # top
+            self.draw_line(x0 + y, y0 - x, x0 + y, y0 + x, color) # right
+            self.draw_line(x0 - y, y0 - x, x0 - y, y0 + x, color) # left
 
         self.fill_rectangle(x0 - x, y0 - y, x0 + x, y0 + y, color)
 
@@ -949,9 +949,9 @@ class ILI9225(Compatibility):
         @param color: A 16-bit color.
         @type color: int
         """
-        self._draw_line(x0, y0, x1, y1, color)
-        self._draw_line(x1, y1, x2, y2, color)
-        self._draw_line(x2, y2, x0, y0, color)
+        self.draw_line(x0, y0, x1, y1, color)
+        self.draw_line(x1, y1, x2, y2, color)
+        self.draw_line(x2, y2, x0, y0, color)
 
     def fill_triangle(self, x0, y0, x1, y1, x2, y2, color):
         """
