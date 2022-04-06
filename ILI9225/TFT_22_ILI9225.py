@@ -1087,7 +1087,7 @@ class ILI9225(Compatibility):
         else:
             ystep = -1
 
-        while x0 <= x2:
+        while x0 <= x1:
             if steep:
                 self.draw_pixel(y0, x0, color)
             else:
