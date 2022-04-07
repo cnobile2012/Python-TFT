@@ -15,18 +15,29 @@ RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
 #----------------------------------------------------------------------
 all	: doc tar
 
+.PHONY	: tests
+rpi-tests: clean
+	@nosetests --with-coverage --cover-erase --cover-inclusive \
+                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
+                   --ignore-files="^(?:(?!:(.+_rpi_.+).)$" \
+                   --cover-package=$(PREFIX)/tborg $(TEST_PATH)
+
+#.PHONY	: sphinx
+#sphinx	: clean
+#	(cd $(DOCS_DIR); make html)
+
 #----------------------------------------------------------------------
 doc	:
 	@(cd $(DOCS_DIR); make)
+
 #----------------------------------------------------------------------
 tar	: clean
 	@(cd ..; tar -czvf ${PACKAGE_DIR}-${VERSION}.tar.gz --exclude=".git" \
           ${PACKAGE_DIR})
+
 #----------------------------------------------------------------------
 python-api:
 	@python setup.py build
-#----------------------------------------------------------------------
-#tests	:
 
 #----------------------------------------------------------------------
 clean	:

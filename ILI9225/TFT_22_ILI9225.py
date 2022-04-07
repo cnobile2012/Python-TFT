@@ -1140,9 +1140,9 @@ class ILI9225(Compatibility):
 
         return currx
 
-    def rgb_to_16bit_color(self, red, green, blue):
+    def rgb24_to_rgb16(self, red, green, blue):
         """
-        Convert RGB color components to a 16 bit color.
+        Convert 24-bit RGB color components to a 16-bit RGB color.
 
         @param red: The RED component in the RGB color.
         @type red: int
@@ -1150,20 +1150,16 @@ class ILI9225(Compatibility):
         @type green: int
         @param blue: The BLUE component in the RGB color.
         @type blue: int
-        @rtype Return an 16 bit color.
+        @rtype Return an 16-bit RGB color.
         """
         #return ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
         return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
                 (round((0x3F * (green + 2)) / 0xFF) << 5) |
                 round((0x1F * (blue + 4)) / 0xFF))
 
-    def split_16bit_color(self, color):
+    def rgb16_to_rgb24(self, color):
         """
-        Split the 16 bit color to RGB components.
-
-        .. note::
-
-          Calculate 8-bit RGB components from an RGB 16-bit color.
+        Convert 16-bit RGB color to a 24-bit RGB color components.
 
         @param color: An RGB 16-bit color.
         @type color: int

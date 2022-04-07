@@ -1,2 +1,13 @@
 # This is the BASE requirements file.
+
+# Documentation
+Sphinx
+sphinx_rtd_theme
+
+# Tests and coverage
 ipython
+coverage
+wheel
+twine
+#mock
+nose
