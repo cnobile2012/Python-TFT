@@ -25,14 +25,14 @@ class TestCompatibility(unittest.TestCase):
 
     def tearDown(self):
         self._tft.clear()
-        self.pin_cleanup()
+        self._tft.pin_cleanup()
 
     def test__get_board_name(self):
         """
         Test that the board name matches what was set.
         """
         board = self._tft._get_board_name()
-        tmp_board = Board._BOARDS.get(self.BOARD)
+        tmp_board = Boards._BOARDS.get(self._tft.BOARD)
         msg = "The board '{}' does not match '{}'".format(board, tmp_board)
         self.assertEqual(board, tmp_board, msg=msg)
 
@@ -40,8 +40,8 @@ class TestCompatibility(unittest.TestCase):
         """
         Test that the board name matches what was set.
         """
-        board = self._tft._get_board_name(Board.ARM)
-        tmp_board = Board._BOARDS.get(self.BOARD)
+        board = self._tft._get_board_name(Boards.ARM)
+        tmp_board = Boards._BOARDS.get(self._tft.BOARD)
         msg = "The board '{}' matches '{}'".format(board, tmp_board)
         self.assertNotEqual(board, tmp_board, msg=msg)
 
@@ -51,16 +51,16 @@ class TestCompatibility(unittest.TestCase):
         """
         board_val = self._tft.get_board()
         msg = "The board '{}' does not match '{}'".format(board_val, self.BOARD)
-        self.assertEqual(board_val, self.BOARD, msg=msg)
+        self.assertEqual(board_val, self._tft.BOARD, msg=msg)
 
     def test_set_board(self):
         """
         Test that a board can be set.
         """
-        self._tft.set_board(Board.ESP32)
+        self._tft.set_board(Boards.ESP32)
         board = self._tft.get_board()
-        msg = "The board '{}' does not match '{}'.".format(board, Board.ESP32)
-        self.assertEqual(board, Board.ESP32, msg=msg)
+        msg = "The board '{}' does not match '{}'.".format(board, Boards.ESP32)
+        self.assertEqual(board, Boards.ESP32, msg=msg)
 
     def test_unknown_set_board(self):
         """

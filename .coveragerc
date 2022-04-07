@@ -1,0 +1,31 @@
+[run]
+source =
+    ILI9225
+    ILI9341
+    py_versions
+    utils
+    fonts
+
+omit =
+    *tests*
+    *mock*
+    *examples*
+    *utils*
+    # Virtualenv Python 2
+    */tborg2/*
+    # Virtualenv Python 3
+    */tborg3/*
+
+[report]
+show_missing = True
+skip_covered = True
+precision = 3
+
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+[html]
+title = TFT LCD Display API
+directory = docs/htmlcov
