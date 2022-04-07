@@ -19,8 +19,9 @@ all	: doc tar
 rpi-tests: clean
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
                    --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
-                   --ignore-files="^(?:(?!:(.+_rpi_.+).)$" \
                    --cover-package=$(PREFIX)/tborg $(TEST_PATH)
+
+                   #--ignore-files="^(?:(?!:.+_rpi_.+))$" \
 
 #.PHONY	: sphinx
 #sphinx	: clean
