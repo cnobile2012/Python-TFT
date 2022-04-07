@@ -50,7 +50,8 @@ class TestCompatibility(unittest.TestCase):
         Test that the board value matches what was set.
         """
         board_val = self._tft.get_board()
-        msg = "The board '{}' does not match '{}'".format(board_val, self.BOARD)
+        msg = ("The board '{}' does not match '{}'"
+               ).format(board_val, self._tft.BOARD)
         self.assertEqual(board_val, self._tft.BOARD, msg=msg)
 
     def test_set_board(self):

@@ -12,7 +12,8 @@ DOCS_DIR	= $(PREFIX)/docs
 RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
-RPI_TEST_PATH	= $(PREFIX)/utils/tests/test_rpi_compatibility.py
+RPI_TEST_PATH	= $(PREFIX)/ILI9225 $(PREFIX)/ILI9341 $(PREFIX)/fonts \
+                  $(PREFIX)/utils $(PREFIX)/py_versions
 
 #----------------------------------------------------------------------
 all	: doc tar
@@ -21,7 +22,7 @@ all	: doc tar
 rpi-tests: clean
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
                    --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
-                   --cover-package=$(PREFIX)/tborg $(RPI_TEST_PATH)
+                   --cover-package=$(RPI_TEST_PATH)
 
 #.PHONY	: sphinx
 #sphinx	: clean
