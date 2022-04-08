@@ -8,6 +8,23 @@ from ILI9225 import ILI9225, Boards
 from utils import CompatibilityException
 
 
+class TestBoards(unittest.TestCase):
+
+    def __init__(self, name):
+        super().__init__(name)
+
+    def test_get_frequency(self):
+        """
+        Test that the correct frequence is returned for the board selected.
+        """
+        board = Boards.ARDUINO_ARCH_STM32F1
+        freq = Boards._FREQUENCY.get(board)
+        freq_found = Boards.get_frequency(board)
+        msg = ("The board freq should be '{}', found '{}'."
+               ).format(freq, freq_found)
+        self.assertEqual(freq, freq_found, msg=msg)
+
+
 class TestCompatibility(unittest.TestCase):
     RST = 17 # RTD
     RS = 27
@@ -98,3 +115,8 @@ class TestCompatibility(unittest.TestCase):
         """
         with self.assertRaises(CompatibilityException) as cm:
             self._tft.spi_port_device(100, None, None, 101)
+
+        err = 'Invalid pin selection for hardware SPI'
+        msg = "Error message should be '{}', found '{}'.".format(
+            err, cm.exception)
+        self.assertEqual(err, cm.exception, msg=msg)

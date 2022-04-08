@@ -134,8 +134,8 @@ class SPITest(SpiDev):
                 device = pins['select'].index(select)
                 print(f"Using -- port: {port}, device: {device}")
                 return (port, device)
-            raise CompatibilityException(
-                'Invalid pin selection for hardware SPI')
+
+        raise CompatibilityException('Invalid pin selection for hardware SPI')
 
 
 if __name__ == '__main__':

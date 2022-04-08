@@ -82,17 +82,9 @@ class Boards:
         TEENSYDUINO: 8000000,
         }
 
-    _MSBFIRST = {} # Seems to be 1 for eveything.
-
-    _SPI_MODE0 = {}
-
     @staticmethod
     def get_frequency(board):
         return Boards._FREQUENCY.get(board, 24000000)
-
-    @staticmethod
-    def get_msbfirst(board):
-        return Boards._MSBFIRST.get(board, 1) 
 
 
 class Compatibility(PiVersion):
