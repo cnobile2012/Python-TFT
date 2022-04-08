@@ -116,7 +116,6 @@ class TestCompatibility(unittest.TestCase):
         with self.assertRaises(CompatibilityException) as cm:
             self._tft.spi_port_device(100, None, None, 101)
 
-        err = 'Invalid pin selection for hardware SPI'
         msg = "Error message should be '{}', found '{}'.".format(
-            err, cm.exception)
-        self.assertEqual(err, cm.exception, msg=msg)
+            self._tft._SPI_PD_ERR_MSG, str(cm.exception))
+        self.assertEqual(self._tft._SPI_PD_ERR_MSG, str(cm.exception), msg=msg)
