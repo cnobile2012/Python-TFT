@@ -1332,16 +1332,24 @@ class ILI9225(Compatibility):
         self._write_data(data)
 
     def _write_command(self, command):
-        self.digital_write(self._rs, self.LOW) # Data/Command
-        self.digital_write(self._cs, self.LOW)
-        self.spi_write(command)
-        self.digital_write(self._cs, self.HIGH)
+        try:
+            self.digital_write(self._rs, self.LOW) # Data/Command
+            self.digital_write(self._cs, self.LOW)
+            self.spi_write(command)
+            self.digital_write(self._cs, self.HIGH)
+        except CompatibilityException as e:
+            self.__end_write()
+            raise e
 
     def _write_data(self, data):
-        self.digital_write(self._rs, self.HIGH) # Data/Command
-        self.digital_write(self._cs, self.LOW)
-        self.spi_write(data)
-        self.digital_write(self._cs, self.HIGH)
+        try:
+            self.digital_write(self._rs, self.HIGH) # Data/Command
+            self.digital_write(self._cs, self.LOW)
+            self.spi_write(data)
+            self.digital_write(self._cs, self.HIGH)
+        except CompatibilityException as e:
+            self.__end_write()
+            raise e
 
     def __start_write(self):
         if self._write_function_level == 0:

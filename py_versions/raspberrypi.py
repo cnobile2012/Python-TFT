@@ -113,6 +113,8 @@ class PiVersion:
             self._spi = None
 
     def spi_write(self, values):
+        from utils.compatibility import CompatibilityException
+
         if not isinstance(values, (list, tuple)):
             values = [values]
         elif isinstance(values, tuple):
@@ -124,7 +126,12 @@ class PiVersion:
             items.append(value >> 8)
             items.append(value & 0xFF)
 
-        self._spi.writebytes(items)
+        try:
+            result = self._spi.xfer2(items)
+        except Exception as e:
+            raise CompatibilityException("Error writing: {}".format(str(e)))
+        else:
+            return result
 
     def setup_pwm(self, pin, freq, *, duty_cycle=None):
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, freq)

@@ -2,6 +2,11 @@
 #
 # Test the SPIDev API.
 #
+# Test conditions:
+#   1. Connect the MISO pin to the MOSI pin.
+#   2. If testing port 1 (default is 0) then `dtoverlay=spi1-3cs` must be
+#      in the `/boot/config.txt` file on the RPI.
+#
 
 from RPi import GPIO
 from spidev import SpiDev
@@ -37,13 +42,6 @@ class SPITest(SpiDev):
         # Control pins
         self.pin_mode(self.select, GPIO.OUT)
         self.digital_write(self.select, GPIO.HIGH)
-
-        # Setup SPI clock and data inputs.
-        #self.pin_mode(self.miso, GPIO.IN)
-        #self.pin_mode(self.mosi, GPIO.OUT)
-        #self.digital_write(self.mosi, GPIO.LOW)
-        #self.pin_mode(self.clock, GPIO.OUT)
-        #self.digital_write(self.clock, GPIO.HIGH)
 
     def pin_mode(self, pin, direction, *, pull=GPIO.PUD_OFF, default=None,
                  alt=-1):
@@ -111,7 +109,6 @@ class SPITest(SpiDev):
         try:
             self.digital_write(self.select, GPIO.LOW)
             result = self._spi.xfer2(items)
-            #self._spi.writebytes(items)
         except Exception as e:
             print(f"Error: {e}")
         finally:
@@ -122,8 +119,19 @@ class SPITest(SpiDev):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
         and 'select' at a minimum, to a hardware SPI port, device tuple.
-        Raises `CompatibilityException` if the pins do not represent a valid
-        hardware SPI device.
+
+        :param clock: The SPI clock pin number.
+        :type clock: int
+        :param mosi: The SPI -- Master Output Slave Input pin number.
+        :type mosi: int
+        :param miso: The SPI -- Master Input Slave Output pin number.
+        :type miso: int
+        :param select: The SPI Chip Select pin number.
+        :type select: int
+        :returns: A tuple of (port, device).
+        :rtype: tuple
+        :raises CompatibilityException: If the pins do not represent a valid
+                                        hardware SPI device.
         """
         # The port variable is sometimes refered to as the bus.
         for port, pins in self._SPI_HARDWARE_PINS.items():
