@@ -5,15 +5,9 @@ TFT_22_ILI9225.py
 Driver for the ILI9225 chip TFT LCD displays.
 """
 
-from utils.compatibility import Compatibility, Boards, CompatibilityException
+from utils.compatibility import Compatibility, Boards
 from utils.common import RGB16BitColor as Color
-
-
-class TFTException(Exception):
-    """
-    Raised when an error is found in the main TFT class.
-    """
-    pass
+from utils import TFTException, CompatibilityException
 
 
 class AutoIncMode:

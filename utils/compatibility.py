@@ -9,10 +9,6 @@ We need to test for the existance of a few methods and functions then decide
 which to use in this library.
 """
 
-class CompatibilityException(Exception):
-    pass
-
-
 try: # MicroPython
     from time import sleep_ms
 except:
@@ -34,6 +30,8 @@ except:
         from py_versions.circuitpython import PiVersion
 else:
     from py_versions.micropython import PiVersion
+
+from utils import CompatibilityException
 
 
 class Boards:

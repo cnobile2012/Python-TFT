@@ -11,6 +11,8 @@
 from RPi import GPIO
 from spidev import SpiDev
 
+from utils import CompatibilityException
+
 
 class SPITest(SpiDev):
     _SPI_HARDWARE_PINS = {
