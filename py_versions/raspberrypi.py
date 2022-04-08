@@ -127,11 +127,12 @@ class PiVersion:
             items.append(value & 0xFF)
 
         try:
-            result = self._spi.xfer2(items)
+            self._spi.writebytes(items)
+            if self.DEBUG: result = self._spi.readbytes(items)
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
-            return result
+            if self.DEBUG: return result
 
     def setup_pwm(self, pin, freq, *, duty_cycle=None):
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, freq)
