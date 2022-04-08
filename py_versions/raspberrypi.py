@@ -128,7 +128,7 @@ class PiVersion:
 
         try:
             self._spi.writebytes(items)
-            if self.DEBUG: result = self._spi.readbytes(items)
+            if self.DEBUG: result = self._spi.readbytes(len(items))
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
