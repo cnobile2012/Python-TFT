@@ -128,7 +128,7 @@ class PiVersion:
 
         try:
             if self.DEBUG:
-                result = self._spi.xfer2(len(items))
+                result = self._spi.xfer2(items)
             else:
                 self._spi.writebytes(items)
         except Exception as e:
