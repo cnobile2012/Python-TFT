@@ -235,19 +235,19 @@ class ILI9225(Compatibility):
 
         # Start initial sequence.
         # Set SS bit and direction output from S528 to S1
-        self.__start_write()
-        # Set SAP,DSTB,STB
-        self._write_register(self.POWER_CTRL1, 0x0000)
-        # Set APON,PON,AON,VCI1EN,VC
-        self._write_register(self.POWER_CTRL2, 0x0000)
-        # Set BT,DC1,DC2,DC3
-        self._write_register(self.POWER_CTRL3, 0x0000)
-        # Set GVDD
-        self._write_register(self.POWER_CTRL4, 0x0000)
-        # Set VCOMH/VCOML voltage
-        self._write_register(self.POWER_CTRL5, 0x0000)
-        self.__end_write()
-        self.delay(40)
+        ## self.__start_write()
+        ## # Set SAP,DSTB,STB
+        ## self._write_register(self.POWER_CTRL1, 0x0000)
+        ## # Set APON,PON,AON,VCI1EN,VC
+        ## self._write_register(self.POWER_CTRL2, 0x0000)
+        ## # Set BT,DC1,DC2,DC3
+        ## self._write_register(self.POWER_CTRL3, 0x0000)
+        ## # Set GVDD
+        ## self._write_register(self.POWER_CTRL4, 0x0000)
+        ## # Set VCOMH/VCOML voltage
+        ## self._write_register(self.POWER_CTRL5, 0x0000)
+        ## self.__end_write()
+        ## self.delay(40)
 
         if self.DEBUG:
             print("Finished initial sequence.")
@@ -314,18 +314,7 @@ class ILI9225(Compatibility):
             print("Finished set GRAM area.")
 
         # Adjust GAMMA curve
-        ## self._write_register(self.GAMMA_CTRL1, 0x0000)
-        ## self._write_register(self.GAMMA_CTRL2, 0x0808)
-        ## self._write_register(self.GAMMA_CTRL3, 0x080A)
-        ## self._write_register(self.GAMMA_CTRL4, 0x000A)
-        ## self._write_register(self.GAMMA_CTRL5, 0x0A08)
-        ## self._write_register(self.GAMMA_CTRL6, 0x0808)
-        ## self._write_register(self.GAMMA_CTRL7, 0x0000)
-        ## self._write_register(self.GAMMA_CTRL8, 0x0A00)
-        ## self._write_register(self.GAMMA_CTRL9, 0x0710)
-        ## self._write_register(self.GAMMA_CTRL10, 0x0710)
-
-        self._write_register(self.GAMMA_CTRL1, 0x4000)
+        self._write_register(self.GAMMA_CTRL1, 0x0000)
         self._write_register(self.GAMMA_CTRL2, 0x060B)
         self._write_register(self.GAMMA_CTRL3, 0x0C0A)
         self._write_register(self.GAMMA_CTRL4, 0x0105)
