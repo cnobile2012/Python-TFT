@@ -38,17 +38,17 @@ class PiVersion:
 
           See the Micropython documentation on https://bit.ly/33WltF3
 
-        @param pin: The pin identifier.
-        @type pin: int
-        @param direction: The direction IN or OUT based on the board.
-        @type direction: int
-        @param pull: Sets either a pull up or pull down resistor internal to
+        :param pin: The pin identifier.
+        :type pin: int
+        :param direction: The direction IN or OUT based on the board.
+        :type direction: int
+        :param pull: Sets either a pull up or pull down resistor internal to
                      the board (Pin.PULL_UP or Pin.PULL_DOWN).
-        @type pull: int
-        @param default: Set a default value of the pin.
-        @type default: int
-        @param alt: Specifies an alternate function for the pin method.
-        @type alt: int
+        :type pull: int
+        :param default: Set a default value of the pin.
+        :type default: int
+        :param alt: Specifies an alternate function for the pin method.
+        :type alt: int
         """
         self.__pin_state[pin] = Pin(pin, direction, pull,
                                     value=default, alt=alt)
@@ -57,10 +57,10 @@ class PiVersion:
         """
         Set the given pin either high or low.
 
-        @param pin: The pin to set.
-        @type pin: int
-        @param high_low: Set HIGH (True) or LOW (False).
-        @type high_low: bool
+        :param pin: The pin to set.
+        :type pin: int
+        :param high_low: Set HIGH (True) or LOW (False).
+        :type high_low: bool
         """
         self.__pin_state[pin].value(high_low)
 
@@ -86,8 +86,8 @@ class PiVersion:
           This method can raise the KeyError exception if the pin_mode()
           method was not called first on the pins used in this method.
 
-        @param value: The value to write to the SPI port.
-        @type value: str
+        :param value: The value to write to the SPI port.
+        :type value: str
         """
         self.__pin_state[self._rs].low()
 
@@ -102,8 +102,8 @@ class PiVersion:
         This sets the ports to use assuming the board has multiple SPI ports.
         MicroPython refers to the as the id.
 
-        @param port: Value 0, 1 etc. Depends on the MCU and board used.
+        :param port: Value 0, 1 etc. Depends on the MCU and board used.
                      Defaults is 0.
-        @type port: int
+        :type port: int
         """
         self._port = port

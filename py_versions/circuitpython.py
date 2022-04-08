@@ -39,17 +39,17 @@ class PiVersion:
 
           See the CircuitPython documentation on https://bit.ly/36yPHPl
 
-        @param pin: The pin identifier.
-        @type pin: int
-        @param direction: The direction IN or OUT based on the board.
-        @type direction: int
-        @param pull: Sets either a pull up or pull down resistor internal
+        :param pin: The pin identifier.
+        :type pin: int
+        :param direction: The direction IN or OUT based on the board.
+        :type direction: int
+        :param pull: Sets either a pull up or pull down resistor internal
                      to the board (Pull.UP or Pull.DOWN).
-        @type pull: int
-        @param default: Set a default value of the pin.
-        @type default: int
-        @param alt: Not used with Circuitpython.
-        @type alt: int
+        :type pull: int
+        :param default: Set a default value of the pin.
+        :type default: int
+        :param alt: Not used with Circuitpython.
+        :type alt: int
         """
         self.__pin_state[pin] = DigitalInOut(pin)
         self.__pin_state[pin].direction = direction
@@ -59,10 +59,10 @@ class PiVersion:
         """
         Set the given pin either high or low.
 
-        @param pin: The pin to set.
-        @type pin: int
-        @param high_low: Set HIGH (True) or LOW (False).
-        @type high_low: bool
+        :param pin: The pin to set.
+        :type pin: int
+        :param high_low: Set HIGH (True) or LOW (False).
+        :type high_low: bool
         """
         self.__pin_state[pin].value = high_low
 
@@ -98,12 +98,12 @@ class PiVersion:
 
             This method must be called before the begin() method.
 
-        @param sclk: The SPI clock pin.
-        @type sclk: int
-        @param mosi: Master Out Slave In pin.
-        @type mosi: int
-        @param miso: Master In Slave Out pin.
-        @type: miso: int
+        :param sclk: The SPI clock pin.
+        :type sclk: int
+        :param mosi: Master Out Slave In pin.
+        :type mosi: int
+        :param miso: Master In Slave Out pin.
+        :type: miso: int
         """
         self._sclk = sclk
         self._mosi = mosi

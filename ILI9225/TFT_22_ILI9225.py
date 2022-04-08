@@ -10,6 +10,9 @@ from utils.common import RGB16BitColor as Color
 
 
 class TFTException(Exception):
+    """
+    Raised when an error is found in the main TFT class.
+    """
     pass
 
 
@@ -146,26 +149,27 @@ class ILI9225(Compatibility):
         """
         Initialize the ILI9225 class.
 
-        @param rst: The RST (reset) pin on the display. (RTD on some devices.)
-        @type rst: int
-        @param rs: The RS (command/data) pin on the display. 0: command, 1: data
-        @type rs: int
-        @param cs: The CS (chip select) pin on the display.
-        @type cs: int
-        @param sdi: The SDI (serial data input) pin on the display. Sometimes
+        :param rst: The RST (reset) pin on the display. (RTD on some devices.)
+        :type rst: int
+        :param rs: The RS (command/data) pin on the display. 0: command, 1: data
+        :type rs: int
+        :param cs: The CS (chip select) pin on the display.
+        :type cs: int
+        :param sdi: The SDI (serial data input) pin on the display. Sometimes
                     marked the SDA pin.
-        @type sdi: int
-        @param clk: The CLK (clock) pin on the display.
-        @type clk: int
-        @param led: The LED pin on the display.
-        @type led: int
-        @param brightness: Set the brightness from 0..255 (default=255).
-        @type brightness: int
-        @param board: The board this will run on. e.g. Boards.ESP32
-        @type board: int
-        @param rpi_mode: Only applies to the Raspberry Pi and Computer boards.
+        :type sdi: int
+        :param clk: The CLK (clock) pin on the display.
+        :type clk: int
+        :param led: The LED pin on the display.
+        :type led: int
+        :param brightness: Set the brightness from 0..255 (default=255).
+        :type brightness: int
+        :param board: The board this will run on. e.g. Boards.ESP32
+        :type board: int
+        :param rpi_mode: Only applies to the Raspberry Pi and Computer boards.
                          Default GPIO.BCM
-        @type rpi_mode: int
+        :type rpi_mode: int
+        :raises CompatibilityException: If the board is unsupported.
         """
         super().__init__(mode=rpi_mode)
         self._rst = rst
@@ -361,8 +365,8 @@ class ILI9225(Compatibility):
         """
         Set the background color of the display.
 
-        @param color: The color for the display, default is black.
-        @type color: int
+        :param color: The color for the display, default is black.
+        :type color: int
         """
         old_orientation = self._orientation
         self.set_orientation(0)
@@ -374,8 +378,8 @@ class ILI9225(Compatibility):
         """
         Invert the screen.
 
-        @param flag: True = invert and False = normal screen.
-        @type flag: bool
+        :param flag: True = invert and False = normal screen.
+        :type flag: bool
         """
         self.__start_write()
         self._write_command(self.INVON if flag else self.INVOFF)
@@ -385,8 +389,8 @@ class ILI9225(Compatibility):
         """
         Set the backlight on or off.
 
-        @param flag: True = backlight on and False = backlight off.
-        @type flag: bool
+        :param flag: True = backlight on and False = backlight off.
+        :type flag: bool
         """
         self._bl_state = flag
 
@@ -398,8 +402,8 @@ class ILI9225(Compatibility):
         """
         Set the character background color.
 
-        @param color: Background color (default=black).
-        @type color: int
+        :param color: Background color (default=black).
+        :type color: int
         """
         self._bg_color = color
 
@@ -407,8 +411,8 @@ class ILI9225(Compatibility):
         """
         Set the backlight brightness.
 
-        @param brightness: Set the brightness to 0..255
-        @type brightness: int
+        :param brightness: Set the brightness to 0..255
+        :type brightness: int
         """
         self._brightness = brightness
         self.set_backlight(self._bl_state)
@@ -417,8 +421,8 @@ class ILI9225(Compatibility):
         """
         Set the display on or off.
 
-        @param flag: True = display on and False = display off.
-        @type flag: bool
+        :param flag: True = display on and False = display off.
+        :type flag: bool
         """
         if flag:
             self.__start_write()
@@ -445,9 +449,9 @@ class ILI9225(Compatibility):
         """
         Set the orientation.
 
-        @param orientation: 0=portrait, 1=right rotated landscape,
+        :param orientation: 0=portrait, 1=right rotated landscape,
                             2=reverse portrait, 3=left rotated landscape
-        @type orientation: int
+        :type orientation: int
         """
         self._orientation = orientation % 4
 
@@ -468,7 +472,8 @@ class ILI9225(Compatibility):
         """
         Get the orientation.
 
-        @rtype Return the current orientation.
+        :return: Return the current orientation.
+        :rtype: int
         """
         return self._orientation
 
@@ -496,7 +501,8 @@ class ILI9225(Compatibility):
 
           Either 0..176 or 0..220 depending on orientation.
 
-        @rtype Horizontal size of the screen in pixels.
+        :return: Horizontal size of the screen in pixels.
+        :rtype: int
         """
         return self._max_x
 
@@ -510,7 +516,8 @@ class ILI9225(Compatibility):
 
           Either 0..176 or 0..220 depending on orientation.
 
-        @rtype Vertical size of the screen in pixels.
+        :return: Vertical size of the screen in pixels.
+        :rtype: int
         """
         return self._max_y
 
@@ -521,10 +528,10 @@ class ILI9225(Compatibility):
         """
         Set the current font.
 
-        @param font: The name of the font.
-        @type font: str
-        @param mono_sp: True = Mono spaced, False = Proportional
-        @type mono_sp: bool
+        :param font: The name of the font.
+        :type font: str
+        :param mono_sp: True = Mono spaced, False = Proportional
+        :type mono_sp: bool
         """
         #       font, width,   height,  offset,  numchars, height / 8
         args = (font, font[0], font[1], font[2], font[3], font[1] / 8,
@@ -535,7 +542,8 @@ class ILI9225(Compatibility):
         """
         Get the current font.
 
-        @rtype Return the current font.
+        :return: The current font.
+        :rtype: CurrentFont
         """
         return self._cfont
 
@@ -543,15 +551,17 @@ class ILI9225(Compatibility):
         """
         Draw a character.
 
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param ch: The character to draw on the display.
-        @type ch: str
-        @param color: A 16-bit color (default=white).
-        @type color: int
-        @rtype Width of character in display pixels.
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param ch: The character to draw on the display.
+        :type ch: str
+        :param color: A 16-bit color (default=white).
+        :type color: int
+        :return: Width of character in display pixels.
+        :rtype: int
+        :raises TFTException: If the a standard font is not set.
         """
         self._is_font_set()
         char_offset = self.__get_offset(ch)
@@ -609,9 +619,11 @@ class ILI9225(Compatibility):
         """
         Width of an ASCII character (pixel).
 
-        @param ch: The ASCII character.
-        @type ch: str
-        @rtype Character width.
+        :param ch: The ASCII character.
+        :type ch: str
+        :return: Character width.
+        :rtype: int
+        :raises TFTException: If the a standard font is not set.
         """
         self._is_font_set()
         char_offset = self.__get_offset(ch)
@@ -621,9 +633,10 @@ class ILI9225(Compatibility):
         """
         Get the text width.
 
-        @param s: Text to get the width for.
-        @type s: str
-        @rtype Return the width of the s argument.
+        :param s: Text to get the width for.
+        :type s: str
+        :return: The width of the s argument.
+        :rtype: int
         """
         width = 0
 
@@ -648,12 +661,13 @@ class ILI9225(Compatibility):
         """
         Is bit out-of-range for value.
 
-        @param value: The integer value.
-        @type value: int
-        @param bit: The bit within the value.
-        @type bit: int
-        @rtype Return a 1 if the bit is within the value range and 0 if
-               out-of-range.
+        :param value: The integer value.
+        :type value: int
+        :param bit: The bit within the value.
+        :type bit: int
+        :return: A 1 if the bit is within the value range and 0 if
+                 out-of-range.
+        :rtype: int
         """
         return ((value) >> (bit)) & 0x01
     #
@@ -666,21 +680,21 @@ class ILI9225(Compatibility):
         """
         Set the GFX font.
 
-        @param font: GFX font name defined in include file.
-        @type font: str
+        :param font: GFX font name defined in include file.
+        :type font: str
         """
         self._gfx_font = GFXFont(font)
 
     def draw_gfx_text(self, x, y, s, color=Color.WHITE):
         """
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param s: The string to draw on the display.
-        @type s: str
-        @param color: A 16-bit color (default=white).
-        @type color: int
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param s: The string to draw on the display.
+        :type s: str
+        :param color: A 16-bit color (default=white).
+        :type color: int
         """
         currx = x
 
@@ -693,17 +707,18 @@ class ILI9225(Compatibility):
         """
         Get the width & height of a text string with the current GFX font
 
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param s: The string to draw on the display.
-        @type s: str
-        @param w: Character width.
-        @type w: int
-        @param h: Character height.
-        @type h: int
-        @rtype A tuple of the width and height (width, height).
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param s: The string to draw on the display.
+        :type s: str
+        :param w: Character width.
+        :type w: int
+        :param h: Character height.
+        :type h: int
+        :return: A tuple of the width and height (width, height).
+        :rtype: tuple
         """
         h = 0
 
@@ -718,14 +733,14 @@ class ILI9225(Compatibility):
         """
         Draw a single character with the current GFX font.
 
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param ch: Character to draw on the display.
-        @type ch: int
-        @param color: A 16-bit color (default=white).
-        @type color: int
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param ch: Character to draw on the display.
+        :type ch: int
+        :param color: A 16-bit color (default=white).
+        :type color: int
         """
         ch -= self._gfx_font.first
         glyph = GFXGlyph(self._gfx_font.glyph[ch])
@@ -757,17 +772,18 @@ class ILI9225(Compatibility):
         """
         Draw a single character with the current GFX font.
 
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param ch: The character to draw on the display.
-        @type ch: str
-        @param color: A 16-bit color.
-        @type color: int
-        @rtype Return a tuple (gw, gh, xa) where gw is the width in pixels
-               of the character, gh is the height, and xa is the distance
-               to advance cursor on the x axis.
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param ch: The character to draw on the display.
+        :type ch: str
+        :param color: A 16-bit color.
+        :type color: int
+        :return: A tuple (gw, gh, xa) where gw is the width in pixels
+                 of the character, gh is the height, and xa is the distance
+                 to advance cursor on the x axis.
+        :rtype: tuple
         """
         # Is char present in this font?
         if self._gfx_font.first <= ch <= self._gfx_font.last:
@@ -782,16 +798,17 @@ class ILI9225(Compatibility):
         """
         Draw a single character with the current GFX font.
 
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param string: The character to draw on the display.
-        @type string: str
-        @param color: A 16-bit color.
-        @type color: int
-        @rtype Return a tuple (w, h) where w is the width of the string and
-               h is the height.
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param string: The character to draw on the display.
+        :type string: str
+        :param color: A 16-bit color.
+        :type color: int
+        :return: A tuple (w, h) where w is the width of the string and
+                 h is the height.
+        :rtype: tuple
         """
         w = h = 0
 
@@ -810,16 +827,16 @@ class ILI9225(Compatibility):
         """
         Draw a rectangle using rectangular coordinates.
 
-        @param x0: Start point coordinate (x0-axis).
-        @type x0: int
-        @param y0: Center point coordinate (y0-axis).
-        @type y0: int
-        @param x1: Center point coordinate (x1-axis).
-        @type x1: int
-        @param y1: Center point coordinate (y1-axis).
-        @type y1: int
-        @param color: A 16-bit color.
-        @type color: int
+        :param x0: Start point coordinate (x0-axis).
+        :type x0: int
+        :param y0: Center point coordinate (y0-axis).
+        :type y0: int
+        :param x1: Center point coordinate (x1-axis).
+        :type x1: int
+        :param y1: Center point coordinate (y1-axis).
+        :type y1: int
+        :param color: A 16-bit color.
+        :type color: int
         """
         self.draw_line(x0, y0, x0, y1, color)
         self.draw_line(x0, y0, x1, y0, color)
@@ -830,16 +847,16 @@ class ILI9225(Compatibility):
         """
         Fill a rectangle using rectangular coordinates.
 
-        @param x0: Start point coordinate (x0-axis).
-        @type x0: int
-        @param y0: Center point coordinate (y0-axis).
-        @type y0: int
-        @param x1: Center point coordinate (x1-axis).
-        @type x1: int
-        @param y1: Center point coordinate (y1-axis).
-        @type y1: int
-        @param color: A 16-bit color
-        @type color: int
+        :param x0: Start point coordinate (x0-axis).
+        :type x0: int
+        :param y0: Center point coordinate (y0-axis).
+        :type y0: int
+        :param x1: Center point coordinate (x1-axis).
+        :type x1: int
+        :param y1: Center point coordinate (y1-axis).
+        :type y1: int
+        :param color: A 16-bit color
+        :type color: int
         """
         self._set_window(x0, y0, x1, y1)
         self.__start_write()
@@ -855,14 +872,14 @@ class ILI9225(Compatibility):
         """
         Draw a circle.
 
-        @param x0: Center point coordinate (x-axis).
-        @type x0: int
-        @param y0: Center point coordinate (y-axis).
-        @type y0: int
-        @param radius: The radius of the circle.
-        @type radius: int
-        @param color: A 16-bit color.
-        @type color: int
+        :param x0: Center point coordinate (x-axis).
+        :type x0: int
+        :param y0: Center point coordinate (y-axis).
+        :type y0: int
+        :param radius: The radius of the circle.
+        :type radius: int
+        :param color: A 16-bit color.
+        :type color: int
         """
         f = 1 - radius
         ddf_x = 1
@@ -898,14 +915,14 @@ class ILI9225(Compatibility):
         """
         Fill a circle.
 
-        @param x0: Center point coordinate (x-axis).
-        @type x0: int
-        @param y0: Center point coordinate (y-axis).
-        @type y0: int
-        @param radius: The radius of the circle.
-        @type radius: int
-        @param color: A 16-bit color.
-        @type color: int
+        :param x0: Center point coordinate (x-axis).
+        :type x0: int
+        :param y0: Center point coordinate (y-axis).
+        :type y0: int
+        :param radius: The radius of the circle.
+        :type radius: int
+        :param color: A 16-bit color.
+        :type color: int
         """
         f = 1 - radius
         ddf_x = 1
@@ -934,20 +951,20 @@ class ILI9225(Compatibility):
         """
         Draw a triangle using triangular coordinates.
 
-        @param x0: Start point coordinate (x0-axis).
-        @type x0: int
-        @param y0: Center point coordinate (y0-axis).
-        @type y0: int
-        @param x1: Center point coordinate (x1-axis).
-        @type x1: int
-        @param y1: Center point coordinate (y1-axis).
-        @type y1: int
-        @param x2: Center point coordinate (x1-axis).
-        @type x2: int
-        @param y2: Center point coordinate (y1-axis).
-        @type y2: int
-        @param color: A 16-bit color.
-        @type color: int
+        :param x0: Start point coordinate (x0-axis).
+        :type x0: int
+        :param y0: Center point coordinate (y0-axis).
+        :type y0: int
+        :param x1: Center point coordinate (x1-axis).
+        :type x1: int
+        :param y1: Center point coordinate (y1-axis).
+        :type y1: int
+        :param x2: Center point coordinate (x1-axis).
+        :type x2: int
+        :param y2: Center point coordinate (y1-axis).
+        :type y2: int
+        :param color: A 16-bit color.
+        :type color: int
         """
         self.draw_line(x0, y0, x1, y1, color)
         self.draw_line(x1, y1, x2, y2, color)
@@ -957,20 +974,20 @@ class ILI9225(Compatibility):
         """
         Fill solid triangle using triangular coordinates.
 
-        @param x0: Start point coordinate (x0-axis).
-        @type x0: int
-        @param y0: Center point coordinate (y0-axis).
-        @type y0: int
-        @param x1: Center point coordinate (x1-axis).
-        @type x1: int
-        @param y1: Center point coordinate (y1-axis).
-        @type y1: int
-        @param x2: Center point coordinate (x1-axis).
-        @type x2: int
-        @param y2: Center point coordinate (y1-axis).
-        @type y2: int
-        @param color: A 16-bit color.
-        @type color: int
+        :param x0: Start point coordinate (x0-axis).
+        :type x0: int
+        :param y0: Center point coordinate (y0-axis).
+        :type y0: int
+        :param x1: Center point coordinate (x1-axis).
+        :type x1: int
+        :param y1: Center point coordinate (y1-axis).
+        :type y1: int
+        :param x2: Center point coordinate (x1-axis).
+        :type x2: int
+        :param y2: Center point coordinate (y1-axis).
+        :type y2: int
+        :param color: A 16-bit color.
+        :type color: int
         """
         # Sort coordinates by Y order (y2 >= y1 >= y0)
         if y0 > y1:
@@ -1055,16 +1072,16 @@ class ILI9225(Compatibility):
         """
         Draw a line using rectangular coordinates.
 
-        @param x0: Start point coordinate (x0-axis).
-        @type x0: int
-        @param y0: Center point coordinate (y0-axis).
-        @type y0: int
-        @param x1: Center point coordinate (x1-axis).
-        @type x1: int
-        @param y1: Center point coordinate (y1-axis).
-        @type y1: int
-        @param color: A 16-bit color.
-        @type color: int
+        :param x0: Start point coordinate (x0-axis).
+        :type x0: int
+        :param y0: Center point coordinate (y0-axis).
+        :type y0: int
+        :param x1: Center point coordinate (x1-axis).
+        :type x1: int
+        :param y1: Center point coordinate (y1-axis).
+        :type y1: int
+        :param color: A 16-bit color.
+        :type color: int
         """
         # Classic Bresenham algorithm
         steep = abs(y1 - y0) > abs(x1 - x0)
@@ -1104,12 +1121,12 @@ class ILI9225(Compatibility):
         """
         Draw a pixel.
 
-        @param x0: Point coordinate (x-axis).
-        @type x0: int
-        @param y0: Point coordinate (y-axis).
-        @type y0: int
-        @param color: A 16-bit color.
-        @type color: int
+        :param x0: Point coordinate (x-axis).
+        :type x0: int
+        :param y0: Point coordinate (y-axis).
+        :type y0: int
+        :param color: A 16-bit color.
+        :type color: int
         """
         if not ((x0 >= self._max_x) or (y0 >= self._max_y)):
             x0, y0 = self._orient_coordinates(x0, y0)
@@ -1123,15 +1140,16 @@ class ILI9225(Compatibility):
         """
         Draw a text string to the display.
 
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param s: The string to draw on the display.
-        @type s: str
-        @param color: A 16-bit color (default=white).
-        @type color: int
-        @rtype The position of x after the text.
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param s: The string to draw on the display.
+        :type s: str
+        :param color: A 16-bit color (default=white).
+        :type color: int
+        :return: The position of x after the text.
+        :rtype: int
         """
         currx = x
 
@@ -1144,13 +1162,14 @@ class ILI9225(Compatibility):
         """
         Convert 24-bit RGB color components to a 16-bit RGB color.
 
-        @param red: The RED component in the RGB color.
-        @type red: int
-        @param green: The GREEN component in the RGB color.
-        @type green: int
-        @param blue: The BLUE component in the RGB color.
-        @type blue: int
-        @rtype Return an 16-bit RGB color.
+        :param red: The RED component in the RGB color.
+        :type red: int
+        :param green: The GREEN component in the RGB color.
+        :type green: int
+        :param blue: The BLUE component in the RGB color.
+        :type blue: int
+        :return: An 16-bit RGB color.
+        :rtype: int
         """
         #return ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
         return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
@@ -1161,9 +1180,10 @@ class ILI9225(Compatibility):
         """
         Convert 16-bit RGB color to a 24-bit RGB color components.
 
-        @param color: An RGB 16-bit color.
-        @type color: int
-        @rtype Return a tuple of the RGB 8-bit components, (red, grn, blu).
+        :param color: An RGB 16-bit color.
+        :type color: int
+        :return: A tuple of the RGB 8-bit components, (red, grn, blu).
+        :rtype: tuple
         """
         red = (color & 0b1111100000000000) >> 11 << 3
         grn = (color & 0b0000011111100000) >> 5 << 2
@@ -1175,24 +1195,24 @@ class ILI9225(Compatibility):
         """
         Draw a bitmap image.
 
-        @param x: Point coordinate (x-axis).
-        @type x: int
-        @param y: Point coordinate (y-axis).
-        @type y: int
-        @param bitmap: A 2D 16-bit color bitmap image to draw on the display.
-        @type bitmap: int
-        @param w: Width
-        @type w: int
-        @param h: Height
-        @type h: int
-        @param color: A 16-bit color (default=white).
-        @type color: int
-        @param bg: A 16-bit background.
-        @type bg: int
-        @param transparent: True = transparent bitmap, False = not transparent.
-        @type transparent: bool
-        @param x_bit: This indicates that the left most (8th) bit is set.
-        @type x_bit: bool
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param bitmap: A 2D 16-bit color bitmap image to draw on the display.
+        :type bitmap: int
+        :param w: Width
+        :type w: int
+        :param h: Height
+        :type h: int
+        :param color: A 16-bit color (default=white).
+        :type color: int
+        :param bg: A 16-bit background.
+        :type bg: int
+        :param transparent: True = transparent bitmap, False = not transparent.
+        :type transparent: bool
+        :param x_bit: This indicates that the left most (8th) bit is set.
+        :type x_bit: bool
         """
         no_auto_inc = False # Flag set when transparent pixel was 'written'.
         byte_width = (w + 7) / 8
@@ -1238,6 +1258,21 @@ class ILI9225(Compatibility):
                         self.__end_write()
 
     def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):
+        """
+        Set the window orientation.
+
+        :param x0: Start x coordinent.
+        :type x0: int
+        :param y0: Start y coordinent.
+        :type y0: int
+        :param x1: End x coordinent.
+        :type x1: int
+        :param y1: End y coordinent.
+        :type y1: int
+        :param mode: The orientation mode.
+        :type mode: int
+        :raises TFTException: If the orientation is out of rainge.
+        """
         # Clip to TFT-Dimensions
         x0 = min(x0, self._max_x - 1)
         x1 = min(x1, self._max_x - 1)

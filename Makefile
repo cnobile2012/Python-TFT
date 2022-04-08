@@ -13,7 +13,7 @@ RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
 RPI_TEST_PATH	= $(PREFIX)/ILI9225 $(PREFIX)/ILI9341 $(PREFIX)/fonts \
-                  $(PREFIX)/utils $(PREFIX)/py_versions
+                  $(PREFIX)/utils $(PREFIX)/py_versions/raspberrypi.py
 
 #----------------------------------------------------------------------
 all	: doc tar

@@ -115,6 +115,13 @@ class Compatibility(PiVersion):
         return self.BOARD
 
     def set_board(self, board):
+        """
+        Set the board as defined in the Boards class.
+
+        :param board: The board to use.
+        :type board: int
+        :raise CompatibilityException: If the board is unsupported.
+        """
         board_name = self._get_board_name(board)
 
         if board_name not in [v for v in dir(Boards) if not v.startswith('_')]:
@@ -127,8 +134,19 @@ class Compatibility(PiVersion):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
         and 'select' at a minimum, to a hardware SPI port, device tuple.
-        Raises `CompatibilityException` if the pins do not represent a valid
-        hardware SPI device.
+
+        :param clock: The SPI clock pin number.
+        :type clock: int
+        :param mosi: The SPI -- Master Output Slave Input pin number.
+        :type mosi: int
+        :param miso: The SPI -- Master Input Slave Output pin number.
+        :type miso: int
+        :param select: The SPI Chip Select pin number.
+        :type select: int
+        :returns: A tuple of (port, device).
+        :rtype: tuple
+        :raises CompatibilityException: If the pins do not represent a valid
+                                        hardware SPI device.
         """
         # The port variable is sometimes refered to as the bus.
         for port, pins in self._SPI_HARDWARE_PINS.items():
@@ -138,5 +156,5 @@ class Compatibility(PiVersion):
                     select in pins['select'])):
                 device = pins['select'].index(select)
                 return (port, device)
-            raise CompatibilityException(
-                'Invalid pin selection for hardware SPI')
+
+        raise CompatibilityException('Invalid pin selection for hardware SPI')
