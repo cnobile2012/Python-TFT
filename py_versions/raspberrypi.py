@@ -127,8 +127,10 @@ class PiVersion:
             items.append(value & 0xFF)
 
         try:
-            self._spi.writebytes(items)
-            if self.DEBUG: result = self._spi.readbytes(len(items))
+            if self.DEBUG:
+                result = self._spi.xfer2(len(items))
+            else:
+                self._spi.writebytes(items)
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
