@@ -5,9 +5,9 @@ TFT_22_ILI9225.py
 Driver for the ILI9225 chip TFT LCD displays.
 """
 
-from utils.compatibility import Compatibility, Boards
-from utils.common import RGB16BitColor as Color
-from utils import TFTException, CompatibilityException
+from utils.compatibility import Compatibility
+from utils import (Boards, TFTException, CompatibilityException,
+                   BGR16BitColor as Colors)
 
 
 class AutoIncMode:
@@ -177,7 +177,7 @@ class ILI9225(Compatibility):
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
-        self._bg_color = Color.BLACK
+        self._bg_color = Colors.BLACK
         self._write_function_level = 0
         self._current_font = None
         self._cfont = CurrentFont()
@@ -354,7 +354,7 @@ class ILI9225(Compatibility):
             print("Finished turning on backlight.")
 
         # Initialize character background color
-        self.set_char_background_color(Color.BLACK)
+        self.set_char_background_color(Colors.BLACK)
         self.clear()
 
         if self.DEBUG:
@@ -364,7 +364,7 @@ class ILI9225(Compatibility):
         """
         Overwrites the entire display with the color black.
         """
-        self.set_display_background(Color.BLACK)
+        self.set_display_background(Colors.BLACK)
 
     def set_display_background(self, color):
         """
@@ -403,7 +403,7 @@ class ILI9225(Compatibility):
             self.analog_write(
                 self._led, self._brightness if self._bl_state else 0)
 
-    def set_char_background_color(self, color=Color.BLACK):
+    def set_char_background_color(self, color=Colors.BLACK):
         """
         Set the character background color.
 
@@ -552,7 +552,7 @@ class ILI9225(Compatibility):
         """
         return self._cfont
 
-    def draw_char(self, x, y, ch, color=Color.WHITE):
+    def draw_char(self, x, y, ch, color=Colors.WHITE):
         """
         Draw a character.
 
@@ -690,7 +690,7 @@ class ILI9225(Compatibility):
         """
         self._gfx_font = GFXFont(font)
 
-    def draw_gfx_text(self, x, y, s, color=Color.WHITE):
+    def draw_gfx_text(self, x, y, s, color=Colors.WHITE):
         """
         :param x: Point coordinate (x-axis).
         :type x: int
@@ -734,7 +734,7 @@ class ILI9225(Compatibility):
 
         return w, h
 
-    def draw_gfx_char(self, x, y, ch, color=Color.WHITE):
+    def draw_gfx_char(self, x, y, ch, color=Colors.WHITE):
         """
         Draw a single character with the current GFX font.
 
@@ -1141,7 +1141,7 @@ class ILI9225(Compatibility):
             self._write_register(self.GRAM_DATA_REG, color)
             self.__end_write()
 
-    def draw_text(self, x, y, s, color=Color.WHITE):
+    def draw_text(self, x, y, s, color=Colors.WHITE):
         """
         Draw a text string to the display.
 
@@ -1162,6 +1162,21 @@ class ILI9225(Compatibility):
             currx += self.draw_char(currx, y, s[k], color) + 1
 
         return currx
+
+    def rgb16_to_bgr16(color):
+        """
+        Convert 16-bit RGB to 16-bit BGR color format.
+
+        :param color: A 16-bit color.
+        :type color: int
+        :return A 16-bit BGR color.
+        :rtype: int
+        """
+        return (
+            ((color & 0b1111100000000000) >> 11)
+            | (color & 0b0000011111100000)
+            | ((color & 0b0000000000011111) << 11)
+            )
 
     def rgb24_to_rgb16(self, red, green, blue):
         """
@@ -1195,7 +1210,7 @@ class ILI9225(Compatibility):
         blu = (color & 0b0000000000011111) << 3
         return red, grn, blu
 
-    def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Color.BLACK,
+    def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
                     transparent=False, x_bit=False):
         """
         Draw a bitmap image.

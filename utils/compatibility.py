@@ -31,8 +31,6 @@ except:
 else:
     from py_versions.micropython import PiVersion
 
-from utils import CompatibilityException
-
 
 class Boards:
     # With MCUs
@@ -113,6 +111,8 @@ class Compatibility(PiVersion):
         :type board: int
         :raise CompatibilityException: If the board is unsupported.
         """
+        from utils import CompatibilityException
+
         board_name = self._get_board_name(board)
 
         if board_name not in [v for v in dir(Boards) if not v.startswith('_')]:
@@ -139,6 +139,8 @@ class Compatibility(PiVersion):
         :raises CompatibilityException: If the pins do not represent a valid
                                         hardware SPI device.
         """
+        from utils import CompatibilityException
+
         # The port variable is sometimes refered to as the bus.
         for port, pins in self._SPI_HARDWARE_PINS.items():
             if all((clock == pins['clock'],

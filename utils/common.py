@@ -49,3 +49,22 @@ class RGB16BitColor:
     ORANGE      = 0xFD20  # 255, 165,   0
     SNOW        = 0xFFDF  # 255, 250, 250
     YELLOW      = 0xFFE0  # 255, 255,   0
+
+
+class _BGR16BitColor:
+    """
+    BGR 16-bit color table definition (BGR565)
+    """
+    RGB_TO_BGR = lambda self, c: (
+        ((c & 0b1111100000000000) >> 11)
+        | (c & 0b0000011111100000)
+        | ((c & 0b0000000000011111) << 11)
+        )
+
+    def __init__(self):
+        bgr_colors = {c: self.RGB_TO_BGR(eval(f"RGB16BitColor.{c}"))
+                      for c in dir(RGB16BitColor) if not c.startswith("_")}
+        [exec("_BGR16BitColor.{} = {}".format(c, v), globals())
+         for c, v in bgr_colors.items()]
+
+BGR16BitColor = _BGR16BitColor()
