@@ -274,11 +274,11 @@ class ILI9225(Compatibility):
 
         self.__start_write()
         # Set the display line number and display direction
-        self._write_register(self.DRIVER_OUTPUT_CTRL, 0x001C) # 0x011C
+        self._write_register(self.DRIVER_OUTPUT_CTRL, 0x011C) # 0x001C
         # Set 1 line inversion
         self._write_register(self.LCD_AC_DRIVING_CTRL, 0x0100)
         # Set GRAM write direction and BGR=1.
-        self._write_register(self.ENTRY_MODE, 0x0038) # 0x1038
+        self._write_register(self.ENTRY_MODE, 0x1038) # 0x0038
         # Display off
         self._write_register(self.DISP_CTRL1, 0x0000)
         # Set the back porch and front porch
