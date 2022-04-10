@@ -33,6 +33,8 @@ class PiVersion:
         """
         mode = mode if mode is not None else GPIO.BCM
         GPIO.setmode(mode)
+        GPIO.setwarnings(False)
+        self.__pwm_pin_states = {}
 
     def pin_mode(self, pin, direction, *, pull=GPIO.PUD_OFF, default=None,
                  alt=-1):
@@ -65,12 +67,22 @@ class PiVersion:
         """
         GPIO.output(pin, high_low)
 
+    def pin_cleanup(self):
+        """
+        To be run after this API is no longer to be used.
+        """
+        for obj in self.__pwm_pin_states.values():
+            obj.stop()
+
+        GPIO.cleanup()
+
     def delay(self, ms):
         sleep(ms/1000) # Convert to floating point.
 
     def spi_start_transaction(self, reuse=False):
         if self._spi is None or not reuse:
             from utils.compatibility import Boards
+
             freq = Boards.get_frequency(self.get_board())
             print(freq)
 
