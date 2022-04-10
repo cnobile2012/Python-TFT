@@ -314,27 +314,27 @@ class ILI9225(Compatibility):
             print("Finished set GRAM area.")
 
         # Adjust GAMMA curve
-        ## self._write_register(self.GAMMA_CTRL1, 0x0000)
-        ## self._write_register(self.GAMMA_CTRL2, 0x060B)
-        ## self._write_register(self.GAMMA_CTRL3, 0x0C0A)
-        ## self._write_register(self.GAMMA_CTRL4, 0x0105)
-        ## self._write_register(self.GAMMA_CTRL5, 0x0A0C)
-        ## self._write_register(self.GAMMA_CTRL6, 0x0B06)
-        ## self._write_register(self.GAMMA_CTRL7, 0x0004)
-        ## self._write_register(self.GAMMA_CTRL8, 0x0501)
-        ## self._write_register(self.GAMMA_CTRL9, 0x0E00)
-        ## self._write_register(self.GAMMA_CTRL10, 0x000E)
-
         self._write_register(self.GAMMA_CTRL1, 0x0000)
-        self._write_register(self.GAMMA_CTRL2, 0x0808)
-        self._write_register(self.GAMMA_CTRL3, 0x080A)
-        self._write_register(self.GAMMA_CTRL4, 0x000A)
-        self._write_register(self.GAMMA_CTRL5, 0x0A08)
-        self._write_register(self.GAMMA_CTRL6, 0x0808)
-        self._write_register(self.GAMMA_CTRL7, 0x0000)
-        self._write_register(self.GAMMA_CTRL8, 0x0A00)
-        self._write_register(self.GAMMA_CTRL9, 0x0710)
-        self._write_register(self.GAMMA_CTRL10, 0x0710)
+        self._write_register(self.GAMMA_CTRL2, 0x060B)
+        self._write_register(self.GAMMA_CTRL3, 0x0C0A)
+        self._write_register(self.GAMMA_CTRL4, 0x0105)
+        self._write_register(self.GAMMA_CTRL5, 0x0A0C)
+        self._write_register(self.GAMMA_CTRL6, 0x0B06)
+        self._write_register(self.GAMMA_CTRL7, 0x0004)
+        self._write_register(self.GAMMA_CTRL8, 0x0501)
+        self._write_register(self.GAMMA_CTRL9, 0x0E00)
+        self._write_register(self.GAMMA_CTRL10, 0x000E)
+
+        ## self._write_register(self.GAMMA_CTRL1, 0x0000)
+        ## self._write_register(self.GAMMA_CTRL2, 0x0808)
+        ## self._write_register(self.GAMMA_CTRL3, 0x080A)
+        ## self._write_register(self.GAMMA_CTRL4, 0x000A)
+        ## self._write_register(self.GAMMA_CTRL5, 0x0A08)
+        ## self._write_register(self.GAMMA_CTRL6, 0x0808)
+        ## self._write_register(self.GAMMA_CTRL7, 0x0000)
+        ## self._write_register(self.GAMMA_CTRL8, 0x0A00)
+        ## self._write_register(self.GAMMA_CTRL9, 0x0710)
+        ## self._write_register(self.GAMMA_CTRL10, 0x0710)
 
         self._write_register(self.DISP_CTRL1, 0x0012)
         self.__end_write()
@@ -370,7 +370,7 @@ class ILI9225(Compatibility):
         """
         Set the background color of the display.
 
-        :param color: The color for the display, default is black.
+        :param color: The BGR color for the display, default is black.
         :type color: int
         """
         old_orientation = self._orientation
@@ -407,7 +407,7 @@ class ILI9225(Compatibility):
         """
         Set the character background color.
 
-        :param color: Background color (default=black).
+        :param color: Background BGR color (default=black).
         :type color: int
         """
         self._bg_color = color
@@ -562,7 +562,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param ch: The character to draw on the display.
         :type ch: str
-        :param color: A 16-bit color (default=white).
+        :param color: A 16-bit BGR color (default=white).
         :type color: int
         :return: Width of character in display pixels.
         :rtype: int
@@ -698,7 +698,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param s: The string to draw on the display.
         :type s: str
-        :param color: A 16-bit color (default=white).
+        :param color: A 16-bit BGR color (default=white).
         :type color: int
         """
         currx = x
@@ -744,7 +744,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param ch: Character to draw on the display.
         :type ch: int
-        :param color: A 16-bit color (default=white).
+        :param color: A 16-bit BGR color (default=white).
         :type color: int
         """
         ch -= self._gfx_font.first
@@ -783,7 +783,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param ch: The character to draw on the display.
         :type ch: str
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         :return: A tuple (gw, gh, xa) where gw is the width in pixels
                  of the character, gh is the height, and xa is the distance
@@ -809,7 +809,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param string: The character to draw on the display.
         :type string: str
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         :return: A tuple (w, h) where w is the width of the string and
                  h is the height.
@@ -840,7 +840,7 @@ class ILI9225(Compatibility):
         :type x1: int
         :param y1: Center point coordinate (y1-axis).
         :type y1: int
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         """
         self.draw_line(x0, y0, x0, y1, color)
@@ -860,7 +860,7 @@ class ILI9225(Compatibility):
         :type x1: int
         :param y1: Center point coordinate (y1-axis).
         :type y1: int
-        :param color: A 16-bit color
+        :param color: A 16-bit BGR color
         :type color: int
         """
         self._set_window(x0, y0, x1, y1)
@@ -883,7 +883,7 @@ class ILI9225(Compatibility):
         :type y0: int
         :param radius: The radius of the circle.
         :type radius: int
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         """
         f = 1 - radius
@@ -926,7 +926,7 @@ class ILI9225(Compatibility):
         :type y0: int
         :param radius: The radius of the circle.
         :type radius: int
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         """
         f = 1 - radius
@@ -968,7 +968,7 @@ class ILI9225(Compatibility):
         :type x2: int
         :param y2: Center point coordinate (y1-axis).
         :type y2: int
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         """
         self.draw_line(x0, y0, x1, y1, color)
@@ -991,7 +991,7 @@ class ILI9225(Compatibility):
         :type x2: int
         :param y2: Center point coordinate (y1-axis).
         :type y2: int
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         """
         # Sort coordinates by Y order (y2 >= y1 >= y0)
@@ -1085,7 +1085,7 @@ class ILI9225(Compatibility):
         :type x1: int
         :param y1: Center point coordinate (y1-axis).
         :type y1: int
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         """
         # Classic Bresenham algorithm
@@ -1130,7 +1130,7 @@ class ILI9225(Compatibility):
         :type x0: int
         :param y0: Point coordinate (y-axis).
         :type y0: int
-        :param color: A 16-bit color.
+        :param color: A 16-bit BGR color.
         :type color: int
         """
         if not ((x0 >= self._max_x) or (y0 >= self._max_y)):
@@ -1151,7 +1151,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param s: The string to draw on the display.
         :type s: str
-        :param color: A 16-bit color (default=white).
+        :param color: A 16-bit BGR color (default=white).
         :type color: int
         :return: The position of x after the text.
         :rtype: int
@@ -1167,7 +1167,7 @@ class ILI9225(Compatibility):
         """
         Convert 16-bit RGB to 16-bit BGR color format.
 
-        :param color: A 16-bit color.
+        :param color: A 16-bit RGB color.
         :type color: int
         :return A 16-bit BGR color.
         :rtype: int
@@ -1225,9 +1225,9 @@ class ILI9225(Compatibility):
         :type w: int
         :param h: Height
         :type h: int
-        :param color: A 16-bit color (default=white).
+        :param color: A 16-bit BGR color (default=white).
         :type color: int
-        :param bg: A 16-bit background.
+        :param bg: A 16-bit BGR background color.
         :type bg: int
         :param transparent: True = transparent bitmap, False = not transparent.
         :type transparent: bool
