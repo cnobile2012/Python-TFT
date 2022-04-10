@@ -4,8 +4,8 @@
 
 import unittest
 
-from ILI9225 import ILI9225, Boards
-from utils import CompatibilityException
+from ILI9225 import ILI9225
+from utils import Boards, CompatibilityException
 
 
 class TestBoards(unittest.TestCase):
