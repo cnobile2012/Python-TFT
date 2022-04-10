@@ -77,9 +77,9 @@ class ILI9225(Compatibility):
     LCD_WIDTH               = 176
     LCD_HEIGHT              = 220
     MAX_BRIGHTNESS          = 255   # 0..255
-    INVOFF                  = 0x20  # Invert off
-    INVON                   = 0x21  # Invert on
-    SPI_MODE                = 0
+    _INVOFF                 = 0x20  # Invert off
+    _INVON                  = 0x21  # Invert on
+    _SPI_MODE               = 0
 
     DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
     LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
@@ -249,8 +249,8 @@ class ILI9225(Compatibility):
         ## self.__end_write()
         ## self.delay(40)
 
-        if self.DEBUG:
-            print("Finished initial sequence.")
+        ## if self.DEBUG:
+        ##     print("Finished initial sequence.")
 
         # Power-on sequence
         self.__start_write()
@@ -274,11 +274,11 @@ class ILI9225(Compatibility):
 
         self.__start_write()
         # Set the display line number and display direction
-        self._write_register(self.DRIVER_OUTPUT_CTRL, 0x011C)
+        self._write_register(self.DRIVER_OUTPUT_CTRL, 0x001C) # 0x011C
         # Set 1 line inversion
         self._write_register(self.LCD_AC_DRIVING_CTRL, 0x0100)
         # Set GRAM write direction and BGR=1.
-        self._write_register(self.ENTRY_MODE, 0x1038)
+        self._write_register(self.ENTRY_MODE, 0x0038) # 0x1038
         # Display off
         self._write_register(self.DISP_CTRL1, 0x0000)
         # Set the back porch and front porch
@@ -376,7 +376,7 @@ class ILI9225(Compatibility):
         :type flag: bool
         """
         self.__start_write()
-        self._write_command(self.INVON if flag else self.INVOFF)
+        self._write_command(self._INVON if flag else self._INVOFF)
         self.__end_write()
 
     def set_backlight(self, flag):
