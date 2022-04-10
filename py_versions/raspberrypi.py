@@ -9,8 +9,6 @@ from RPi import GPIO
 from spidev import SpiDev
 from time import sleep
 
-from utils import CompatibilityException
-
 
 class PiVersion:
     """
@@ -96,7 +94,7 @@ class PiVersion:
 
     def spi_start_transaction(self, reuse=False):
         if self._spi is None or not reuse:
-            from utils.compatibility import Boards
+            from utils import Boards, CompatibilityException
 
             try:
                 self._spi = SpiDev()
@@ -115,6 +113,8 @@ class PiVersion:
             self._spi = None
 
     def spi_write(self, values):
+        from utils import CompatibilityException
+
         if not isinstance(values, (list, tuple)):
             values = [values]
         elif isinstance(values, tuple):
