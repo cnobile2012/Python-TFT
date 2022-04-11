@@ -2,7 +2,7 @@
 """
 utils/common.py
 
-Common functionality between ILI chips.
+Common functionality between various TFT controller chips.
 """
 
 class RGB16BitColor:
@@ -61,9 +61,19 @@ class _BGR16BitColor:
         | ((c & 0b0000000000011111) << 11)
         )
 
-    def __init__(self):
-        bgr_colors = {c: self.RGB_TO_BGR(eval(f"RGB16BitColor.{c}"))
-                      for c in dir(RGB16BitColor) if not c.startswith("_")}
+    def __init__(self, rgb_class=RGB16BitColor):
+        """
+        Constructor
+
+        Dynamically creates BGR member objects from the an RGB class.
+
+        :param rgb_class: The RGB 16-bit class object
+                          (default is RGB16BitColor).
+        :type rgb_class: <class object>
+        """
+        class_name = rgb_class.__qualname__
+        bgr_colors = {c: self.RGB_TO_BGR(eval("{}.{}".format(class_name, c)))
+                      for c in dir(rgb_class) if not c.startswith("_")}
         [exec("_BGR16BitColor.{} = {}".format(c, v), globals())
          for c, v in bgr_colors.items()]
 
