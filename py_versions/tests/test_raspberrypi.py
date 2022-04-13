@@ -1,5 +1,5 @@
 #
-# utils/tests/test_raspberrypi.py
+# py_versions/tests/test_raspberrypi.py
 #
 
 import os
@@ -19,7 +19,14 @@ class TestPiVersion(unittest.TestCase):
 
     def __init__(self, name):
         super().__init__(name)
+
+    @classmethod
+    def setUpClass(cls):
         GPIO.setwarnings(False)
+
+    @classmethod
+    def tearDownClass(cls):
+        GPIO.setwarnings(True)
 
     def setUp(self):
         self._pyv = PiVersion()
