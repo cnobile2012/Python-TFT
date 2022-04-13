@@ -22,6 +22,8 @@ all	: doc tar
 rpi-tests: clean
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
                    --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
+                   --cover-package=ILI9225 --cover-package=ILI9341 \
+                   --cover-package=py_versions --cover-package=utils \
                    $(RPI_TEST_PATH)
 
 #.PHONY	: sphinx
@@ -29,23 +31,28 @@ rpi-tests: clean
 #	(cd $(DOCS_DIR); make html)
 
 #----------------------------------------------------------------------
+.PHONY	: doc
 doc	:
 	@(cd $(DOCS_DIR); make)
 
 #----------------------------------------------------------------------
+.PHONY	: tar
 tar	: clean
 	@(cd ..; tar -czvf ${PACKAGE_DIR}-${VERSION}.tar.gz --exclude=".git" \
           ${PACKAGE_DIR})
 
 #----------------------------------------------------------------------
+.PHONY	: python-api
 python-api:
 	@python setup.py build
 
 #----------------------------------------------------------------------
+.PHONY	: clean
 clean	:
 	$(shell $(RM_CMD))
 #	@(cd ${DOCS_DIR}; make clean)
 
+.PHONY	: clobber
 clobber	: clean
 #	@(cd $(DOCS_DIR); make clobber)
 	@rm -rf build dist ${PACKAGE_DIR}.egg-info

@@ -6,12 +6,17 @@ source =
     utils
     fonts
 
+include =
+    ILI9225
+    ILI9341
+    py_versions
+    utils
+    fonts
+
 omit =
     *tests*
     *mock*
     *examples*
-    *lib/python3*/site-packages/*
-    /usr/lib/python3*/*
 
 [report]
 show_missing = True
