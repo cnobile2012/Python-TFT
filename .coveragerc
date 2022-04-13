@@ -10,6 +10,8 @@ omit =
     *tests*
     *mock*
     *examples*
+    *RPi*
+    _sysconfigdata_m_linux_arm-linux-gnueabihf.py
 
 [report]
 show_missing = True

@@ -22,7 +22,7 @@ all	: doc tar
 rpi-tests: clean
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
                    --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
-                   --cover-package=$(RPI_TEST_PATH)
+                   $(RPI_TEST_PATH)
 
 #.PHONY	: sphinx
 #sphinx	: clean
