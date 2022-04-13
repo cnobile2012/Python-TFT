@@ -67,7 +67,9 @@ class PiVersion:
         :type alt: int
         """
         GPIO.setup(pin, direction, pull_up_down=pull)
-        if default is not None: GPIO.output(pin, default)
+
+        if direction == self.OUTPUT and default is not None:
+            GPIO.output(pin, default)
 
     def digital_write(self, pin, high_low):
         """

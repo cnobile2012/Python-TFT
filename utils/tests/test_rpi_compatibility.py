@@ -1,5 +1,5 @@
 #
-# utils/tests/test_compatibility.py
+# utils/tests/test_rpi_compatibility.py
 #
 
 import unittest
@@ -9,6 +9,9 @@ from utils import Boards, CompatibilityException
 
 
 class TestBoards(unittest.TestCase):
+    """
+    Test class for the Boards class.
+    """
 
     def __init__(self, name):
         super().__init__(name)
@@ -26,6 +29,9 @@ class TestBoards(unittest.TestCase):
 
 
 class TestCompatibility(unittest.TestCase):
+    """
+    Test class for the Compatibility class using the Raspberry Pi.
+    """
     RST = 17 # RTD
     RS = 27
     CS = 8
