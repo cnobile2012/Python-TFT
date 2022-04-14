@@ -13,23 +13,23 @@ RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
 RPI_TEST_PATH	= $(PREFIX)/ILI9225 $(PREFIX)/ILI9341 $(PREFIX)/fonts \
-                  $(PREFIX)/utils $(PREFIX)/fonts \
-                  $(PREFIX)/py_versions/raspberrypi.py
+                  $(PREFIX)/utils $(PREFIX)/py_versions/raspberrypi.py
 
 #----------------------------------------------------------------------
 all	: doc tar
 
-.PHONY	: tests
+.PHONY	: rpi-tests
 rpi-tests: clean
+	@rm -rf $(DOCS_DIR)/htmlcov
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
                    --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
-                   --cover-package=ILI9225 --cover-package=ILI9341 \
-                   --cover-package=py_versions --cover-package=utils \
                    $(RPI_TEST_PATH)
+	coverage combine
+	coverage report
 
-#.PHONY	: sphinx
-#sphinx	: clean
-#	(cd $(DOCS_DIR); make html)
+.PHONY	: sphinx
+sphinx	: clean
+	(cd $(DOCS_DIR); make html)
 
 #----------------------------------------------------------------------
 .PHONY	: doc
