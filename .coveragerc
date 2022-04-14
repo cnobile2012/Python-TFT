@@ -1,17 +1,18 @@
 [run]
-source =
-    ILI9225
-    ILI9341
-    py_versions
-    utils
-    fonts
 
-include =
-    ILI9225
-    ILI9341
-    py_versions
-    utils
-    fonts
+#source =
+#    ILI9225
+#    ILI9341
+#    py_versions
+#    utils
+#    fonts
+
+#include =
+#    ILI9225
+#    ILI9341
+#    py_versions
+#    utils
+#    fonts
 
 omit =
     *tests*
