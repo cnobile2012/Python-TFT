@@ -24,7 +24,7 @@ rpi-tests: clean
 	@nosetests --with-coverage --cover-erase --cover-inclusive \
                    --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov \
                    $(RPI_TEST_PATH)
-	coverage combine
+#	coverage combine
 	coverage report
 
 .PHONY	: sphinx

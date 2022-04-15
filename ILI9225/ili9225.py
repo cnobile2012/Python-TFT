@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-TFT_22_ILI9225.py
+ILI9225/ili9225.py
 
 Driver for the ILI9225 chip TFT LCD displays.
 """
@@ -353,8 +353,6 @@ class ILI9225(Compatibility):
         if self.DEBUG:
             print("Finished turning on backlight.")
 
-        # Initialize character background color
-        self.set_char_background_color(Colors.BLACK)
         self.clear()
 
         if self.DEBUG:
@@ -402,15 +400,6 @@ class ILI9225(Compatibility):
         if self._led >= 0:
             self.analog_write(
                 self._led, self._brightness if self._bl_state else 0)
-
-    def set_char_background_color(self, color=Colors.BLACK):
-        """
-        Set the character background color.
-
-        :param color: Background BGR color (default=black).
-        :type color: int
-        """
-        self._bg_color = color
 
     def set_backlight_brightness(self, brightness):
         """
@@ -552,7 +541,16 @@ class ILI9225(Compatibility):
         """
         return self._cfont
 
-    def draw_char(self, x, y, ch, color=Colors.WHITE):
+    def set_default_char_bg_color(self, color=Colors.BLACK):
+        """
+        Set the character background color.
+
+        :param color: Background BGR color (default=black).
+        :type color: int
+        """
+        self._bg_color = color
+
+    def draw_char(self, x, y, ch, color=Colors.WHITE, bg_color=None):
         """
         Draw a character.
 
@@ -564,11 +562,14 @@ class ILI9225(Compatibility):
         :type ch: str
         :param color: A 16-bit BGR color (default=white).
         :type color: int
+        :param bg_color: Set the character background color.
+        :type bg_color: int
         :return: Width of character in display pixels.
         :rtype: int
         :raises TFTException: If the a standard font is not set.
         """
         self._is_font_set()
+        if not bg_color: bg_color = self._bg_color
         char_offset = self.__get_offset(ch)
 
         # Monospaced: Get char width from font.
@@ -607,13 +608,13 @@ class ILI9225(Compatibility):
                     if fast_mode:
                         self.__start_write()
                         self._write_data(color if self._bit_read(
-                            char_data, k) else self._bg_color)
+                            char_data, k) else bg_color)
                         self.__end_write()
                     else:
                         self.drawPixel(
                             x + i, y + (j * 8) + k,
                             color if self._bit_read(char_data, k)
-                            else self._bg_color)
+                            else bg_color)
 
                     h += 1
 
@@ -690,50 +691,6 @@ class ILI9225(Compatibility):
         """
         self._gfx_font = GFXFont(font)
 
-    def draw_gfx_text(self, x, y, s, color=Colors.WHITE):
-        """
-        :param x: Point coordinate (x-axis).
-        :type x: int
-        :param y: Point coordinate (y-axis).
-        :type y: int
-        :param s: The string to draw on the display.
-        :type s: str
-        :param color: A 16-bit BGR color (default=white).
-        :type color: int
-        """
-        currx = x
-
-        if self._gfx_font:
-            # Draw every character in the string.
-            for ch in s:
-                currx += self.draw_gfx_char(currx, y, ch, color) + 1
-
-    def get_gfx_text_extent(self, x, y, s):
-        """
-        Get the width & height of a text string with the current GFX font
-
-        :param x: Point coordinate (x-axis).
-        :type x: int
-        :param y: Point coordinate (y-axis).
-        :type y: int
-        :param s: The string to draw on the display.
-        :type s: str
-        :param w: Character width.
-        :type w: int
-        :param h: Character height.
-        :type h: int
-        :return: A tuple of the width and height (width, height).
-        :rtype: tuple
-        """
-        h = 0
-
-        for ch in range(s):
-            gw, gh, xa = self.get_gfx_char_extent(ch)
-            if gh > h: h = gh
-            w += xa
-
-        return w, h
-
     def draw_gfx_char(self, x, y, ch, color=Colors.WHITE):
         """
         Draw a single character with the current GFX font.
@@ -773,9 +730,30 @@ class ILI9225(Compatibility):
 
         return xa
 
-    def get_gfx_char_extent(self, x, y, ch, color):
+    def draw_gfx_text(self, x, y, s, color=Colors.WHITE):
         """
-        Draw a single character with the current GFX font.
+        Draw a string in the GFX font.
+
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param s: The string to draw on the display.
+        :type s: str
+        :param color: A 16-bit BGR color (default=white).
+        :type color: int
+        """
+        currx = x
+
+        if self._gfx_font:
+            # Draw every character in the string.
+            for ch in s:
+                currx += self.draw_gfx_char(currx, y, ch, color) + 1
+
+    def get_gfx_char_extent(self, x, y, ch, color=Colors.WHITE):
+        """
+        Return the width, height, and the distance to advance cursor for
+        the current GFX font.
 
         :param x: Point coordinate (x-axis).
         :type x: int
@@ -783,7 +761,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param ch: The character to draw on the display.
         :type ch: str
-        :param color: A 16-bit BGR color.
+        :param color: A 16-bit BGR color (default=white).
         :type color: int
         :return: A tuple (gw, gh, xa) where gw is the width in pixels
                  of the character, gh is the height, and xa is the distance
@@ -799,17 +777,18 @@ class ILI9225(Compatibility):
 
         return gw, gh, xa
 
-    def get_gfx_text_extent(self, x, y, string, color):
+    def get_gfx_text_extent(self, x, y, s, color=Colors.WHITE):
         """
-        Draw a single character with the current GFX font.
+        Return the width and height of the text in pixals of the
+        current GFX font.
 
         :param x: Point coordinate (x-axis).
         :type x: int
         :param y: Point coordinate (y-axis).
         :type y: int
-        :param string: The character to draw on the display.
-        :type string: str
-        :param color: A 16-bit BGR color.
+        :param s: The character to draw on the display.
+        :type s: str
+        :param color: A 16-bit BGR color (default=white).
         :type color: int
         :return: A tuple (w, h) where w is the width of the string and
                  h is the height.
@@ -817,7 +796,7 @@ class ILI9225(Compatibility):
         """
         w = h = 0
 
-        for ch in string:
+        for ch in s:
             gw, gh, xa = self.get_gfx_char_extent(x, y, ch, color)
             if gh > h: h = gh
             w += xa
