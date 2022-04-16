@@ -125,6 +125,7 @@ class PiVersion:
         items = []
 
         for value in values:
+            value = round(value)
             items.append(value >> 8)
             items.append(value & 0xFF)
 
