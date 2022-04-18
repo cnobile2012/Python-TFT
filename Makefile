@@ -19,7 +19,7 @@ all	: doc tar
 .PHONY	: rpi-tests
 rpi-tests: clean
 	@rm -rf $(DOCS_DIR)/htmlcov
-        @nosetests --with-coverage --cover-erase --nologcapture \
+	@nosetests --with-coverage --cover-erase --nologcapture \
                    --cover-package=$(PREFIX)/ILI9225 \
                    --cover-package=$(PREFIX)/ILI9341 \
                    --cover-package=$(PREFIX)/py_versions/raspberrypi.py \
