@@ -49,11 +49,11 @@ class TestPiVersion(unittest.TestCase):
 
     def read_pin_value(self, pin):
         path = "{}/gpio{}/value".format(self.GPIO_PIN_PATH, pin)
-        return os.popen("cat {}".format(path)).read()
+        return os.popen("cat {}".format(path)).read().strip()
 
     def read_direction(self, pin):
         path = "{}/gpio{}/direction".format(self.GPIO_PIN_PATH, pin)
-        return os.popen("cat {}".format(path)).read()
+        return os.popen("cat {}".format(path)).read().strip()
 
     def test_pin_mode(self):
         """
