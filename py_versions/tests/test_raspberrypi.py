@@ -69,11 +69,11 @@ class TestPiVersion(unittest.TestCase):
         expect_val = self._pyv.HIGH
         found_val = self.read_pin_value(self.TEST_PIN)
         msg = "Value should be '{}', found '{}'.".format(expect_val, found_val)
-        self.assertEqual(expect_val, found_val), msg=msg)
+        self.assertEqual(expect_val, found_val, msg=msg)
         # Test INPUT direction
         self._pyv.pin_mode(self.TEST_PIN, self._pyv.INPUT)
         expect_dir = self.DIR.get(self._pyv.INPUT)
         found_dir = self.read_direction(self.TEST_PIN)
         msg = "Direction should be '{}', found '{}'.".format(
             expect_dir, found_dir)
-        self.assertEqual(expect_dir, found_dir), msg=msg)
+        self.assertEqual(expect_dir, found_dir, msg=msg)
