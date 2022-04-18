@@ -8,6 +8,8 @@ import unittest
 
 from py_versions.raspberrypi import PiVersion
 
+from RPi import GPIO
+
 
 class TestPiVersion(unittest.TestCase):
     """
