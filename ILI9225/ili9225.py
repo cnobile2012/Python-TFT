@@ -381,6 +381,8 @@ class ILI9225(Compatibility):
         """
         Invert the screen.
 
+        *** TODO *** This method seems to do nothing.
+
         :param flag: True = invert and False = normal screen.
         :type flag: bool
         """
@@ -489,7 +491,9 @@ class ILI9225(Compatibility):
         """
         ORIGINAL NAME maxX()
 
-        Get the screen max x size.
+        Get the screen max x size (based on orientation).
+
+        *** TODO *** Make this into a property.
 
         .. note::
 
@@ -504,7 +508,9 @@ class ILI9225(Compatibility):
         """
         ORIGINAL NAME maxY()
 
-        Get the screen max y size.
+        Get the screen max y size (based on orientation).
+
+        *** TODO *** Make this into a property.
 
         .. note::
 
@@ -518,9 +524,22 @@ class ILI9225(Compatibility):
     #
     # Beginning of standard font methods.
     #
+    def get_font(self):
+        """
+        Get the current font.
+
+        *** TODO *** Make this into a property.
+
+        :return: The current font.
+        :rtype: CurrentFont
+        """
+        return self._cfont
+
     def set_font(self, font, mono_sp=False):
         """
         Set the current font.
+
+        *** TODO *** Make this into a property.
 
         :param font: The name of the font.
         :type font: str
@@ -532,18 +551,11 @@ class ILI9225(Compatibility):
                 mono_sp)
         self._cfont.set_font(args)
 
-    def get_font(self):
-        """
-        Get the current font.
-
-        :return: The current font.
-        :rtype: CurrentFont
-        """
-        return self._cfont
-
     def set_default_char_bg_color(self, color=Colors.BLACK):
         """
         Set the character background color.
+
+        *** TODO *** Make this into a property.
 
         :param color: Background BGR color (default=black).
         :type color: int
@@ -625,6 +637,8 @@ class ILI9225(Compatibility):
         """
         Width of an ASCII character (pixel).
 
+        *** TODO *** Make this into a property.
+
         :param ch: The ASCII character.
         :type ch: str
         :return: Character width.
@@ -638,6 +652,8 @@ class ILI9225(Compatibility):
     def get_text_width(self, s):
         """
         Get the text width.
+
+        *** TODO *** Make this into a property.
 
         :param s: Text to get the width for.
         :type s: str

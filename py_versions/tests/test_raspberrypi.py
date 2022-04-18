@@ -64,7 +64,7 @@ class TestPiVersion(unittest.TestCase):
         found_dir = self.read_direction(self.TEST_PIN)
         msg = "Direction should be '{}', found '{}'.".format(
             expect_dir, found_dir)
-        self.assertEqual(expect_dir, found_dir), msg=msg)
+        self.assertEqual(expect_dir, found_dir, msg=msg)
         # Read value
         expect_val = self._pyv.HIGH
         found_val = self.read_pin_value(self.TEST_PIN)
