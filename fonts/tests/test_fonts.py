@@ -35,13 +35,14 @@ class TestFonts(unittest.TestCase):
         """
         Return a list of fonts as in fonts/<filename>.
         """
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        files = "{}/*.py".format(os.path.abspath(os.path.join('.', '..')))
+        this_dir = os.path.dirname(os.path.abspath(__file__))
+        font_dir = os.path.dirname(this_dir)
+        base_dir = os.path.dirname(font_dir)
+        files = "{}/*.py".format(os.path.abspath(font_dir))
         font_files = [f.replace(base_dir + '/', ''
                                 ).replace('/', '.').replace('.py', '')
                       for f in glob.glob(files)
                       if not f.endswith(('__init__.py', 'font_convert.py'))]
-        print("POOP 0", base_dir, files, font_files)
         return font_files
 
     def test_bitmap_in_fonts(self):
