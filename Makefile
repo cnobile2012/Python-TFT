@@ -12,6 +12,7 @@ DOCS_DIR	= $(PREFIX)/docs
 RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
+RUN_TESTS	= 1
 
 #----------------------------------------------------------------------
 all	: doc tar
@@ -22,9 +23,9 @@ rpi-tests: clean
 	@nosetests --with-coverage --cover-erase --nologcapture \
                    --cover-package=$(PREFIX)/ILI9225 \
                    --cover-package=$(PREFIX)/ILI9341 \
-                   --cover-package=$(PREFIX)/py_versions/raspberrypi.py \
                    --cover-package=$(PREFIX)/utils \
-                   --cover-package=$(PREFIX)/fonts
+                   --cover-package=$(PREFIX)/fonts \
+                   --cover-package=$(PREFIX)/py_versions/raspberrypi.py
 #                   --cover-inclusive \
 #                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov
 #	coverage combine
