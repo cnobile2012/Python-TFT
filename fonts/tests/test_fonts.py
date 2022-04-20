@@ -54,4 +54,4 @@ class TestFonts(unittest.TestCase):
         """
         for name, module in self._modules.items():
             bitmap = getattr(module, "{name}Bitmap")
-            print("{name}: {len(bitmap)})
+            print("{name}: {len(bitmap)}")
