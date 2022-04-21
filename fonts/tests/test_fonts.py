@@ -55,5 +55,5 @@ class TestFonts(unittest.TestCase):
             [offset, width, height, advance cursor, x offset, y offset]
         """
         for name, module in self._modules.items():
-            bitmap = getattr(module, "{name}Bitmap")
-            self.assertFalse(True, msg="{name}: {len(bitmap)}")
+            bitmaps = getattr(module, "{name}Bitmaps")
+            self.assertFalse(True, msg="{name}: {len(bitmaps)}")
