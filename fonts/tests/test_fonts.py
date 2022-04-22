@@ -57,13 +57,16 @@ class TestFonts(unittest.TestCase):
             var_name = self.BITMAP_MASK.format(name)
 
             try:
-                bitmaps[:] = getattr(module, var_name)
+                tmp = getattr(module, var_name)
             except AttributeError as e:
                 msg - f"Font '{name}' does not have a '{var_name}' variable."
                 self.assertTrue(bitmaps, msg=msg)
             else:
-                msg = f"Font '{name}', '{var_name}' variable is zero length."
-                self.assertNotEqual(len(bitmaps), 0, msg=msg)
+                if isinstance(tmp, list):
+                    bitmaps[:] = tmp
+                    msg = (f"Font '{name}', '{var_name}' variable is "
+                           "zero length.")
+                    self.assertNotEqual(len(bitmaps), 0, msg=msg)
 
     def test_glyphs_var_in_fonts(self):
         """
@@ -81,18 +84,20 @@ class TestFonts(unittest.TestCase):
             var_name = self.GLYPHS_MASK.format(name)
 
             try:
-                glyphs[:] = getattr(module, var_name)
+                tmp = getattr(module, var_name)
             except AttributeError as e:
                 msg - f"Font '{name}' does not have a '{var_name}' variable"
                 self.assertTrue(bitmaps, msg=msg)
             else:
-                tmp_msg = (f"Font '{name}': should be {glyph_size} in "
-                           "length found: {{}}")
+                if isinstance(tmp, list):
+                    glyphs[:] = tmp
+                    tmp_msg = (f"Font '{name}': should be {glyph_size} in "
+                               "length found: {{}}")
 
-                for lst in glyphs:
-                    found_size = len(lst)
-                    msg = tmp_msg.format(found_size)
-                    self.assertEqual(glyph_size, found_size, msg=msg)
+                    for lst in glyphs:
+                        found_size = len(lst)
+                        msg = tmp_msg.format(found_size)
+                        self.assertEqual(glyph_size, found_size, msg=msg)
 
     def test_font_var_in_fonts(self):
         """
@@ -108,29 +113,30 @@ class TestFonts(unittest.TestCase):
         for name, module in self._modules.items():
             font = []
             font_size = 5
-            var_name = name
 
             try:
-                font[:] = getattr(module, var_name)
+                tmp = getattr(module, name)
             except AttributeError as e:
-                msg - f"Font '{name}' does not have a '{var_name}' variable"
+                msg - f"Font '{name}' does not have a '{name}' variable"
                 self.assertTrue(bitmaps, msg=msg)
             else:
-                found_size = len(font)
-                msg = (f"Font '{name}': should be {font_size} in "
-                       f"length found: {found_size}")
-                self.assertEqual(font_size, found_size, msg=msg)
-                tmp_msg = "{} item should be a {}, found {}"
+                if isinstance(tmp, list):
+                    font[:] = tmp
+                    found_size = len(font)
+                    msg = (f"Font '{name}': should be {font_size} in "
+                           f"length found: {found_size}")
+                    self.assertEqual(font_size, found_size, msg=msg)
+                    tmp_msg = "{} item should be a {}, found {}"
 
-                for idx, item in enumerate(font, start=1):
-                    if idx < 3:
-                        num = f"{idx}{'st' if idx == 1 else 'nd'}"
-                        msg = tmp_msg.format(num, 'list', idx)
-                        self.assertTrue(isinstance(item, list), msg=msg)
-                    else:
-                        num = f"{idx}{'rd' if idx == 3 else 'th'}"
-                        msg = tmp_msg.format(num, 'int', idx)
-                        self.assertTrue(isinstance(item, int), msg=msg)
+                    for idx, item in enumerate(font, start=1):
+                        if idx < 3:
+                            num = f"{idx}{'st' if idx == 1 else 'nd'}"
+                            msg = tmp_msg.format(num, 'list', idx)
+                            self.assertTrue(isinstance(item, list), msg=msg)
+                        else:
+                            num = f"{idx}{'rd' if idx == 3 else 'th'}"
+                            msg = tmp_msg.format(num, 'int', idx)
+                            self.assertTrue(isinstance(item, int), msg=msg)
 
     #@unittest.skip("This test does not work because the variable cannot "
     #               "be set dynamically.")
@@ -144,7 +150,7 @@ class TestFonts(unittest.TestCase):
                           self.GLYPHS_MASK.format(name),
                           name)
 
-            for any_name in [n for n in dir(module) if not c.startswith("_")]:
+            for any_name in [n for n in dir(module) if not n.startswith("_")]:
                 if any_name not in list_names:
                     # We don't need to test the last variable in list_names.
                     for var_name in list_names[:-1]:
@@ -160,6 +166,6 @@ class TestFonts(unittest.TestCase):
                             size_before = len(font_list)
                             # THIS LINE DOES'T WORK.
                             setattr(module, name, 1)
-                            font_list[:] = getattr(module, ext_name)
+                            font_list[:] = getattr(module, any_name)
                             size_after  = len(font_list)
                             self.assertTrue(size_before < size_after, msg=msg)
