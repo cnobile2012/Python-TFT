@@ -157,6 +157,8 @@ class TestFonts(unittest.TestCase):
                         self.assertTrue(bitmaps, msg=msg)
                     else:
                         size_before = len(font_list)
-                        setattr(module, name, 1) # THIS LINE DOES'T WORK.
+                        # THIS LINE DOES'T WORK.
+                        setattr(module, name, 1)
+                        font_list[:] = getattr(module, var_name)
                         size_after  = len(font_list)
                         self.assertTrue(size_before < size_after, msg=msg)
