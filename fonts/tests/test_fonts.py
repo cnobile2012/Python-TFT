@@ -12,6 +12,8 @@ class TestFonts(unittest.TestCase):
     """
     Test all font class.
     """
+    BITMAP_MASK = "{}Bitmaps"
+    GLYPHS_MASK = "{}Glyphs"
 
     def __init__(self, name):
         super().__init__(name)
@@ -52,7 +54,7 @@ class TestFonts(unittest.TestCase):
         """
         for name, module in self._modules.items():
             bitmaps = []
-            var_name = f"{name}Bitmaps"
+            var_name = self.BITMAP_MASK.format(name)
 
             try:
                 bitmaps[:] = getattr(module, var_name)
@@ -66,17 +68,17 @@ class TestFonts(unittest.TestCase):
     def test_glyphs_var_in_fonts(self):
         """
         Test that the glyphs list exists in the fonts and it is not
-        zero length. Also test that the length of each gliph is correct.
+        zero length. Also test that the length of each glyph is correct.
 
         .. notes::
 
-            The glyphss variable has the following fields.
+            The glyphs variable has the following fields.
             [offset, width, height, advance cursor, x offset, y offset]
         """
         for name, module in self._modules.items():
             glyphs = []
             glyph_size = 6
-            var_name = f"{name}Glyphs"
+            var_name = self.GLYPHS_MASK.format(name)
 
             try:
                 glyphs[:] = getattr(module, var_name)
@@ -100,7 +102,7 @@ class TestFonts(unittest.TestCase):
         .. notes::
 
             The font variable is a combination of the other two variables
-            plus three other values. The folowing fields should exist.
+            plus three other values. The following fields should exist.
             [bitmap var, glyph var, first extent, last extent, y advance]
         """
         for name, module in self._modules.items():
@@ -129,3 +131,32 @@ class TestFonts(unittest.TestCase):
                         num = f"{idx}{'rd' if idx == 3 else 'th'}"
                         msg = tmp_msg.format(num, 'int', idx)
                         self.assertTrue(isinstance(item, int), msg=msg)
+
+    @unittest.skip("This test does not work because the variable cannot "
+                   "be set dynamically.")
+    def test_extended_var_in_fonts(self):
+        """
+        Every so often a font has an extended range as in the TomThumb font.
+        This needs to be tested also.
+        """
+        for name, module in self._modules.items():
+            var_names = (self.BITMAP_MASK.format(name),
+                         self.GLYPHS_MASK.format(name),
+                         name)
+
+            if name not in var_names:
+                font_list = []
+
+                # We don't need to test the last variable in var_names.
+                for var_name in var_names[:-1]:
+                    try:
+                        font_list[:] = getattr(module, var_name)
+                    except AttributeError as e:
+                        msg - (f"Font '{name}' does not have a '{var_name}' "
+                               "variable")
+                        self.assertTrue(bitmaps, msg=msg)
+                    else:
+                        size_before = len(font_list)
+                        setattr(module, name, 1) # THIS LINE DOES'T WORK.
+                        size_after  = len(font_list)
+                        self.assertTrue(size_before < size_after, msg=msg)
