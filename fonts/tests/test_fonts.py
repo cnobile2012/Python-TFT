@@ -121,7 +121,7 @@ class TestFonts(unittest.TestCase):
                 tmp_msg = "{} item should be a {}, found {}"
 
                 for idx, item in enumerate(font, start=1):
-                    if idx < 2:
+                    if idx < 3:
                         num = f"{idx}{'st' if idx == 1 else 'nd'}"
                         msg = tmp_msg.format(num, 'list', idx)
                         self.assertTrue(isinstance(item, list), msg=msg)
