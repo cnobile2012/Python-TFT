@@ -132,33 +132,34 @@ class TestFonts(unittest.TestCase):
                         msg = tmp_msg.format(num, 'int', idx)
                         self.assertTrue(isinstance(item, int), msg=msg)
 
-    @unittest.skip("This test does not work because the variable cannot "
-                   "be set dynamically.")
+    #@unittest.skip("This test does not work because the variable cannot "
+    #               "be set dynamically.")
     def test_extended_var_in_fonts(self):
         """
         Every so often a font has an extended range as in the TomThumb font.
         This needs to be tested also.
         """
         for name, module in self._modules.items():
-            var_names = (self.BITMAP_MASK.format(name),
-                         self.GLYPHS_MASK.format(name),
-                         name)
+            list_names = (self.BITMAP_MASK.format(name),
+                          self.GLYPHS_MASK.format(name),
+                          name)
 
-            if name not in var_names:
-                font_list = []
+            for any_name in [n for n in dir(module) if not c.startswith("_")]:
+                if any_name not in list_names:
+                    # We don't need to test the last variable in list_names.
+                    for var_name in list_names[:-1]:
+                        font_list = []
 
-                # We don't need to test the last variable in var_names.
-                for var_name in var_names[:-1]:
-                    try:
-                        font_list[:] = getattr(module, var_name)
-                    except AttributeError as e:
-                        msg - (f"Font '{name}' does not have a '{var_name}' "
-                               "variable")
-                        self.assertTrue(bitmaps, msg=msg)
-                    else:
-                        size_before = len(font_list)
-                        # THIS LINE DOES'T WORK.
-                        setattr(module, name, 1)
-                        font_list[:] = getattr(module, var_name)
-                        size_after  = len(font_list)
-                        self.assertTrue(size_before < size_after, msg=msg)
+                        try:
+                            font_list[:] = getattr(module, var_name)
+                        except AttributeError as e:
+                            msg - (f"Font '{name}' does not have a "
+                                   "'{var_name}' variable")
+                            self.assertTrue(bitmaps, msg=msg)
+                        else:
+                            size_before = len(font_list)
+                            # THIS LINE DOES'T WORK.
+                            setattr(module, name, 1)
+                            font_list[:] = getattr(module, ext_name)
+                            size_after  = len(font_list)
+                            self.assertTrue(size_before < size_after, msg=msg)
