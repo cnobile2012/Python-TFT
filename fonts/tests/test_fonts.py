@@ -138,8 +138,8 @@ class TestFonts(unittest.TestCase):
                             msg = tmp_msg.format(num, 'int', idx)
                             self.assertTrue(isinstance(item, int), msg=msg)
 
-    #@unittest.skip("This test does not work because the variable cannot "
-    #               "be set dynamically.")
+    @unittest.skip("This test does not work because the variable cannot "
+                   "be set dynamically.")
     def test_extended_var_in_fonts(self):
         """
         Every so often a font has an extended range as in the TomThumb font.
@@ -166,6 +166,10 @@ class TestFonts(unittest.TestCase):
                             size_before = len(font_list)
                             # THIS LINE DOES'T WORK.
                             setattr(module, name, 1)
-                            font_list[:] = getattr(module, any_name)
+                            font_list[:] = getattr(module, var_name)
                             size_after  = len(font_list)
+                            msg = (f"Font '{name}': variable '{var_name}', "
+                                   f"unextended size '{size_before}', should "
+                                   "be less than the extended size of "
+                                   f"'{size_after}'")
                             self.assertTrue(size_before < size_after, msg=msg)
