@@ -12,6 +12,7 @@ __pycache__/
 .~lock.*
 old
 RTk
+coverage.txt
 
 # C extensions
 *.so
