@@ -84,8 +84,8 @@ class TestFonts(unittest.TestCase):
                 msg - f"Font '{name}' does not have a '{var_name}' variable"
                 self.assertTrue(bitmaps, msg=msg)
             else:
-                tmp_msg = f("Font '{name}': should be {glyph_size} in "
-                            "length found: {{}}")
+                tmp_msg = (f"Font '{name}': should be {glyph_size} in "
+                           "length found: {{}}")
 
                 for lst in glyphs:
                     found_size = len(lst)
@@ -115,8 +115,8 @@ class TestFonts(unittest.TestCase):
                 self.assertTrue(bitmaps, msg=msg)
             else:
                 found_size = len(font)
-                tmp_msg = (f"Font '{name}': should be {font_size} in "
-                           f"length found: {found_size}")
+                msg = (f"Font '{name}': should be {font_size} in "
+                       f"length found: {found_size}")
                 self.assertEqual(font_size, found_size, msg=msg)
                 tmp_msg = "{} item should be a {}, found {}"
 
