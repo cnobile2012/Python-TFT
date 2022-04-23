@@ -6,6 +6,7 @@
 
 include include.mk
 
+TODAY		= $(shell date +"%Y-%m-%dT%H:%M:%S.%N%:z")
 PREFIX		= $(shell pwd)
 PACKAGE_DIR	= $(shell echo $${PWD\#\#*/})
 DOCS_DIR	= $(PREFIX)/docs
@@ -30,6 +31,7 @@ rpi-tests: clean
 #                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov
 #	coverage combine
 #	coverage report
+	@echo $(TODAY)
 
 .PHONY	: sphinx
 sphinx	: clean

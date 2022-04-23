@@ -20,15 +20,15 @@ except:
         except:
             try: # Raspberry Pi
                 import importlib
-            except:
+            except: # pragma: no cover
                 pass
             else:
                 from py_versions.raspberrypi import PiVersion
-        else:
+        else: # pragma: no cover
             from py_versions.computer import PiVersion
-    else:
+    else: # pragma: no cover
         from py_versions.circuitpython import PiVersion
-else:
+else: # pragma: no cover
     from py_versions.micropython import PiVersion
 
 

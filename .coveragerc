@@ -3,6 +3,7 @@ omit =
     *tests*
     *mock*
     *examples*
+    *fonts/font_convert.py
 
 [report]
 show_missing = True
