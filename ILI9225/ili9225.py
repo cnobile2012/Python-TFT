@@ -23,7 +23,7 @@ class AutoIncMode:
 
 class CurrentFont:
     """
-    Stores the currently used font.
+    Stores the currently used standard font.
     """
 
     def __init__(self, font=((), 0, 0, 0, 0, 0, False)):
@@ -57,15 +57,15 @@ class GFXGlyph:
 
 class GFXFont:
     """
-    Font meta data.
+    Font meta data for the font bitmaps and glyphs.
     """
 
     def __init__(self, font):
-        self.bitmap = font[0]    # Glyph bitmaps, concatenated
-        self.glyph = font[1]     # Glyph class
-        self.first = font[3]     # ASCII extents
-        self.last = font[4]
-        self.y_advance = font[5] # Newline distance (y axis)
+        self.bitmap = font[0]    # Bitmaps
+        self.glyph = font[1]     # Glyphs
+        self.first = font[2]     # ASCII extents
+        self.last = font[3]
+        self.y_advance = font[4] # Newline distance (y axis)
 
 
 class ILI9225(Compatibility):
