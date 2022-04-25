@@ -82,13 +82,14 @@ class TestCurrentFont(unittest.TestCase):
         """
         args = [[0, 1, 2, 3, 4], 1, 10, 3, 4, 4, True]
         cf = CurrentFont(font=args)
-        variables = [v for v in dir(cf)
-                     if not v.startswith('_') and not callable(getattr(cf, v))]
+        variables = {
+            'font': 0, 'width': 1, 'height': 2, 'offset': 3,
+            'numchars': 4, 'nbrows': 5, 'mono_sp': 6]}
         expect = [[0, 1, 2, 3, 4], 1, 10, 3, 4, 5, True]
 
-        for idx, v in enumerate(variables):
-            found = getattr(cf, v)
-            msg = (f"The {v} variable value should be '{expect[idx]}', "
+        for var, idx in variables.items():
+            found = getattr(cf, var)
+            msg = (f"The {var} variable value should be '{expect[idx]}', "
                    f"found '{found}'")
             self.assertEqual(expect[idx], found, msg=msg)
 
@@ -97,6 +98,11 @@ class TestILI9225(unittest.TestCase):
     """
     Test the main ILI9225 class.
     """
+    RST = 17 # RTD
+    RS = 27
+    CS = 8
+    MOSI = 10
+    CLK = 11
 
     def __init__(self, name):
         super().__init__(name)
