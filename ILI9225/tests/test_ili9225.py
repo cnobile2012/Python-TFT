@@ -84,7 +84,7 @@ class TestCurrentFont(unittest.TestCase):
         cf = CurrentFont(font=args)
         variables = {
             'font': 0, 'width': 1, 'height': 2, 'offset': 3,
-            'numchars': 4, 'nbrows': 5, 'mono_sp': 6]}
+            'numchars': 4, 'nbrows': 5, 'mono_sp': 6}
         expect = [[0, 1, 2, 3, 4], 1, 10, 3, 4, 5, True]
 
         for var, idx in variables.items():
