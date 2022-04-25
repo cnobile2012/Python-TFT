@@ -65,7 +65,7 @@ class TestCurrentFont(unittest.TestCase):
 
         for idx, v in enumerate(variables):
             if idx == 0:
-                expected = ()
+                expect = ()
             elif idx == len(variables) -1:
                 expect = False
             else:
@@ -84,7 +84,7 @@ class TestCurrentFont(unittest.TestCase):
         cf = CurrentFont(font=args)
         variables = [v for v in dir(cf)
                      if not v.startswith('_') and not callable(getattr(cf, v))]
-        expect = [[0, 1, 2, 3, 4], 1, 2, 3, 4, 5, True]
+        expect = [[0, 1, 2, 3, 4], 1, 10, 3, 4, 5, True]
 
         for idx, v in enumerate(variables):
             found = getattr(cf, v)
@@ -110,4 +110,8 @@ class TestILI9225(unittest.TestCase):
         self._tft.clear()
         self._tft.pin_cleanup()
 
-#    def test_
+    def test_clear(self):
+        """
+        Test that the screen clears to black.
+        """
+        pass
