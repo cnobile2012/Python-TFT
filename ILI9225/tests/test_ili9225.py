@@ -82,9 +82,8 @@ class TestCurrentFont(unittest.TestCase):
         """
         args = [[0, 1, 2, 3, 4], 1, 10, 3, 4, 4, True]
         cf = CurrentFont(font=args)
-        variables = {
-            'font': 0, 'width': 1, 'height': 2, 'offset': 3,
-            'numchars': 4, 'nbrows': 5, 'mono_sp': 6}
+        variables = {'font': 0, 'width': 1, 'height': 2, 'offset': 3,
+                     'numchars': 4, 'nbrows': 5, 'mono_sp': 6}
         expect = [[0, 1, 2, 3, 4], 1, 10, 3, 4, 5, True]
 
         for var, idx in variables.items():
@@ -111,13 +110,30 @@ class TestILI9225(unittest.TestCase):
         self._tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
                             board=Boards.RASPI)
         self._tft.begin()
+        self._spi_buff = StringIO()
 
     def tearDown(self):
         self._tft.clear()
         self._tft.pin_cleanup()
 
+    def _read_spi_buff(self):
+        """
+        This method is only used for testing when the board is a Raspberry Pi
+        otherwise it will raise an exception, so don't use it.
+        """
+        self._tft._spi_buff.flush()
+        ret = self._tft._spi_buff.getvalue()
+        self._tft._spi_buff.seek(0)
+        return ret
+
     def test_clear(self):
         """
         Test that the screen clears to black.
         """
-        pass
+        x = self._tft.LCD_WIDTH / 2
+        y = self._tft.LCD_HEIGHT / 2
+        self._tft.draw_circle(x, y, 80, Colors.RED)
+        ret = self._read_spi_buff()
+        self._tft.clear()
+        ret = self._read_spi_buff()
+        print('TMP:', ret)

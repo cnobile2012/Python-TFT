@@ -73,6 +73,7 @@ class ILI9225(Compatibility):
     Main ILI9225 class.
     """
     DEBUG = False
+    TESTING = True
 
     LCD_WIDTH               = 176
     LCD_HEIGHT              = 220
@@ -235,7 +236,7 @@ class ILI9225(Compatibility):
 
         # Start initial sequence.
         # Set SS bit and direction output from S528 to S1
-        ## self.__start_write()
+        ## self._start_write()
         ## # Set SAP,DSTB,STB
         ## self._write_register(self.POWER_CTRL1, 0x0000)
         ## # Set APON,PON,AON,VCI1EN,VC
@@ -246,14 +247,14 @@ class ILI9225(Compatibility):
         ## self._write_register(self.POWER_CTRL4, 0x0000)
         ## # Set VCOMH/VCOML voltage
         ## self._write_register(self.POWER_CTRL5, 0x0000)
-        ## self.__end_write()
+        ## self._end_write()
         ## self.delay(40)
 
         ## if self.DEBUG:
         ##     print("Finished initial sequence.")
 
         # Power-on sequence
-        self.__start_write()
+        self._start_write()
         # Set APON,PON,AON,VCI1EN,VC
         self._write_register(self.POWER_CTRL2, 0x0018)
         # Set BT,DC1,DC2,DC3
@@ -264,15 +265,15 @@ class ILI9225(Compatibility):
         self._write_register(self.POWER_CTRL5, 0x495F)
         # Set SAP,DSTB,STB
         self._write_register(self.POWER_CTRL1, 0x0800)
-        self.__end_write()
+        self._end_write()
         self.delay(10)
-        self.__start_write()
+        self._start_write()
         # Set APON,PON,AON,VCI1EN,VC
         self._write_register(self.POWER_CTRL2, 0x103B)
-        self.__end_write()
+        self._end_write()
         self.delay(50)
 
-        self.__start_write()
+        self._start_write()
         # Set the display line number and display direction
         self._write_register(self.DRIVER_OUTPUT_CTRL, 0x011C) # 0x001C
         # Set 1 line inversion
@@ -337,11 +338,11 @@ class ILI9225(Compatibility):
         ## self._write_register(self.GAMMA_CTRL10, 0x0710)
 
         self._write_register(self.DISP_CTRL1, 0x0012)
-        self.__end_write()
+        self._end_write()
         self.delay(50)
-        self.__start_write()
+        self._start_write()
         self._write_register(self.DISP_CTRL1, 0x1017)
-        self.__end_write()
+        self._end_write()
 
         if self.DEBUG:
             print("Finished set GAMMA curve.")
@@ -386,9 +387,9 @@ class ILI9225(Compatibility):
         :param flag: True = invert and False = normal screen.
         :type flag: bool
         """
-        self.__start_write()
+        self._start_write()
         self._write_command(self._INVON if flag else self._INVOFF)
-        self.__end_write()
+        self._end_write()
 
     def set_backlight(self, flag):
         """
@@ -421,24 +422,24 @@ class ILI9225(Compatibility):
         :type flag: bool
         """
         if flag:
-            self.__start_write()
+            self._start_write()
             self._write_register(0x00ff, 0x0000)
             self._write_register(self.POWER_CTRL1, 0x0000)
-            self.__end_write()
+            self._end_write()
             self.delay(50)
-            self.__start_write()
+            self._start_write()
             self._write_register(self.DISP_CTRL1, 0x1017)
-            self.__end_write()
+            self._end_write()
             self.delay(200)
         else:
-            self.__start_write()
+            self._start_write()
             self._write_register(0x00ff, 0x0000)
             self._write_register(self.DISP_CTRL1, 0x0000)
-            self.__end_write()
+            self._end_write()
             self.delay(50)
-            self.__start_write()
+            self._start_write()
             self._write_register(self.POWER_CTRL1, 0x0003)
-            self.__end_write()
+            self._end_write()
             self.delay(200)
 
     def set_orientation(self, orientation):
@@ -618,10 +619,10 @@ class ILI9225(Compatibility):
                         break
 
                     if fast_mode:
-                        self.__start_write()
+                        self._start_write()
                         self._write_data(color if self._bit_read(
                             char_data, k) else bg_color)
-                        self.__end_write()
+                        self._end_write()
                     else:
                         self.drawPixel(
                             x + i, y + (j * 8) + k,
@@ -859,13 +860,13 @@ class ILI9225(Compatibility):
         :type color: int
         """
         self._set_window(x0, y0, x1, y1)
-        self.__start_write()
+        self._start_write()
 
         # Count backwards from (y1 - y0 + 1) * (x1 - x0 + 1)) + 1 ending at 1.
         for t in range(1, ((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)[::-1]:
             self._write_data(color)
 
-        self.__end_write()
+        self._end_write()
         self._reset_window()
 
     def draw_circle(self, x0, y0, radius, color):
@@ -1130,11 +1131,11 @@ class ILI9225(Compatibility):
         """
         if not ((x0 >= self._max_x) or (y0 >= self._max_y)):
             x0, y0 = self._orient_coordinates(x0, y0)
-            self.__start_write()
+            self._start_write()
             self._write_register(self.RAM_ADDR_SET1, x0)
             self._write_register(self.RAM_ADDR_SET2, y0)
             self._write_register(self.GRAM_DATA_REG, color)
-            self.__end_write()
+            self._end_write()
 
     def draw_text(self, x, y, s, color=Colors.WHITE):
         """
@@ -1261,16 +1262,16 @@ class ILI9225(Compatibility):
                             self.draw_pixel(x + i, y + j, color)
                             no_auto_inc = False
                         else:
-                            self.__start_write()
+                            self._start_write()
                             self._write_data(color)
-                            self.__end_write()
+                            self._end_write()
                     elif transparent:
                         # No autoincrement in transparent area!
                         no_auto_inc = True
                     else:
-                        self.__start_write()
+                        self._start_write()
                         self._write_data(bg)
-                        self.__end_write()
+                        self._end_write()
 
     def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):
         """
@@ -1308,7 +1309,7 @@ class ILI9225(Compatibility):
                        "{}").format(self._orientation, mode, e)
                 raise TFTException(msg)
 
-        self.__start_write()
+        self._start_write()
         self._write_register(self.ENTRY_MODE, 0x000 | (mode << 3))
         self._write_register(self.HORIZONTAL_WINDOW_ADDR1, x1)
         self._write_register(self.HORIZONTAL_WINDOW_ADDR2, x0)
@@ -1332,15 +1333,15 @@ class ILI9225(Compatibility):
             self._write_register(self.RAM_ADDR_SET2, y0)
 
         self._write_command(self.GRAM_DATA_REG)
-        self.__end_write()
+        self._end_write()
 
     def _reset_window(self):
-        self.__start_write()
+        self._start_write()
         self._write_register(self.HORIZONTAL_WINDOW_ADDR1, self.LCD_WIDTH - 1)
         self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0)
         self._write_register(self.VERTICAL_WINDOW_ADDR1, self.LCD_HEIGHT - 1)
         self._write_register(self.VERTICAL_WINDOW_ADDR2, 0)
-        self.__end_write()
+        self._end_write()
 
     def _write_register(self, command, data):
         self._write_command(command)
@@ -1350,23 +1351,37 @@ class ILI9225(Compatibility):
         try:
             self.digital_write(self._rs, self.LOW) # Data/Command
             self.digital_write(self._cs, self.LOW)
-            self.spi_write(command)
+            result = self.spi_write(command)
             self.digital_write(self._cs, self.HIGH)
         except CompatibilityException as e:
-            self.__end_write()
+            self._end_write()
             raise e
+        else:
+            return 'Command\n{}'.format(result) if self.TESTING else None
 
     def _write_data(self, data):
         try:
             self.digital_write(self._rs, self.HIGH) # Data/Command
             self.digital_write(self._cs, self.LOW)
-            self.spi_write(data)
+            result = self.spi_write(data)
             self.digital_write(self._cs, self.HIGH)
         except CompatibilityException as e:
-            self.__end_write()
+            self._end_write()
             raise e
+        else:
+            return 'Data\n{}'.format(result) if self.TESTING else None
 
-    def __start_write(self):
+    def __write_spi_test_buff(self, data):
+        if data is not None:
+            try:
+                junk = self._spi_buff
+            except:
+                from io import StringIO
+                self._spi_buff = StringIO()
+            finally:
+                self._spi_buff.write(data)
+
+    def _start_write(self):
         if self._write_function_level == 0:
             self.spi_start_transaction()
             self.digital_write(self._cs, self.LOW)
@@ -1376,7 +1391,7 @@ class ILI9225(Compatibility):
                    ).format(self._write_function_level)
             print(msg)
 
-    def __end_write(self):
+    def _end_write(self):
         self._write_function_level -= 1
 
         if self._write_function_level == 0:

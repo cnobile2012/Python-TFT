@@ -130,14 +130,14 @@ class PiVersion:
             items.append(value & 0xFF)
 
         try:
-            if self.DEBUG:
+            if self.TESTING and self.BOARD == Boards.RASPI:
                 result = self._spi.xfer2(items)
             else:
                 self._spi.writebytes(items)
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
-            if self.DEBUG: return result
+            return result
 
     def setup_pwm(self, pin, freq, *, duty_cycle=None):
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, freq)
