@@ -130,8 +130,11 @@ class PiVersion:
             items.append(value & 0xFF)
 
         try:
-            if self.TESTING and self.BOARD == Boards.RASPI:
-                result = self._spi.xfer2(items)
+            if self.TESTING:
+                from utils import Boards
+
+                if self.BOARD == Boards.RASPI:
+                    result = self._spi.xfer2(items)
             else:
                 self._spi.writebytes(items)
         except Exception as e:
