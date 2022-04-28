@@ -139,8 +139,9 @@ class PiVersion:
                 self._spi.writebytes(items)
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
-        elif self.TESTING self.BOARD == Boards.RASPI:
-            return result
+        else:
+            if self.TESTING and self.BOARD == Boards.RASPI:
+                return result
 
     def setup_pwm(self, pin, freq, *, duty_cycle=None):
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, freq)

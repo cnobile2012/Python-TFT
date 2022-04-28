@@ -1357,7 +1357,8 @@ class ILI9225(Compatibility):
             self._end_write()
             raise e
         else:
-            return 'Command\n{}'.format(result) if self.TESTING else None
+            result = 'Command: {}\n'.format(result) if self.TESTING else None
+            return self.__write_spi_test_buff(result)
 
     def _write_data(self, data):
         try:
@@ -1369,17 +1370,16 @@ class ILI9225(Compatibility):
             self._end_write()
             raise e
         else:
-            return 'Data\n{}'.format(result) if self.TESTING else None
+            result = '   Data: {}\n'.format(result) if self.TESTING else None
+            return self.__write_spi_test_buff(result)
 
     def __write_spi_test_buff(self, data):
         if data is not None:
-            try:
-                junk = self._spi_buff
-            except:
+            if not hasattr(self, '_spi_buff'):
                 from io import StringIO
                 self._spi_buff = StringIO()
-            finally:
-                self._spi_buff.write(data)
+
+            self._spi_buff.write(data)
 
     def _start_write(self):
         if self._write_function_level == 0:
