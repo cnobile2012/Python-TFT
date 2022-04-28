@@ -141,7 +141,8 @@ class PiVersion:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
             if self.TESTING and self.BOARD == Boards.RASPI:
-                return result
+                high, low = result
+                return hex((high << 8) | low)
 
     def setup_pwm(self, pin, freq, *, duty_cycle=None):
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, freq)
