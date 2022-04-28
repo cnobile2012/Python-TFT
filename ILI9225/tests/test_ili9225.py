@@ -115,7 +115,7 @@ class TestILI9225(unittest.TestCase):
         self._tft.clear()
         self._tft.pin_cleanup()
 
-    def _read_spi_buff(self):
+    def _read_spi_buff(self, func_name=""):
         """
         This method is only used for testing when the board is a Raspberry Pi
         otherwise it will raise an exception, so don't use it.
@@ -123,7 +123,7 @@ class TestILI9225(unittest.TestCase):
         self._tft._spi_buff.flush()
         ret = self._tft._spi_buff.getvalue()
         self._tft._spi_buff.seek(0)
-        return ret
+        return f'{func_name}\n{ret}'
 
     def test_clear(self):
         """
@@ -132,7 +132,7 @@ class TestILI9225(unittest.TestCase):
         x = self._tft.LCD_WIDTH / 2
         y = self._tft.LCD_HEIGHT / 2
         self._tft.draw_circle(x, y, 80, Colors.RED)
-        ret = self._read_spi_buff()
+        ret = self._read_spi_buff('test_clear')
         self._tft.clear()
-        ret = self._read_spi_buff()
-        print('TMP:', ret)
+        ret = self._read_spi_buff('test_clear')
+        print(ret)
