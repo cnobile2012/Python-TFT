@@ -110,7 +110,6 @@ class TestILI9225(unittest.TestCase):
         self._tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
                             board=Boards.RASPI)
         self._tft.begin()
-        self._spi_buff = StringIO()
 
     def tearDown(self):
         self._tft.clear()
