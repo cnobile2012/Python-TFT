@@ -122,7 +122,7 @@ class TestILI9225(unittest.TestCase):
         """
         self._tft._spi_buff.flush()
         ret = self._tft._spi_buff.getvalue()
-        self._tft._spi_buff.truncate()
+        self._tft._spi_buff.truncate(0)
         self._tft._spi_buff.seek(0)
         return f'{func_name}\n{ret}'
 
