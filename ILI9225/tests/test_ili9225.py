@@ -5,8 +5,6 @@
 import unittest
 import re
 
-from collections import OrderedDict
-
 from ILI9225 import ILI9225
 from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont
 from utils import (Boards, TFTException, CompatibilityException,
@@ -160,34 +158,35 @@ class TestILI9225(unittest.TestCase):
         ...:    Data: 0x0
         ...:    Data: 0x0'''
 
-        The response is (Variable Name, [Variable code, Variable Values, ...]):
-        OrderedDict([('CMD_ENTRY_MODE', [3, 4152]),
-                     ('CMD_HORIZONTAL_WINDOW_ADDR1', [54, 175]),
-                     ('CMD_HORIZONTAL_WINDOW_ADDR2', [55, 0]),
-                     ('CMD_VERTICAL_WINDOW_ADDR1', [56, 219]),
-                     ('CMD_VERTICAL_WINDOW_ADDR2', [57, 0]),
-                     ('CMD_RAM_ADDR_SET1', [32, 0]),
-                     ('CMD_RAM_ADDR_SET2', [33, 0]),
-                     ('CMD_GRAM_DATA_REG', [34, 0, 0])])
+        The response is [Variable Name, Variable code, [Variable Values, ...]]:
+        [
+         ['CMD_ENTRY_MODE', [3, 4152]],
+         ['CMD_HORIZONTAL_WINDOW_ADDR1', [54, 175]],
+         ['CMD_HORIZONTAL_WINDOW_ADDR2', [55, 0]],
+         ['CMD_VERTICAL_WINDOW_ADDR1', [56, 219]],
+         ['CMD_VERTICAL_WINDOW_ADDR2', [57, 0]],
+         ['CMD_RAM_ADDR_SET1', [32, 0]],
+         ['CMD_RAM_ADDR_SET2', [33, 0]],
+         ['CMD_GRAM_DATA_REG', [34, 0, 0]]
+        ]
         """
         data = self.REGEX_DATA.findall(values)
-        cmd_hash = OrderedDict()
+        cmds = []
 
         if data:
-            item = {}
-
             for line in data:
                 if line[0] != '':
-                    item.clear()
                     cmd = eval(line[0])
-                    dt = [cmd]
-                    item[self.CMD_NAMES_REV.get(cmd)] = dt
+                    item = []
+                    dt = []
+                    item.append(self.CMD_NAMES_REV.get(cmd))
+                    item.append(cmd)
+                    item.append(dt)
+                    cmds.append(item)
                 else:
                     dt.append(eval(line[1]))
 
-                cmd_hash.update(item)
-
-        return cmd_hash
+        return cmds
 
     def test_clear(self):
         """
@@ -210,22 +209,28 @@ class TestILI9225(unittest.TestCase):
             (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
             (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
             )
+        msg = (f"Expected length {len(expect)} is not equal to found "
+               f"length {len(data)}")
+        self.assertEqual(len(expect), len(data), msg = msg)
         msg1 = "Command {}--should be: {}, found: {}"
         msg2 = "Command {}: data should be: {}, found: {}"
 
-        # item = [Variable code, Variable Values, ...]
-        for idx, (name, item) in enumerate(data.items()):
+        # item = [Variable Name, Variable code, [Variable Values, ...]]
+        for idx, item in enumerate(data):
             # Test for variable name and code
             expect_code = expect[idx][0]
             expect_name = self.CMD_NAMES_REV.get(expect_code)
-            found_code = item[0]
+            found_code = item[1] # Command code
             msg1_tmp = msg1.format(expect_name, expect_code, found_code)
             self.assertEqual(expect_code, found_code, msg=msg1_tmp)
 
             # Test for values
-            for value in range(expect[idx][1]):
-                msg2_tmp = msg2.format(expect_name, expect[idx][2], item[1])
-                self.assertEqual(expect[idx][2], item[1], msg=msg2_tmp)
+            expect_value = expect[idx][2]
+
+            for j in range(expect[idx][1]):
+                found_value = item[2][j]
+                msg2_tmp = msg2.format(expect_name, expect_value, found_value)
+                self.assertEqual(expect_value, found_value, msg=msg2_tmp)
 
 
 
