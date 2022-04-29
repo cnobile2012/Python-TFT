@@ -82,43 +82,43 @@ class ILI9225(Compatibility):
     _INVON                  = 0x21  # Invert on
     _SPI_MODE               = 0
 
-    DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
-    LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
-    ENTRY_MODE              = 0x03  # Entry Mode
-    DISP_CTRL1              = 0x07  # Display Control 1
-    BLANK_PERIOD_CTRL1      = 0x08  # Blank Period Control
-    FRAME_CYCLE_CTRL        = 0x0B  # Frame Cycle Control
-    INTERFACE_CTRL          = 0x0C  # Interface Control
-    OSC_CTRL                = 0x0F  # Osc Control
-    POWER_CTRL1             = 0x10  # Power Control 1
-    POWER_CTRL2             = 0x11  # Power Control 2
-    POWER_CTRL3             = 0x12  # Power Control 3
-    POWER_CTRL4             = 0x13  # Power Control 4
-    POWER_CTRL5             = 0x14  # Power Control 5
-    VCI_RECYCLING           = 0x15  # VCI Recycling
-    RAM_ADDR_SET1           = 0x20  # Horizontal GRAM Address Set
-    RAM_ADDR_SET2           = 0x21  # Vertical GRAM Address Set
-    GRAM_DATA_REG           = 0x22  # GRAM Data Register
-    GATE_SCAN_CTRL          = 0x30  # Gate Scan Control Register
-    VERTICAL_SCROLL_CTRL1   = 0x31  # Vertical Scroll Control 1 Register
-    VERTICAL_SCROLL_CTRL2   = 0x32  # Vertical Scroll Control 2 Register
-    VERTICAL_SCROLL_CTRL3   = 0x33  # Vertical Scroll Control 3 Register
-    PARTIAL_DRIVING_POS1    = 0x34  # Partial Driving Position 1 Register
-    PARTIAL_DRIVING_POS2    = 0x35  # Partial Driving Position 2 Register
-    HORIZONTAL_WINDOW_ADDR1 = 0x36  # Horizontal Address Start Position
-    HORIZONTAL_WINDOW_ADDR2 = 0x37  # Horizontal Address End Position
-    VERTICAL_WINDOW_ADDR1   = 0x38  # Vertical Address Start Position
-    VERTICAL_WINDOW_ADDR2   = 0x39  # Vertical Address End Position
-    GAMMA_CTRL1             = 0x50  # Gamma Control 1
-    GAMMA_CTRL2             = 0x51  # Gamma Control 2
-    GAMMA_CTRL3             = 0x52  # Gamma Control 3
-    GAMMA_CTRL4             = 0x53  # Gamma Control 4
-    GAMMA_CTRL5             = 0x54  # Gamma Control 5
-    GAMMA_CTRL6             = 0x55  # Gamma Control 6
-    GAMMA_CTRL7             = 0x56  # Gamma Control 7
-    GAMMA_CTRL8             = 0x57  # Gamma Control 8
-    GAMMA_CTRL9             = 0x58  # Gamma Control 9
-    GAMMA_CTRL10            = 0x59  # Gamma Control 10
+    CMD_DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
+    CMD_LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
+    CMD_ENTRY_MODE              = 0x03  # Entry Mode
+    CMD_DISP_CTRL1              = 0x07  # Display Control 1
+    CMD_BLANK_PERIOD_CTRL1      = 0x08  # Blank Period Control
+    CMD_FRAME_CYCLE_CTRL        = 0x0B  # Frame Cycle Control
+    CMD_INTERFACE_CTRL          = 0x0C  # Interface Control
+    CMD_OSC_CTRL                = 0x0F  # Osc Control
+    CMD_POWER_CTRL1             = 0x10  # Power Control 1
+    CMD_POWER_CTRL2             = 0x11  # Power Control 2
+    CMD_POWER_CTRL3             = 0x12  # Power Control 3
+    CMD_POWER_CTRL4             = 0x13  # Power Control 4
+    CMD_POWER_CTRL5             = 0x14  # Power Control 5
+    CMD_VCI_RECYCLING           = 0x15  # VCI Recycling
+    CMD_RAM_ADDR_SET1           = 0x20  # Horizontal GRAM Address Set
+    CMD_RAM_ADDR_SET2           = 0x21  # Vertical GRAM Address Set
+    CMD_GRAM_DATA_REG           = 0x22  # GRAM Data Register
+    CMD_GATE_SCAN_CTRL          = 0x30  # Gate Scan Control Register
+    CMD_VERTICAL_SCROLL_CTRL1   = 0x31  # Vertical Scroll Control 1 Register
+    CMD_VERTICAL_SCROLL_CTRL2   = 0x32  # Vertical Scroll Control 2 Register
+    CMD_VERTICAL_SCROLL_CTRL3   = 0x33  # Vertical Scroll Control 3 Register
+    CMD_PARTIAL_DRIVING_POS1    = 0x34  # Partial Driving Position 1 Register
+    CMD_PARTIAL_DRIVING_POS2    = 0x35  # Partial Driving Position 2 Register
+    CMD_HORIZONTAL_WINDOW_ADDR1 = 0x36  # Horizontal Address Start Position
+    CMD_HORIZONTAL_WINDOW_ADDR2 = 0x37  # Horizontal Address End Position
+    CMD_VERTICAL_WINDOW_ADDR1   = 0x38  # Vertical Address Start Position
+    CMD_VERTICAL_WINDOW_ADDR2   = 0x39  # Vertical Address End Position
+    CMD_GAMMA_CTRL1             = 0x50  # Gamma Control 1
+    CMD_GAMMA_CTRL2             = 0x51  # Gamma Control 2
+    CMD_GAMMA_CTRL3             = 0x52  # Gamma Control 3
+    CMD_GAMMA_CTRL4             = 0x53  # Gamma Control 4
+    CMD_GAMMA_CTRL5             = 0x54  # Gamma Control 5
+    CMD_GAMMA_CTRL6             = 0x55  # Gamma Control 6
+    CMD_GAMMA_CTRL7             = 0x56  # Gamma Control 7
+    CMD_GAMMA_CTRL8             = 0x57  # Gamma Control 8
+    CMD_GAMMA_CTRL9             = 0x58  # Gamma Control 9
+    CMD_GAMMA_CTRL10            = 0x59  # Gamma Control 10
 
     # 1: pixel width of 1 font character, 2: pixel height
     _CFONT_HEADER_SIZE = 4
@@ -238,15 +238,15 @@ class ILI9225(Compatibility):
         # Set SS bit and direction output from S528 to S1
         ## self._start_write()
         ## # Set SAP,DSTB,STB
-        ## self._write_register(self.POWER_CTRL1, 0x0000)
+        ## self._write_register(self.CMD_POWER_CTRL1, 0x0000)
         ## # Set APON,PON,AON,VCI1EN,VC
-        ## self._write_register(self.POWER_CTRL2, 0x0000)
+        ## self._write_register(self.CMD_POWER_CTRL2, 0x0000)
         ## # Set BT,DC1,DC2,DC3
-        ## self._write_register(self.POWER_CTRL3, 0x0000)
+        ## self._write_register(self.CMD_POWER_CTRL3, 0x0000)
         ## # Set GVDD
-        ## self._write_register(self.POWER_CTRL4, 0x0000)
+        ## self._write_register(self.CMD_POWER_CTRL4, 0x0000)
         ## # Set VCOMH/VCOML voltage
-        ## self._write_register(self.POWER_CTRL5, 0x0000)
+        ## self._write_register(self.CMD_POWER_CTRL5, 0x0000)
         ## self._end_write()
         ## self.delay(40)
 
@@ -256,92 +256,92 @@ class ILI9225(Compatibility):
         # Power-on sequence
         self._start_write()
         # Set APON,PON,AON,VCI1EN,VC
-        self._write_register(self.POWER_CTRL2, 0x0018)
+        self._write_register(self.CMD_POWER_CTRL2, 0x0018)
         # Set BT,DC1,DC2,DC3
-        self._write_register(self.POWER_CTRL3, 0x6121)
+        self._write_register(self.CMD_POWER_CTRL3, 0x6121)
         # Set GVDD (007F 0088)
-        self._write_register(self.POWER_CTRL4, 0x006F)
+        self._write_register(self.CMD_POWER_CTRL4, 0x006F)
         # Set VCOMH/VCOML voltage
-        self._write_register(self.POWER_CTRL5, 0x495F)
+        self._write_register(self.CMD_POWER_CTRL5, 0x495F)
         # Set SAP,DSTB,STB
-        self._write_register(self.POWER_CTRL1, 0x0800)
+        self._write_register(self.CMD_POWER_CTRL1, 0x0800)
         self._end_write()
         self.delay(10)
         self._start_write()
         # Set APON,PON,AON,VCI1EN,VC
-        self._write_register(self.POWER_CTRL2, 0x103B)
+        self._write_register(self.CMD_POWER_CTRL2, 0x103B)
         self._end_write()
         self.delay(50)
 
         self._start_write()
         # Set the display line number and display direction
-        self._write_register(self.DRIVER_OUTPUT_CTRL, 0x011C) # 0x001C
+        self._write_register(self.CMD_DRIVER_OUTPUT_CTRL, 0x011C) # 0x001C
         # Set 1 line inversion
-        self._write_register(self.LCD_AC_DRIVING_CTRL, 0x0100)
+        self._write_register(self.CMD_LCD_AC_DRIVING_CTRL, 0x0100)
         # Set GRAM write direction and BGR=1.
-        self._write_register(self.ENTRY_MODE, 0x1038) # 0x0038
+        self._write_register(self.CMD_ENTRY_MODE, 0x1038) # 0x0038
         # Display off
-        self._write_register(self.DISP_CTRL1, 0x0000)
+        self._write_register(self.CMD_DISP_CTRL1, 0x0000)
         # Set the back porch and front porch
-        self._write_register(self.BLANK_PERIOD_CTRL1, 0x0808)
+        self._write_register(self.CMD_BLANK_PERIOD_CTRL1, 0x0808)
         # Set the clocks number per line
-        self._write_register(self.FRAME_CYCLE_CTRL, 0x1100)
+        self._write_register(self.CMD_FRAME_CYCLE_CTRLXS, 0x1100)
         # CPU interface
-        self._write_register(self.INTERFACE_CTRL, 0x0000)
+        self._write_register(self.CMD_INTERFACE_CTRL, 0x0000)
         # 0e01
-        self._write_register(self.OSC_CTRL, 0x0D01)
+        self._write_register(self.CMD_OSC_CTRL, 0x0D01)
         # Set VCI recycling
-        self._write_register(self.VCI_RECYCLING, 0x0020)
+        self._write_register(self.CMD_VCI_RECYCLING, 0x0020)
         # RAM Address
-        self._write_register(self.RAM_ADDR_SET1, 0x0000)
-        self._write_register(self.RAM_ADDR_SET2, 0x0000)
+        self._write_register(self.CMD_RAM_ADDR_SET1, 0x0000)
+        self._write_register(self.CMD_RAM_ADDR_SET2, 0x0000)
 
         if self.DEBUG:
             print("Finished power-on sequence.")
 
         # Set GRAM area
-        self._write_register(self.GATE_SCAN_CTRL, 0x0000)
-        self._write_register(self.VERTICAL_SCROLL_CTRL1, 0x00DB)
-        self._write_register(self.VERTICAL_SCROLL_CTRL2, 0x0000)
-        self._write_register(self.VERTICAL_SCROLL_CTRL3, 0x0000)
-        self._write_register(self.PARTIAL_DRIVING_POS1, 0x00DB)
-        self._write_register(self.PARTIAL_DRIVING_POS2, 0x0000)
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, 0x00AF)
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0x0000)
-        self._write_register(self.VERTICAL_WINDOW_ADDR1, 0x00DB)
-        self._write_register(self.VERTICAL_WINDOW_ADDR2, 0x0000)
+        self._write_register(self.CMD_GATE_SCAN_CTRL, 0x0000)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL1, 0x00DB)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL2, 0x0000)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL3, 0x0000)
+        self._write_register(self.CMD_PARTIAL_DRIVING_POS1, 0x00DB)
+        self._write_register(self.CMD_PARTIAL_DRIVING_POS2, 0x0000)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, 0x00AF)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0x0000)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, 0x00DB)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0x0000)
 
         if self.DEBUG:
             print("Finished set GRAM area.")
 
         # Adjust GAMMA curve
-        self._write_register(self.GAMMA_CTRL1, 0x0000)
-        self._write_register(self.GAMMA_CTRL2, 0x060B)
-        self._write_register(self.GAMMA_CTRL3, 0x0C0A)
-        self._write_register(self.GAMMA_CTRL4, 0x0105)
-        self._write_register(self.GAMMA_CTRL5, 0x0A0C)
-        self._write_register(self.GAMMA_CTRL6, 0x0B06)
-        self._write_register(self.GAMMA_CTRL7, 0x0004)
-        self._write_register(self.GAMMA_CTRL8, 0x0501)
-        self._write_register(self.GAMMA_CTRL9, 0x0E00)
-        self._write_register(self.GAMMA_CTRL10, 0x000E)
+        self._write_register(self.CMD_GAMMA_CTRL1, 0x0000)
+        self._write_register(self.CMD_GAMMA_CTRL2, 0x060B)
+        self._write_register(self.CMD_GAMMA_CTRL3, 0x0C0A)
+        self._write_register(self.CMD_GAMMA_CTRL4, 0x0105)
+        self._write_register(self.CMD_GAMMA_CTRL5, 0x0A0C)
+        self._write_register(self.CMD_GAMMA_CTRL6, 0x0B06)
+        self._write_register(self.CMD_GAMMA_CTRL7, 0x0004)
+        self._write_register(self.CMD_GAMMA_CTRL8, 0x0501)
+        self._write_register(self.CMD_GAMMA_CTRL9, 0x0E00)
+        self._write_register(self.CMD_GAMMA_CTRL10, 0x000E)
 
-        ## self._write_register(self.GAMMA_CTRL1, 0x0000)
-        ## self._write_register(self.GAMMA_CTRL2, 0x0808)
-        ## self._write_register(self.GAMMA_CTRL3, 0x080A)
-        ## self._write_register(self.GAMMA_CTRL4, 0x000A)
-        ## self._write_register(self.GAMMA_CTRL5, 0x0A08)
-        ## self._write_register(self.GAMMA_CTRL6, 0x0808)
-        ## self._write_register(self.GAMMA_CTRL7, 0x0000)
-        ## self._write_register(self.GAMMA_CTRL8, 0x0A00)
-        ## self._write_register(self.GAMMA_CTRL9, 0x0710)
-        ## self._write_register(self.GAMMA_CTRL10, 0x0710)
+        ## self._write_register(self.CMD_GAMMA_CTRL1, 0x0000)
+        ## self._write_register(self.CMD_GAMMA_CTRL2, 0x0808)
+        ## self._write_register(self.CMD_GAMMA_CTRL3, 0x080A)
+        ## self._write_register(self.CMD_GAMMA_CTRL4, 0x000A)
+        ## self._write_register(self.CMD_GAMMA_CTRL5, 0x0A08)
+        ## self._write_register(self.CMD_GAMMA_CTRL6, 0x0808)
+        ## self._write_register(self.CMD_GAMMA_CTRL7, 0x0000)
+        ## self._write_register(self.CMD_GAMMA_CTRL8, 0x0A00)
+        ## self._write_register(self.CMD_GAMMA_CTRL9, 0x0710)
+        ## self._write_register(self.CMD_GAMMA_CTRL10, 0x0710)
 
-        self._write_register(self.DISP_CTRL1, 0x0012)
+        self._write_register(self.CMD_DISP_CTRL1, 0x0012)
         self._end_write()
         self.delay(50)
         self._start_write()
-        self._write_register(self.DISP_CTRL1, 0x1017)
+        self._write_register(self.CMD_DISP_CTRL1, 0x1017)
         self._end_write()
 
         if self.DEBUG:
@@ -424,21 +424,21 @@ class ILI9225(Compatibility):
         if flag:
             self._start_write()
             self._write_register(0x00ff, 0x0000)
-            self._write_register(self.POWER_CTRL1, 0x0000)
+            self._write_register(self.CMD_POWER_CTRL1, 0x0000)
             self._end_write()
             self.delay(50)
             self._start_write()
-            self._write_register(self.DISP_CTRL1, 0x1017)
+            self._write_register(self.CMD_DISP_CTRL1, 0x1017)
             self._end_write()
             self.delay(200)
         else:
             self._start_write()
             self._write_register(0x00ff, 0x0000)
-            self._write_register(self.DISP_CTRL1, 0x0000)
+            self._write_register(self.CMD_DISP_CTRL1, 0x0000)
             self._end_write()
             self.delay(50)
             self._start_write()
-            self._write_register(self.POWER_CTRL1, 0x0003)
+            self._write_register(self.CMD_POWER_CTRL1, 0x0003)
             self._end_write()
             self.delay(200)
 
@@ -1132,9 +1132,9 @@ class ILI9225(Compatibility):
         if not ((x0 >= self._max_x) or (y0 >= self._max_y)):
             x0, y0 = self._orient_coordinates(x0, y0)
             self._start_write()
-            self._write_register(self.RAM_ADDR_SET1, x0)
-            self._write_register(self.RAM_ADDR_SET2, y0)
-            self._write_register(self.GRAM_DATA_REG, color)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x0)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y0)
+            self._write_register(self.CMD_GRAM_DATA_REG, color)
             self._end_write()
 
     def draw_text(self, x, y, s, color=Colors.WHITE):
@@ -1310,37 +1310,39 @@ class ILI9225(Compatibility):
                 raise TFTException(msg)
 
         self._start_write()
-        self._write_register(self.ENTRY_MODE, 0x000 | (mode << 3))
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, x1)
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, x0)
-        self._write_register(self.VERTICAL_WINDOW_ADDR1, y1)
-        self._write_register(self.VERTICAL_WINDOW_ADDR2, y0)
+        self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3))
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, x1)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, x0)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, y1)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, y0)
 
         # Starting position within window and increment/decrement direction
         pos = mode >> 1
 
         if pos == 0:
-            self._write_register(self.RAM_ADDR_SET1, x1)
-            self._write_register(self.RAM_ADDR_SET2, y1)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x1)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y1)
         elif pos == 1:
-            self._write_register(self.RAM_ADDR_SET1, x0)
-            self._write_register(self.RAM_ADDR_SET2, y1)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x0)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y1)
         elif pos == 2:
-            self._write_register(self.RAM_ADDR_SET1, x1)
-            self._write_register(self.RAM_ADDR_SET2, y0)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x1)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y0)
         elif pos == 3:
-            self._write_register(self.RAM_ADDR_SET1, x0)
-            self._write_register(self.RAM_ADDR_SET2, y0)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x0)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y0)
 
-        self._write_command(self.GRAM_DATA_REG)
+        self._write_command(self.CMD_GRAM_DATA_REG)
         self._end_write()
 
     def _reset_window(self):
         self._start_write()
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR1, self.LCD_WIDTH - 1)
-        self._write_register(self.HORIZONTAL_WINDOW_ADDR2, 0)
-        self._write_register(self.VERTICAL_WINDOW_ADDR1, self.LCD_HEIGHT - 1)
-        self._write_register(self.VERTICAL_WINDOW_ADDR2, 0)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1,
+                             self.LCD_WIDTH - 1)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1,
+                             self.LCD_HEIGHT - 1)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0)
         self._end_write()
 
     def _write_register(self, command, data):

@@ -3,6 +3,9 @@
 #
 
 import unittest
+import re
+
+from collections import OrderedDict
 
 from ILI9225 import ILI9225
 from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont
@@ -96,12 +99,20 @@ class TestCurrentFont(unittest.TestCase):
 class TestILI9225(unittest.TestCase):
     """
     Test the main ILI9225 class.
+
+    All tests must have the MOSI redirected to MISO on the Raspberry Pi.
     """
     RST = 17 # RTD
     RS = 27
     CS = 8
     MOSI = 10
     CLK = 11
+
+    REGEX_DATA = re.compile(
+        r"Command: (0x[\dA-Fa-f]+)|   Data: (0x[\dA-Fa-f]+)")
+
+    CMD_NAMES = [cmd for cmd in dir(ILI9225) if cmd.startswith('CMD_')]
+    CMD_NAMES_REV = {getattr(ILI9225, n): n for n in CMD_NAMES}
 
     def __init__(self, name):
         super().__init__(name)
@@ -126,14 +137,95 @@ class TestILI9225(unittest.TestCase):
         self._tft._spi_buff.seek(0)
         return f'{func_name}\n{ret}'
 
+    def _find_data(self, values):
+        """
+        With this data:
+        s = '''
+        ...: test_clear
+        ...: Command: 0x3
+        ...:    Data: 0x1038
+        ...: Command: 0x36
+        ...:    Data: 0xaf
+        ...: Command: 0x37
+        ...:    Data: 0x0
+        ...: Command: 0x38
+        ...:    Data: 0xdb
+        ...: Command: 0x39
+        ...:    Data: 0x0
+        ...: Command: 0x20
+        ...:    Data: 0x0
+        ...: Command: 0x21
+        ...:    Data: 0x0
+        ...: Command: 0x22
+        ...:    Data: 0x0
+        ...:    Data: 0x0'''
+
+        The response is (Variable Name, [Variable code, Variable Values, ...]):
+        OrderedDict([('CMD_ENTRY_MODE', [3, 4152]),
+                     ('CMD_HORIZONTAL_WINDOW_ADDR1', [54, 175]),
+                     ('CMD_HORIZONTAL_WINDOW_ADDR2', [55, 0]),
+                     ('CMD_VERTICAL_WINDOW_ADDR1', [56, 219]),
+                     ('CMD_VERTICAL_WINDOW_ADDR2', [57, 0]),
+                     ('CMD_RAM_ADDR_SET1', [32, 0]),
+                     ('CMD_RAM_ADDR_SET2', [33, 0]),
+                     ('CMD_GRAM_DATA_REG', [34, 0, 0])])
+        """
+        data = self.REGEX_DATA.findall(values)
+        cmd_hash = OrderedDict()
+
+        if data:
+            item = {}
+
+            for line in data:
+                if line[0] != '':
+                    item.clear()
+                    cmd = eval(line[0])
+                    dt = [cmd]
+                    item[self.CMD_NAMES_REV.get(cmd)] = dt
+                else:
+                    dt.append(eval(line[1]))
+
+                cmd_hash.update(item)
+
+        return cmd_hash
+
     def test_clear(self):
         """
         Test that the screen clears to black.
         """
-        x = self._tft.LCD_WIDTH / 2
-        y = self._tft.LCD_HEIGHT / 2
-        self._tft.draw_circle(x, y, 80, Colors.RED)
-        ret = self._read_spi_buff('test_clear')
         self._tft.clear()
         ret = self._read_spi_buff('test_clear')
-        print(ret)
+        data = self._find_data(ret)
+        expect = (
+            (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_RAM_ADDR_SET1, 1, 0x00),
+            (self._tft.CMD_RAM_ADDR_SET2, 1, 0x00),
+            (self._tft.CMD_GRAM_DATA_REG, 38720 , 0x00),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
+            )
+        msg1 = "Command {}--should be: {}, found: {}"
+        msg2 = "Command {}: data should be: {}, found: {}"
+
+        # item = [Variable code, Variable Values, ...]
+        for idx, (name, item) in enumerate(data.items()):
+            # Test for variable name and code
+            expect_code = expect[idx][0]
+            expect_name = self.CMD_NAMES_REV.get(expect_code)
+            found_code = item[0]
+            msg1_tmp = msg1.format(expect_name, expect_code, found_code)
+            self.assertEqual(expect_code, found_code, msg=msg1_tmp)
+
+            # Test for values
+            for value in range(expect[idx][1]):
+                msg2_tmp = msg2.format(expect_name, expect[idx][2], item[1])
+                self.assertEqual(expect[idx][2], item[1], msg=msg2_tmp)
+
+
+
