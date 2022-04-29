@@ -285,7 +285,7 @@ class ILI9225(Compatibility):
         # Set the back porch and front porch
         self._write_register(self.CMD_BLANK_PERIOD_CTRL1, 0x0808)
         # Set the clocks number per line
-        self._write_register(self.CMD_FRAME_CYCLE_CTRLXS, 0x1100)
+        self._write_register(self.CMD_FRAME_CYCLE_CTRL, 0x1100)
         # CPU interface
         self._write_register(self.CMD_INTERFACE_CTRL, 0x0000)
         # 0e01
