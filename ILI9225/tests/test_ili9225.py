@@ -221,8 +221,6 @@ class TestILI9225(unittest.TestCase):
         Test that the screen clears to black.
         """
         self._tft.clear()
-        ## ret = self._read_spi_buff('test_clear')
-        ## data = self._find_data(ret)
         expect = (
             (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
             (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
@@ -238,29 +236,6 @@ class TestILI9225(unittest.TestCase):
             (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
             )
         self._run_spi_test(expect, 'test_set_display')
-
-        ## msg = (f"Expected length {len(expect)} is not equal to found "
-        ##        f"length {len(data)}")
-        ## self.assertEqual(len(expect), len(data), msg=msg)
-        ## msg1 = "Command {}--should be: {}, found: {}"
-        ## msg2 = "Command {}--data should be: {}, found: {}"
-
-        ## # item = [Variable Name, Variable code, [Variable Values, ...]]
-        ## for idx, item in enumerate(data):
-        ##     # Test for variable name and code
-        ##     expect_code = expect[idx][0]
-        ##     expect_name = self.CMD_NAMES_REV.get(expect_code)
-        ##     found_code = item[1] # Command code
-        ##     msg1_tmp = msg1.format(expect_name, expect_code, found_code)
-        ##     self.assertEqual(expect_code, found_code, msg=msg1_tmp)
-
-        ##     # Test for values
-        ##     expect_value = expect[idx][2]
-
-        ##     for j in range(expect[idx][1]):
-        ##         found_value = item[2][j]
-        ##         msg2_tmp = msg2.format(expect_name, expect_value, found_value)
-        ##         self.assertEqual(expect_value, found_value, msg=msg2_tmp)
 
     @unittest.skip("Temporary")
     def test_set_display_background(self):
@@ -321,7 +296,7 @@ class TestILI9225(unittest.TestCase):
             (self._tft.CMD_POWER_CTRL1, 1, 0x0003),
             (0x00ff, 1, 0x0000), # On
             (self._tft.CMD_POWER_CTRL1, 1, 0x0000),
-            (self._tft.CMD_DISP_CTRL1, 1, 0x0003)
+            (self._tft.CMD_DISP_CTRL1, 1, 0x1017)
             )
         self._run_spi_test(expect, 'test_set_display')
 
