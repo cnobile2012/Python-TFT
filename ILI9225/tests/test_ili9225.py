@@ -192,6 +192,7 @@ class TestILI9225(unittest.TestCase):
         """
         Test that the screen clears to black.
         """
+        self._read_spi_buff('test_clear') # Clear an previous data.
         self._tft.clear()
         ret = self._read_spi_buff('test_clear')
         data = self._find_data(ret)
