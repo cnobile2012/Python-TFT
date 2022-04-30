@@ -259,6 +259,7 @@ class TestILI9225(unittest.TestCase):
         self.assertTrue(value, msg=msg)
         # Test set to False.
         self._tft.set_backlight(False)
+        value = self._tft._bl_state
         msg = f"Should be 'False' found '{value}'"
         self.assertFalse(value, msg=msg)
 
