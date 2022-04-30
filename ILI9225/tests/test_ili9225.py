@@ -189,6 +189,32 @@ class TestILI9225(unittest.TestCase):
 
         return cmds
 
+    def _run_spi_test(self, expect, func_name):
+        ret = self._read_spi_buff(func_name)
+        data = self._find_data(ret)
+        msg = (f"Expected length {len(expect)} is not equal to found "
+               f"length {len(data)}")
+        self.assertEqual(len(expect), len(data), msg=msg)
+        msg1 = "Command {}--should be: {}, found: {}"
+        msg2 = "Command {}--data should be: {}, found: {}"
+
+        # item = [Variable Name, Variable code, [Variable Values, ...]]
+        for idx, item in enumerate(data):
+            # Test for variable name and code
+            expect_code = expect[idx][0]
+            expect_name = self.CMD_NAMES_REV.get(expect_code)
+            found_code = item[1] # Command code
+            msg1_tmp = msg1.format(expect_name, expect_code, found_code)
+            self.assertEqual(expect_code, found_code, msg=msg1_tmp)
+
+            # Test for values
+            expect_value = expect[idx][2]
+
+            for j in range(expect[idx][1]):
+                found_value = item[2][j]
+                msg2_tmp = msg2.format(expect_name, expect_value, found_value)
+                self.assertEqual(expect_value, found_value, msg=msg2_tmp)
+
     #@unittest.skip("Temporary")
     def test_clear(self):
         """
@@ -213,9 +239,9 @@ class TestILI9225(unittest.TestCase):
             )
         msg = (f"Expected length {len(expect)} is not equal to found "
                f"length {len(data)}")
-        self.assertEqual(len(expect), len(data), msg = msg)
+        self.assertEqual(len(expect), len(data), msg=msg)
         msg1 = "Command {}--should be: {}, found: {}"
-        msg2 = "Command {}: data should be: {}, found: {}"
+        msg2 = "Command {}--data should be: {}, found: {}"
 
         # item = [Variable Name, Variable code, [Variable Values, ...]]
         for idx, item in enumerate(data):
@@ -278,6 +304,24 @@ class TestILI9225(unittest.TestCase):
         value = self._tft._brightness
         msg = f"Should be '{expected_value}' found '{value}'"
         self.assertEqual(expected_value, value, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_set_display(self):
+        """
+        Test that the display can be turned on and off.
+        """
+        # Test that the display is off then on.
+        self._tft.set_display(False)
+        expect = (
+            (0x00ff, 1, 0x0000), # Off
+            (self._tft.CMD_DISP_CTRL1, 1, 0x0000),
+            (self._tft.CMD_POWER_CTRL1, 1, 0x0003),
+            (0x00ff, 1, 0x0000), # On
+            (self._tft.CMD_POWER_CTRL1, 1, 0x0000),
+            (self._tft.CMD_DISP_CTRL1, 1, 0x0003)
+            )
+        self._run_spi_test(expect, 'test_set_display')
+
 
 
 
