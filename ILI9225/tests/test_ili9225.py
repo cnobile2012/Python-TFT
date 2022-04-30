@@ -119,6 +119,7 @@ class TestILI9225(unittest.TestCase):
         self._tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
                             board=Boards.RASPI)
         self._tft.begin()
+        self._read_spi_buff('dummy') # Clear an previous data.
 
     def tearDown(self):
         self._tft.clear()
@@ -188,11 +189,11 @@ class TestILI9225(unittest.TestCase):
 
         return cmds
 
+    #@unittest.skip("Temporary")
     def test_clear(self):
         """
         Test that the screen clears to black.
         """
-        self._read_spi_buff('test_clear') # Clear an previous data.
         self._tft.clear()
         ret = self._read_spi_buff('test_clear')
         data = self._find_data(ret)
@@ -232,6 +233,51 @@ class TestILI9225(unittest.TestCase):
                 found_value = item[2][j]
                 msg2_tmp = msg2.format(expect_name, expect_value, found_value)
                 self.assertEqual(expect_value, found_value, msg=msg2_tmp)
+
+    @unittest.skip("Temporary")
+    def test_set_display_background(self):
+        """
+        Test 
+        """
+        pass
+
+    @unittest.skip("Temporary")
+    def test_invert(self):
+        """
+        Test 
+        """
+        pass
+
+    #@unittest.skip("Temporary")
+    def test_set_backlight(self):
+        """
+        Test that the backlight variable is set to eithe True or False.
+        """
+        # Test initial value.
+        value = self._tft._bl_state
+        msg = f"Should be 'True' found '{value}'"
+        self.assertTrue(value, msg=msg)
+        # Test set to False.
+        self._tft.set_backlight(False)
+        msg = f"Should be 'False' found '{value}'"
+        self.assertFalse(value, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_set_backlight_brightness(self):
+        """
+        Test that the backlight brightness variable has been set properly.
+        """
+        # Test initial value.
+        value = self._tft._brightness
+        msg = f"Should be 'self._tft.MAX_BRIGHTNESS' found '{value}'"
+        self.assertEqual(self._tft.MAX_BRIGHTNESS, value, msg=msg)
+        # Test set to 50%
+        expected_value = round(self._tft.MAX_BRIGHTNESS / 2)
+        self._tft.set_backlight_brightness(expected_value)
+        value = self._tft._brightness
+        msg = f"Should be '{expected_value}' found '{value}'"
+        self.assertEqual(expected_value, value, msg=msg)
+
 
 
 
