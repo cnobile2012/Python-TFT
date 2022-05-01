@@ -335,7 +335,7 @@ class TestILI9225(unittest.TestCase):
                 msg = (f"Should be (self._tft._max_x): '{x}' "
                        f"found '{self._tft._max_x}'")
                 self.assertEqual(x, self._max_x, msg=msg)
-                msg - (f"Should be (self._tft._max_y): '{y}' "
+                msg = (f"Should be (self._tft._max_y): '{y}' "
                        f"found '{self._tft._max_y}'")
                 self.assertEqual(y, self._max_y, msg=msg)
 
