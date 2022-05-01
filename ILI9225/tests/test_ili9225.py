@@ -362,17 +362,17 @@ class TestILI9225(unittest.TestCase):
         tests = (
             (3, y, self._tft.LCD_HEIGHT - x - 1),
             (2, self._tft.LCD_WIDTH - x - 1, self._tft.LCD_HEIGHT - y - 1),
-            (1, self._tft.LCD_HEIGHT - y -1, x),
+            (1, self._tft.LCD_HEIGHT - y - 1, x),
             (0, x, y),
             (500, x, y)
             )
 
-        for orientation, xx, yy in tests:
-            self._tft.set_orientation(orientation)
+        for orient, xx, yy in tests:
+            self._tft.set_orientation(orient)
             xxx, yyy = self._tft._orient_coordinates(x, y)
-            msg = f"Expect x = {xx} found x = {xxx}"
+            msg = f"Orientation '{orient}': Expect x = {xx} found x = {xxx}"
             self.assertEqual(xx, xxx, msg=msg)
-            msg = f"Expect y = {yy} found y = {yyy}"
+            msg = f"Orientation '{orient}': Expect y = {yy} found y = {yyy}"
             self.assertEqual(yy, yyy, msg=msg)
 
     #@unittest.skip("Temporary")
@@ -381,10 +381,10 @@ class TestILI9225(unittest.TestCase):
         Test that the max x is correct depending on the set orientation.
         """
         tests = (
-            (3, self._tft.LCD_HEIGHT)
-            (2, self._tft.LCD_WIDTH)
-            (1, self._tft.LCD_HEIGHT)
-            (0, self._tft.LCD_WIDTH)
+            (3, self._tft.LCD_HEIGHT),
+            (2, self._tft.LCD_WIDTH),
+            (1, self._tft.LCD_HEIGHT),
+            (0, self._tft.LCD_WIDTH),
             (500, self._tft.LCD_WIDTH)
             )
 
@@ -400,10 +400,10 @@ class TestILI9225(unittest.TestCase):
         Test that the max y is correct depending on the set orientation.
         """
         tests = (
-            (3, self._tft.LCD_WIDTH)
-            (2, self._tft.LCD_HEIGHT)
-            (1, self._tft.LCD_WIDTH)
-            (0, self._tft.LCD_HEIGHT)
+            (3, self._tft.LCD_WIDTH),
+            (2, self._tft.LCD_HEIGHT),
+            (1, self._tft.LCD_WIDTH),
+            (0, self._tft.LCD_HEIGHT),
             (500, self._tft.LCD_HEIGHT)
             )
 
