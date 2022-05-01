@@ -362,7 +362,7 @@ class TestILI9225(unittest.TestCase):
         tests = (
             (3, y, self._tft.LCD_HEIGHT - x - 1),
             (2, self._tft.LCD_WIDTH - x - 1, self._tft.LCD_HEIGHT - y - 1),
-            (1, self._tft.LCD_HEIGHT - y - 1, x),
+            (1, self._tft.LCD_WIDTH - y - 1, x),
             (0, x, y),
             (500, x, y)
             )
