@@ -339,5 +339,78 @@ class TestILI9225(unittest.TestCase):
                        f"found '{self._tft._max_y}'")
                 self.assertEqual(y, self._tft._max_y, msg=msg)
 
+    #@unittest.skip("Temporary")
+    def test_get_orientation(self):
+        """
+        Test that the current correct orientation is returned.
+        """
+        tests = ((3, 3), (2, 2), (1, 1), (0, 0), (500, 0))
+
+        for orient, expect in tests:
+            self._tft.set_orientation(orient)
+            orientation = self._tft.get_orientation()
+            msg = f"Expect '{expect}' found '{orientation}'"
+            self.assertEqual(expect, orientation, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test__orient_coordinates(self):
+        """
+        Test that the orientation coordinates are set correctly.
+        """
+        x = 10
+        y = 100
+        tests = (
+            (3, y, self._tft.LCD_HEIGHT - x - 1),
+            (2, self._tft.LCD_WIDTH - x - 1, self._tft.LCD_HEIGHT - y - 1),
+            (1, self._tft.LCD_HEIGHT - y -1, x),
+            (0, x, y),
+            (500, x, y)
+            )
+
+        for orientation, xx, yy in tests:
+            self._tft.set_orientation(orientation)
+            xxx, yyy = self._tft._orient_coordinates(x, y)
+            msg = f"Expect x = {xx} found x = {xxx}"
+            self.assertEqual(xx, xxx, msg=msg)
+            msg = f"Expect y = {yy} found y = {yyy}"
+            self.assertEqual(yy, yyy, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_get_screen_max_x(self):
+        """
+        Test that the max x is correct depending on the set orientation.
+        """
+        tests = (
+            (3, self._tft.LCD_HEIGHT)
+            (2, self._tft.LCD_WIDTH)
+            (1, self._tft.LCD_HEIGHT)
+            (0, self._tft.LCD_WIDTH)
+            (500, self._tft.LCD_WIDTH)
+            )
+
+        for orientation, xx in tests:
+            self._tft.set_orientation(orientation)
+            xxx = self._tft.get_screen_max_x()
+            msg = f"Expect x = {xx} found x = {xxx}"
+            self.assertEqual(xx, xxx, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_get_screen_max_y(self):
+        """
+        Test that the max y is correct depending on the set orientation.
+        """
+        tests = (
+            (3, self._tft.LCD_WIDTH)
+            (2, self._tft.LCD_HEIGHT)
+            (1, self._tft.LCD_WIDTH)
+            (0, self._tft.LCD_HEIGHT)
+            (500, self._tft.LCD_HEIGHT)
+            )
+
+        for orientation, yy in tests:
+            self._tft.set_orientation(orientation)
+            yyy = self._tft.get_screen_max_y()
+            msg = f"Expect y = {yy} found y = {yyy}"
+            self.assertEqual(yy, yyy, msg=msg)
 
 
