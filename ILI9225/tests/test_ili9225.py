@@ -332,9 +332,11 @@ class TestILI9225(unittest.TestCase):
         for orient, x, y in tests:
             for orientation in orient:
                 self._tft.set_orientation(orientation)
-                msg = f"Should be (self._max_x): '{x}' found '{self._max_x}'"
+                msg = (f"Should be (self._tft._max_x): '{x}' "
+                       f"found '{self._tft._max_x}'")
                 self.assertEqual(x, self._max_x, msg=msg)
-                msg - f"Should be (self._max_y): '{y}' found '{self._max_y}'"
+                msg - (f"Should be (self._tft._max_y): '{y}' "
+                       f"found '{self._tft._max_y}'")
                 self.assertEqual(y, self._max_y, msg=msg)
 
 
