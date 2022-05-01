@@ -300,7 +300,26 @@ class TestILI9225(unittest.TestCase):
             )
         self._run_spi_test(expect, 'test_set_display')
 
+    #@unittest.skip("Temporary")
+    def test_set_orientation(self):
+        """
+        Test that the orientation can be set to all four orientations.
 
+        We make five checks in this order 3, 1, 2, 0, and then 500 which
+        should be equal to 0 because of the modulo in the code.
+        """
+        tests = (
+            ((3, 1), self._tft.LCD_HEIGHT, self._tft.LCD_WIDTH),
+            ((2, 0, 500), self._tft.LCD_WIDTH, self._tft.LCD_HEIGHT)
+            )
+
+        for orient, x, y in tests:
+            for orientation in orient:
+                self._tft.set_orientation(orientation)
+                msg - f"Should be (self._max_x): '{x}' found '{self._max_x}'"
+                self.assertEqual(x, self._max_x, msg=msg)
+                msg - f"Should be (self._max_y): '{y}' found '{self._max_y}'"
+                self.assertEqual(y, self._max_y, msg=msg)
 
 
 
