@@ -237,17 +237,33 @@ class TestILI9225(unittest.TestCase):
             )
         self._run_spi_test(expect, 'test_set_display')
 
-    @unittest.skip("Temporary")
+    #@unittest.skip("Temporary")
     def test_set_display_background(self):
         """
-        Test 
+        Test that the background can be changed to a different color
+        other than black.
         """
-        pass
+        self._tft.set_display_background(Colors.VIOLET) # 0xEC1D
+        expect = (
+            (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_RAM_ADDR_SET1, 1, 0x00),
+            (self._tft.CMD_RAM_ADDR_SET2, 1, 0x00),
+            (self._tft.CMD_GRAM_DATA_REG, 38720 , 0xec1d),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
+            )
+        self._run_spi_test(expect, 'test_set_display_background')
 
     @unittest.skip("Temporary")
     def test_invert(self):
         """
-        Test 
+        Test
         """
         pass
 
@@ -316,7 +332,7 @@ class TestILI9225(unittest.TestCase):
         for orient, x, y in tests:
             for orientation in orient:
                 self._tft.set_orientation(orientation)
-                msg - f"Should be (self._max_x): '{x}' found '{self._max_x}'"
+                msg = f"Should be (self._max_x): '{x}' found '{self._max_x}'"
                 self.assertEqual(x, self._max_x, msg=msg)
                 msg - f"Should be (self._max_y): '{y}' found '{self._max_y}'"
                 self.assertEqual(y, self._max_y, msg=msg)
