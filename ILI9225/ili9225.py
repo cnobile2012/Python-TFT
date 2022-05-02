@@ -30,15 +30,30 @@ class CurrentFont:
         self.set_font(font)
 
     def set_font(self, font):
+        """
+        Set a standard font.
+
+        .. notes::
+
+          Tuple definition: font = Full data object
+                            width = 1st byte in full data object
+                            height = 2nd byte in full data object
+                            offset = 3rd byte in full data object
+                            numchars = 4th byte in full data object
+                            nbrows = 2nd byte / 8 in full data object
+                            mono_sp = boolean indicating if mono spaced
+
+        :param font: A parsed font object.
+        :type font: tuple
+        """
         self.font = font[0]
         self.width = font[1]
         self.height = font[2]
         self.offset = font[3]
         self.numchars = font[4]
-        self.nbrows = int(font[5])
-        self.mono_sp = font[6]
         # Set number of bytes used by height of font in multiples of 8
-        if self.height % 8: self.nbrows += 1
+        self.nbrows = font[5] + 1 if self.height % 8 else font[5]
+        self.mono_sp = font[6]
 
 
 class GFXGlyph:
@@ -178,7 +193,6 @@ class ILI9225(Compatibility):
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
-        self._bg_color = Colors.BLACK
         self._write_function_level = 0
         self._current_font = None
         self._cfont = CurrentFont()
@@ -488,36 +502,30 @@ class ILI9225(Compatibility):
         # if self._orientation == 0: We fall through.
         return x, y
 
-    def get_screen_max_x(self):
+    @property
+    def display_max_x(self):
         """
-        ORIGINAL NAME maxX()
-
-        Get the screen max x size (based on orientation).
-
-        *** TODO *** Make this into a property.
+        Get the display max x size (based on orientation).
 
         .. note::
 
           Either 0..176 or 0..220 depending on orientation.
 
-        :return: Horizontal size of the screen in pixels.
+        :return: Horizontal size of the display in pixels.
         :rtype: int
         """
         return self._max_x
 
-    def get_screen_max_y(self):
+    @property
+    def display_max_y(self):
         """
-        ORIGINAL NAME maxY()
-
-        Get the screen max y size (based on orientation).
-
-        *** TODO *** Make this into a property.
+        Get the display max y size (based on orientation).
 
         .. note::
 
           Either 0..176 or 0..220 depending on orientation.
 
-        :return: Vertical size of the screen in pixels.
+        :return: Vertical size of the display in pixels.
         :rtype: int
         """
         return self._max_y
@@ -525,22 +533,9 @@ class ILI9225(Compatibility):
     #
     # Beginning of standard font methods.
     #
-    def get_font(self):
-        """
-        Get the current font.
-
-        *** TODO *** Make this into a property.
-
-        :return: The current font.
-        :rtype: CurrentFont
-        """
-        return self._cfont
-
     def set_font(self, font, mono_sp=False):
         """
         Set the current font.
-
-        *** TODO *** Make this into a property.
 
         :param font: The name of the font.
         :type font: str
@@ -548,22 +543,20 @@ class ILI9225(Compatibility):
         :type mono_sp: bool
         """
         #       font, width,   height,  offset,  numchars, height / 8
-        args = (font, font[0], font[1], font[2], font[3], font[1] / 8,
+        args = (font, font[0], font[1], font[2], font[3], round(font[1] / 8),
                 mono_sp)
         self._cfont.set_font(args)
 
-    def set_default_char_bg_color(self, color=Colors.BLACK):
+    def get_font(self):
         """
-        Set the character background color.
+        Get the current font.
 
-        *** TODO *** Make this into a property.
-
-        :param color: Background BGR color (default=black).
-        :type color: int
+        :return: The current font.
+        :rtype: CurrentFont
         """
-        self._bg_color = color
+        return self._cfont
 
-    def draw_char(self, x, y, ch, color=Colors.WHITE, bg_color=None):
+    def draw_char(self, x, y, ch, color=Colors.WHITE, bg_color=Colors.BLACK):
         """
         Draw a character.
 
@@ -575,14 +568,13 @@ class ILI9225(Compatibility):
         :type ch: str
         :param color: A 16-bit BGR color (default=white).
         :type color: int
-        :param bg_color: Set the character background color.
+        :param bg_color: Set the character background color (default = black).
         :type bg_color: int
         :return: Width of character in display pixels.
         :rtype: int
         :raises TFTException: If the a standard font is not set.
         """
         self._is_font_set()
-        if not bg_color: bg_color = self._bg_color
         char_offset = self.__get_offset(ch)
 
         # Monospaced: Get char width from font.

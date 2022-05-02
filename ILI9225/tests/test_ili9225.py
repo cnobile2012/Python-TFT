@@ -8,7 +8,7 @@ import re
 from ILI9225 import ILI9225
 from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont
 from utils import (Boards, TFTException, CompatibilityException,
-                   BGR16BitColor as Colors)
+                   Terminal12x16, BGR16BitColor as Colors)
 
 
 class TestAutoIncMode(unittest.TestCase):
@@ -376,7 +376,7 @@ class TestILI9225(unittest.TestCase):
             self.assertEqual(yy, yyy, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_get_screen_max_x(self):
+    def test_display_max_x(self):
         """
         Test that the max x is correct depending on the set orientation.
         """
@@ -390,12 +390,12 @@ class TestILI9225(unittest.TestCase):
 
         for orientation, xx in tests:
             self._tft.set_orientation(orientation)
-            xxx = self._tft.get_screen_max_x()
+            xxx = self._tft.display_max_x
             msg = f"Expect x = {xx} found x = {xxx}"
             self.assertEqual(xx, xxx, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_get_screen_max_y(self):
+    def test_display_max_y(self):
         """
         Test that the max y is correct depending on the set orientation.
         """
@@ -409,8 +409,54 @@ class TestILI9225(unittest.TestCase):
 
         for orientation, yy in tests:
             self._tft.set_orientation(orientation)
-            yyy = self._tft.get_screen_max_y()
+            yyy = self._tft.display_max_y
             msg = f"Expect y = {yy} found y = {yyy}"
             self.assertEqual(yy, yyy, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_set_get_font(self):
+        """
+        Test that the current standard font's set and get work properly.
+        """
+        tests = (
+            ('Terminal12x16', Terminal12x16, False),
+            ('Terminal12x16', Terminal12x16, True)
+            )
+
+        for name, full_font, mono in tests:
+            self._tft.set_font(font, mono_sp=mono)
+            font = full_font
+            width = full_font[0]
+            height = full_font[1]
+            offset = full_font[2]
+            numchars = full_font[3]
+            rnd_height = round(height / 8)
+            nbrows = rnd_height + 1 if height % 8 else rnd_height
+            mono_sp = mono
+            cfont = self._tft.get_font()
+            msg = (f"Font {name}: len(font) Expects '{len(font)}' "
+                   f"found '{len(cfont.font)}'")
+            self.assertEqual(len(font), len(cfont.font), msg=msg)
+            msg = (f"Font {name}: width Expects '{width}' "
+                   f"found '{cfont.width}'")
+            self.assertEqual(width, cfont.width, msg=msg)
+            msg = (f"Font {name}: width Expects '{height}' "
+                   f"found '{cfont.height}'")
+            self.assertEqual(height, cfont.height, msg=msg)
+            msg = (f"Font {name}: width Expects '{offset}' "
+                   f"found '{cfont.offset}'")
+            self.assertEqual(offset, cfont.offset, msg=msg)
+            msg = (f"Font {name}: width Expects '{numchars}' "
+                   f"found '{cfont.numchars}'")
+            self.assertEqual(numchars, cfont.numchars, msg=msg)
+            msg = (f"Font {name}: width Expects '{nbrows}' "
+                   f"found '{cfont.nbrows}'")
+            self.assertEqual(nbrows, cfont.nbrows, msg=msg)
+            msg = (f"Font {name}: width Expects '{mono_sp}' "
+                   f"found '{cfont.mono_sp}'")
+            self.assertEqual(mono_sp, cfont.mono_sp, msg=msg)
+
+
+
 
 
