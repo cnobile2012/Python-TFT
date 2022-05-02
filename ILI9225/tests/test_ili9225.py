@@ -424,7 +424,7 @@ class TestILI9225(unittest.TestCase):
             )
 
         for name, full_font, mono in tests:
-            self._tft.set_font(font, mono_sp=mono)
+            self._tft.set_font(full_font, mono_sp=mono)
             font = full_font
             width = full_font[0]
             height = full_font[1]
