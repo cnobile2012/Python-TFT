@@ -579,7 +579,7 @@ class ILI9225(Compatibility):
 
         char_offset += 1
         # Use autoincrement/decrement feature, if character fits
-        # completely on screen.
+        # completely on the screen.
         fast_mode = ((x + char_width + 1) < self._max_x
                      and (y + self._cfont.height - 1) < self._max_y)
 

@@ -193,7 +193,7 @@ class TestILI9225(unittest.TestCase):
         ret = self._read_spi_buff(func_name)
         data = self._find_data(ret)
         msg = (f"Expected length {len(expect)} is not equal to found "
-               f"length {len(data)}")
+               f"length {len(data)}, data '{data}'")
         self.assertEqual(len(expect), len(data), msg=msg)
         msg1 = "Command {}--should be: {}, found: {}"
         msg2 = "Command {}--data should be: {}, found: {}"
@@ -485,7 +485,11 @@ class TestILI9225(unittest.TestCase):
             (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
             (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
             (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00),
-            #(self._tft.),
+#            (self._tft.),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
             )
         self._run_spi_test(expect, 'test_draw_char')
 
