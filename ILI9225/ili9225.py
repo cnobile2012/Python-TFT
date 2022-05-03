@@ -90,12 +90,17 @@ class ILI9225(Compatibility):
     DEBUG = False
     TESTING = True
 
-    LCD_WIDTH               = 176
-    LCD_HEIGHT              = 220
-    MAX_BRIGHTNESS          = 255   # 0..255
-    _INVOFF                 = 0x20  # Invert off
-    _INVON                  = 0x21  # Invert on
-    _SPI_MODE               = 0
+    SPI_ERROR_MSGS = {
+        'STD_FONT': "Please set a standard font before using this method.",
+        'SET_WINDOW': "Invalid orientation: {} (0..2) or mode: {} (0..7), {}"
+        }
+
+    LCD_WIDTH                   = 176
+    LCD_HEIGHT                  = 220
+    MAX_BRIGHTNESS              = 255   # 0..255
+    _INVOFF                     = 0x20  # Invert off
+    _INVON                      = 0x21  # Invert on
+    _SPI_MODE                   = 0
 
     CMD_DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
     CMD_LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
@@ -340,17 +345,6 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_GAMMA_CTRL9, 0x0E00)
         self._write_register(self.CMD_GAMMA_CTRL10, 0x000E)
 
-        ## self._write_register(self.CMD_GAMMA_CTRL1, 0x0000)
-        ## self._write_register(self.CMD_GAMMA_CTRL2, 0x0808)
-        ## self._write_register(self.CMD_GAMMA_CTRL3, 0x080A)
-        ## self._write_register(self.CMD_GAMMA_CTRL4, 0x000A)
-        ## self._write_register(self.CMD_GAMMA_CTRL5, 0x0A08)
-        ## self._write_register(self.CMD_GAMMA_CTRL6, 0x0808)
-        ## self._write_register(self.CMD_GAMMA_CTRL7, 0x0000)
-        ## self._write_register(self.CMD_GAMMA_CTRL8, 0x0A00)
-        ## self._write_register(self.CMD_GAMMA_CTRL9, 0x0710)
-        ## self._write_register(self.CMD_GAMMA_CTRL10, 0x0710)
-
         self._write_register(self.CMD_DISP_CTRL1, 0x0012)
         self._end_write()
         self.delay(50)
@@ -570,7 +564,7 @@ class ILI9225(Compatibility):
         :type color: int
         :param bg_color: Set the character background color (default = black).
         :type bg_color: int
-        :return: Width of character in display pixels.
+        :return: Width of the character in display pixels.
         :rtype: int
         :raises TFTException: If the a standard font is not set.
         """
@@ -616,21 +610,18 @@ class ILI9225(Compatibility):
                             char_data, k) else bg_color)
                         self._end_write()
                     else:
-                        self.drawPixel(
-                            x + i, y + (j * 8) + k,
-                            color if self._bit_read(char_data, k)
-                            else bg_color)
+                        self.drawPixel(x + i, y + (j * 8) + k,
+                                       color if self._bit_read(char_data, k)
+                                       else bg_color)
 
                     h += 1
 
-        self._reset_window()
+        if fast_mode: self._reset_window()
         return char_width
 
     def get_char_width(self, ch):
         """
         Width of an ASCII character (pixel).
-
-        *** TODO *** Make this into a property.
 
         :param ch: The ASCII character.
         :type ch: str
@@ -645,8 +636,6 @@ class ILI9225(Compatibility):
     def get_text_width(self, s):
         """
         Get the text width.
-
-        *** TODO *** Make this into a property.
 
         :param s: Text to get the width for.
         :type s: str
@@ -669,8 +658,7 @@ class ILI9225(Compatibility):
 
     def _is_font_set(self):
         if len(self._cfont.font) <= 0:
-            raise TFTException("Please set a standard font before using "
-                               "this method.")
+            raise TFTException(self.SPI_ERROR_MSGS.get('STD_FONT'))
 
     def _bit_read(self, value, bit):
         """
@@ -1297,8 +1285,8 @@ class ILI9225(Compatibility):
             try:
                 mode = self._MODE_TAB[self._orientation - 1][mode]
             except IndexError as e:
-                msg = ("Invalid orientation: {} (0..2) or mode: {} (0..7), "
-                       "{}").format(self._orientation, mode, e)
+                msg = self.SPI_ERROR_MSGS.get('SET_WINDOW').format(
+                    self._orientation, mode, e)
                 raise TFTException(msg)
 
         self._start_write()

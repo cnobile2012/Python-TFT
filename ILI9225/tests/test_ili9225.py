@@ -119,7 +119,7 @@ class TestILI9225(unittest.TestCase):
         self._tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
                             board=Boards.RASPI)
         self._tft.begin()
-        self._read_spi_buff('dummy') # Clear an previous data.
+        self._read_spi_buff('dummy') # Clear the previous data.
 
     def tearDown(self):
         self._tft.clear()
@@ -455,6 +455,39 @@ class TestILI9225(unittest.TestCase):
             msg = (f"Font {name}: width Expects '{mono_sp}' "
                    f"found '{cfont.mono_sp}'")
             self.assertEqual(mono_sp, cfont.mono_sp, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_draw_char(self):
+        """
+        Test that this method correctly draws standard characters
+        to the display.
+        """
+        x = self._tft.display_max_x / 2
+        y = self._tft.display_max_y / 2
+
+        # Test that an exception is raised when a font is not set first.
+        with self.assertRaises(TFTException) as cm:
+            self._tft.draw_char(x, y, 'A')
+
+        expect_msg = self._tft.SPI_ERROR_MSGS.get('STD_FONT')
+        found = str(cm.exception)
+        msg = f"Error message expected '{expect_msg}' found '{found}'"
+        self.assertEqual(expect_msg, found, msg=msg)
+
+        # Test that a character is drawn at the provided coordinates.
+        #self._tft.clear()
+        #self._read_spi_buff('dummy') # Clear the previous data.
+        self._tft.set_font(Terminal12x16)
+        self._tft.draw_char(x, y, 'B')
+        expect = (
+            (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00),
+            #(self._tft.),
+            )
+        self._run_spi_test(expect, 'test_draw_char')
 
 
 
