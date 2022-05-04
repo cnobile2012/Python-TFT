@@ -197,6 +197,7 @@ class TestILI9225(unittest.TestCase):
         self.assertEqual(len(expect), len(data), msg=msg)
         msg1 = "Command {}--should be: {}, found: {}"
         msg2 = "Command {}--data should be: {}, found: {}"
+        msg3 = "Command {}--number of states not even, found {}"
 
         # item = [Variable Name, Variable code, [Variable Values, ...]]
         for idx, item in enumerate(data):
@@ -207,13 +208,20 @@ class TestILI9225(unittest.TestCase):
             msg1_tmp = msg1.format(expect_name, expect_code, found_code)
             self.assertEqual(expect_code, found_code, msg=msg1_tmp)
 
-            # Test for values
-            expect_value = expect[idx][2]
+            # Test for number of states of values
+            states = len(expect[idx][2:]) / 2
+            msg3_tmp = msg3.format(states)
+            self.assertFalse(states, msg=msg3_tmp)
 
-            for j in range(expect[idx][1]):
-                found_value = item[2][j]
-                msg2_tmp = msg2.format(expect_name, expect_value, found_value)
-                self.assertEqual(expect_value, found_value, msg=msg2_tmp)
+            # Test for values
+            for num in range(1, states, 2):
+                expect_value = expect[idx][num + 1]
+
+                for j in range(expect[idx][num]):
+                    found_value = item[2][j]
+                    msg2_tmp = msg2.format(expect_name, expect_value,
+                                           found_value)
+                    self.assertEqual(expect_value, found_value, msg=msg2_tmp)
 
     #@unittest.skip("Temporary")
     def test_clear(self):
@@ -481,11 +489,18 @@ class TestILI9225(unittest.TestCase):
         self._tft.draw_char(x, y, 'B')
         expect = (
             (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00),
-#            (self._tft.),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0x64),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x58),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0x7d),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x6e),
+            (self._tft.CMD_RAM_ADDR_SET1, 1, 0x58),
+            (self._tft.CMD_RAM_ADDR_SET2, 1, 0x6e),
+            (self._tft.CMD_GRAM_DATA_REG, 14, 65535, 2, 0, 14, 65535, 2, 0,
+             14, 65535, 2, 0, 2, 65535, 4, 0, 2, 65535, 4, 0, 2, 65535, 2, 0,
+             2, 65535, 4, 0, 2, 65535, 4, 0, 2, 65535, 2, 0, 2, 65535, 4, 0,
+             2, 65535, 4, 0, 2, 65535, 2, 0, 3, 65535, 2, 0, 3, 65535, 4, 0,
+             2, 65535, 2, 0, 9, 65535, 2, 0, 3, 65535, 3, 0, 13, 65535, 4, 0,
+             4, 65535, 1, 0, 6, 65535, 11, 0, 4, 65535),
             (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
             (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
             (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
