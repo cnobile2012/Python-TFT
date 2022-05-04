@@ -209,8 +209,8 @@ class TestILI9225(unittest.TestCase):
             self.assertEqual(expect_code, found_code, msg=msg1_tmp)
 
             # Test for number of states of values
-            states = len(expect[idx][2:]) / 2
-            msg3_tmp = msg3.format(states)
+            states = len(expect[idx][1:]) % 2
+            msg3_tmp = msg3.format(expect_name, states)
             self.assertFalse(states, msg=msg3_tmp)
 
             # Test for values
