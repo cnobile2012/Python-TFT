@@ -575,6 +575,7 @@ class TestILI9225(unittest.TestCase):
         y = self._tft.display_max_y / 2
         ch = 'A'
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
+        self._tft.draw_gfx_char(x, y, 'A')
         expect = (
             (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
             (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0x64),
