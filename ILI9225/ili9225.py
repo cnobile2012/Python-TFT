@@ -639,7 +639,7 @@ class ILI9225(Compatibility):
         currx = x
 
         for k in range(len(s)):
-            currx += self.draw_char(currx, y, s[k], color, bg) + 1
+            currx += self.draw_char(currx, y, s[k], color, bg_color) + 1
 
         return currx
 

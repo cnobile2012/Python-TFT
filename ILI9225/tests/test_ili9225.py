@@ -534,7 +534,7 @@ class TestILI9225(unittest.TestCase):
         """
         self._tft.set_font(Terminal12x16)
         width = self._tft.get_char_width('B')
-        expected_width = 12
+        expected_width = 11
         msg = f"Expected width '{expected_width}' found '{width}'"
         self.assertEqual(expected_width, width, msg=msg)
 
