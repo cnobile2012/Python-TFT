@@ -206,7 +206,7 @@ class ILI9225(Compatibility):
         if board is not None:
             try:
                 self.set_board(board)
-            except CompatibilityException as e:
+            except CompatibilityException as e: # pragma: no cover
                 print(e)
         else:
             print("Warning: The board has not been set. The board "
@@ -232,7 +232,7 @@ class ILI9225(Compatibility):
         self.digital_write(self._cs, self.HIGH)
 
         # Setup SPI clock and data inputs.
-        if self.BOARD not in (Boards.RASPI,):
+        if self.BOARD not in (Boards.RASPI,): # pragma: no cover
             self.pin_mode(self._sdi, self.OUTPUT)
             self.digital_write(self._sdi, self.LOW)
             self.pin_mode(self._clk, self.OUTPUT)
@@ -250,7 +250,7 @@ class ILI9225(Compatibility):
         self.digital_write(self._rst, self.HIGH)
         self.delay(50)
 
-        if self.DEBUG:
+        if self.DEBUG: # pragma: no cover
             print("Finished setting up pins.")
 
         # Start initial sequence.
@@ -269,7 +269,7 @@ class ILI9225(Compatibility):
         ## self._end_write()
         ## self.delay(40)
 
-        ## if self.DEBUG:
+        ## if self.DEBUG: # pragma: no cover
         ##     print("Finished initial sequence.")
 
         # Power-on sequence
@@ -315,7 +315,7 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_RAM_ADDR_SET1, 0x0000)
         self._write_register(self.CMD_RAM_ADDR_SET2, 0x0000)
 
-        if self.DEBUG:
+        if self.DEBUG: # pragma: no cover
             print("Finished power-on sequence.")
 
         # Set GRAM area
@@ -330,7 +330,7 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, 0x00DB)
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0x0000)
 
-        if self.DEBUG:
+        if self.DEBUG: # pragma: no cover
             print("Finished set GRAM area.")
 
         # Adjust GAMMA curve
@@ -352,19 +352,19 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_DISP_CTRL1, 0x1017)
         self._end_write()
 
-        if self.DEBUG:
+        if self.DEBUG: # pragma: no cover
             print("Finished set GAMMA curve.")
 
         # Turn on backlight
         self.set_backlight(True)
         self.set_orientation(0)
 
-        if self.DEBUG:
+        if self.DEBUG: # pragma: no cover
             print("Finished turning on backlight.")
 
         self.clear()
 
-        if self.DEBUG:
+        if self.DEBUG: # pragma: no cover
             print("Finished initialize background color.")
 
     def clear(self):
@@ -610,18 +610,42 @@ class ILI9225(Compatibility):
                             char_data, k) else bg_color)
                         self._end_write()
                     else:
-                        self.drawPixel(x + i, y + (j * 8) + k,
-                                       color if self._bit_read(char_data, k)
-                                       else bg_color)
+                        self.draw_pixel(x + i, y + (j * 8) + k,
+                                        color if self._bit_read(char_data, k)
+                                        else bg_color)
 
                     h += 1
 
         if fast_mode: self._reset_window()
         return char_width
 
+    def draw_text(self, x, y, s, color=Colors.WHITE, bg_color=Colors.BLACK):
+        """
+        Draw a text string to the display.
+
+        :param x: Point coordinate (x-axis).
+        :type x: int
+        :param y: Point coordinate (y-axis).
+        :type y: int
+        :param s: The string to draw on the display.
+        :type s: str
+        :param color: A 16-bit BGR color (default=white).
+        :type color: int
+        :param bg_color: Set the character background color (default = black).
+        :type bg_color: int
+        :return: The position of x after the text is displayed.
+        :rtype: int
+        """
+        currx = x
+
+        for k in range(len(s)):
+            currx += self.draw_char(currx, y, s[k], color, bg) + 1
+
+        return currx
+
     def get_char_width(self, ch):
         """
-        Width of an ASCII character (pixel).
+        Width of a standard font character in pixels.
 
         :param ch: The ASCII character.
         :type ch: str
@@ -635,7 +659,7 @@ class ILI9225(Compatibility):
 
     def get_text_width(self, s):
         """
-        Get the text width.
+        Width of a standard font strint in pixels.
 
         :param s: Text to get the width for.
         :type s: str
@@ -1116,28 +1140,6 @@ class ILI9225(Compatibility):
             self._write_register(self.CMD_RAM_ADDR_SET2, y0)
             self._write_register(self.CMD_GRAM_DATA_REG, color)
             self._end_write()
-
-    def draw_text(self, x, y, s, color=Colors.WHITE):
-        """
-        Draw a text string to the display.
-
-        :param x: Point coordinate (x-axis).
-        :type x: int
-        :param y: Point coordinate (y-axis).
-        :type y: int
-        :param s: The string to draw on the display.
-        :type s: str
-        :param color: A 16-bit BGR color (default=white).
-        :type color: int
-        :return: The position of x after the text.
-        :rtype: int
-        """
-        currx = x
-
-        for k in range(len(s)):
-            currx += self.draw_char(currx, y, s[k], color) + 1
-
-        return currx
 
     def rgb16_to_bgr16(color):
         """
