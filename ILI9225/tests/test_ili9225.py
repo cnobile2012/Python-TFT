@@ -9,6 +9,7 @@ from ILI9225 import ILI9225
 from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont
 from utils import (Boards, TFTException, CompatibilityException,
                    Terminal12x16, BGR16BitColor as Colors)
+from fonts.FreeSerifItalic18pt7b import FreeSerifItalic18pt7b
 
 
 class TestAutoIncMode(unittest.TestCase):
@@ -139,25 +140,25 @@ class TestILI9225(unittest.TestCase):
     def _find_data(self, values):
         """
         With this data:
-        s = '''
-        ...: test_clear
-        ...: Command: 0x3
-        ...:    Data: 0x1038
-        ...: Command: 0x36
-        ...:    Data: 0xaf
-        ...: Command: 0x37
-        ...:    Data: 0x0
-        ...: Command: 0x38
-        ...:    Data: 0xdb
-        ...: Command: 0x39
-        ...:    Data: 0x0
-        ...: Command: 0x20
-        ...:    Data: 0x0
-        ...: Command: 0x21
-        ...:    Data: 0x0
-        ...: Command: 0x22
-        ...:    Data: 0x0
-        ...:    Data: 0x0'''
+        value = '''
+            test_clear
+            Command: 0x3
+               Data: 0x1038
+            Command: 0x36
+               Data: 0xaf
+            Command: 0x37
+               Data: 0x0
+            Command: 0x38
+               Data: 0xdb
+            Command: 0x39
+               Data: 0x0
+            Command: 0x20
+               Data: 0x0
+            Command: 0x21
+               Data: 0x0
+            Command: 0x22
+               Data: 0x0
+               Data: 0x0'''
 
         The response is [Variable Name, Variable code, [Variable Values, ...]]:
         [
@@ -550,7 +551,52 @@ class TestILI9225(unittest.TestCase):
         self.assertEqual(expected_width, width, msg=msg)
 
     #@unittest.skip("Temporary")
-    #def test_
+    def test_set_gfx_font(self):
+        """
+        Test that a GFX font can be set properly.
+        """
+        self._tft.set_gfx_font(FreeSerifItalic18pt7b)
+        bitmap, glyph, x_advance, x_offset, y_offset = FreeSerifItalic18pt7b
+        font = {'bitmap': bitmap, 'glyph': glyph, 'x_advance': x_advance,
+                'x_offset': x_offset, 'y_offset': y_offset}
+        msg_tmp = "Variable {} expect '{}' found '{}'"
+
+        for var, expect_value in font.items():
+            found_value = getattr(self._tft._gfx_font, var)
+            msg = msg_tmp.format(var, expect_value, found_value)
+            self.assertEqual(expect_value, found_value, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_draw_gfx_char(self):
+        """
+        Test that a GFX character can be drawn to the display properly.
+        """
+        x = self._tft.display_max_x / 2
+        y = self._tft.display_max_y / 2
+        ch = 'A'
+        self._tft.set_gfx_font(FreeSerifItalic18pt7b)
+        expect = (
+            (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0x64),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x58),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0x7d),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x6e),
+            (self._tft.CMD_RAM_ADDR_SET1, 1, 0x58),
+            (self._tft.CMD_RAM_ADDR_SET2, 1, 0x6e),
+
+            (self._tft.CMD_GRAM_DATA_REG, 38720 , 0xec1d),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
+            )
+        self._run_spi_test(expect, 'test_draw_gfx_char')
+
+
+
+
+
+
 
 
 

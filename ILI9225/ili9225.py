@@ -601,8 +601,7 @@ class ILI9225(Compatibility):
                 char_offset += 1
 
                 for k in range(8): # Process every row in font character.
-                    if h >= self._cfont.height:
-                        break
+                    if h >= self._cfont.height: break
 
                     if fast_mode:
                         self._start_write()
@@ -703,7 +702,7 @@ class ILI9225(Compatibility):
     # Beginning of GFX font methods.
     #
 
-    def set_gfx_font(self, font=None):
+    def set_gfx_font(self, font):
         """
         Set the GFX font.
 
@@ -724,8 +723,10 @@ class ILI9225(Compatibility):
         :type ch: int
         :param color: A 16-bit BGR color (default=white).
         :type color: int
+        :return: The width of character in display pixels.
+        :rtype: int
         """
-        ch -= self._gfx_font.first
+        ch = ord(ch) - self._gfx_font.first
         glyph = GFXGlyph(self._gfx_font.glyph[ch])
         bitmap = self._gfx_font.bitmap
         bo = glyph.bitmap_offset
@@ -1341,8 +1342,10 @@ class ILI9225(Compatibility):
             self._end_write()
             raise e
         else:
-            result = 'Command: {}\n'.format(result) if self.TESTING else None
-            return self.__write_spi_test_buff(result)
+            if self.TESTING:
+                result = 'Command: {}\n'.format(
+                    result) if self.TESTING else None
+                return self.__write_spi_test_buff(result)
 
     def _write_data(self, data):
         try:
