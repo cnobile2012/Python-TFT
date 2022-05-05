@@ -1334,7 +1334,7 @@ class ILI9225(Compatibility):
 
     def _write_command(self, command):
         try:
-            self.digital_write(self._rs, self.LOW) # Data/Command
+            self.digital_write(self._rs, self.LOW) # Command
             self.digital_write(self._cs, self.LOW)
             result = self.spi_write(command)
             self.digital_write(self._cs, self.HIGH)
@@ -1342,14 +1342,12 @@ class ILI9225(Compatibility):
             self._end_write()
             raise e
         else:
-            if self.TESTING:
-                result = 'Command: {}\n'.format(
-                    result) if self.TESTING else None
-                return self.__write_spi_test_buff(result)
+            result = 'Command: {}\n'.format(result) if self.TESTING else None
+            return self.__write_spi_test_buff(result)
 
     def _write_data(self, data):
         try:
-            self.digital_write(self._rs, self.HIGH) # Data/Command
+            self.digital_write(self._rs, self.HIGH) # Data
             self.digital_write(self._cs, self.LOW)
             result = self.spi_write(data)
             self.digital_write(self._cs, self.HIGH)
@@ -1357,10 +1355,8 @@ class ILI9225(Compatibility):
             self._end_write()
             raise e
         else:
-            if self.TESTING:
-                result = '   Data: {}\n'.format(
-                    result) if self.TESTING else None
-                return self.__write_spi_test_buff(result)
+            result = '   Data: {}\n'.format(result) if self.TESTING else None
+            return self.__write_spi_test_buff(result)
 
     def __write_spi_test_buff(self, data):
         if data is not None:
