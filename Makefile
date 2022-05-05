@@ -22,6 +22,7 @@ all	: doc tar
 rpi-tests: clean
 	@rm -rf $(DOCS_DIR)/htmlcov
 	@nosetests --with-coverage --cover-erase --nocapture --nologcapture \
+                   --processes=-1 \
                    --cover-package=$(PREFIX)/ILI9225 \
                    --cover-package=$(PREFIX)/ILI9341 \
                    --cover-package=$(PREFIX)/utils \
