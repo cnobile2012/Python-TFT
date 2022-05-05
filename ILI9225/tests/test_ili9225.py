@@ -193,7 +193,7 @@ class TestILI9225(unittest.TestCase):
     def _run_spi_test(self, expect, func_name):
         ret = self._read_spi_buff(func_name)
         data = self._find_data(ret)
-        msg = (f"Expected length {len(expect)} is not equal to found "
+        msg = (f"Expected length {len(expect)} is not equal to "
                f"length {len(data)}, data '{data}'")
         self.assertEqual(len(expect), len(data), msg=msg)
         msg1 = "Command {}--should be: {}, found: {}"
@@ -556,9 +556,9 @@ class TestILI9225(unittest.TestCase):
         Test that a GFX font can be set properly.
         """
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
-        bitmap, glyph, x_advance, x_offset, y_offset = FreeSerifItalic18pt7b
-        font = {'bitmap': bitmap, 'glyph': glyph, 'x_advance': x_advance,
-                'x_offset': x_offset, 'y_offset': y_offset}
+        bitmap, glyph, first, last, y_advance = FreeSerifItalic18pt7b
+        font = {'bitmap': bitmap, 'glyph': glyph, 'first': first,
+                'last': last, 'y_advance': y_advance}
         msg_tmp = "Variable {} expect '{}' found '{}'"
 
         for var, expect_value in font.items():

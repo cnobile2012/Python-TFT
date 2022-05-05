@@ -1357,8 +1357,10 @@ class ILI9225(Compatibility):
             self._end_write()
             raise e
         else:
-            result = '   Data: {}\n'.format(result) if self.TESTING else None
-            return self.__write_spi_test_buff(result)
+            if self.TESTING:
+                result = '   Data: {}\n'.format(
+                    result) if self.TESTING else None
+                return self.__write_spi_test_buff(result)
 
     def __write_spi_test_buff(self, data):
         if data is not None:
