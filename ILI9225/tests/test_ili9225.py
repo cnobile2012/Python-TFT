@@ -509,7 +509,7 @@ class TestILI9225(unittest.TestCase):
                 )
             self._run_spi_test(expect, 'test_draw_char')
 
-        expected_width = 11
+        expected_width = 12
         msg = f"Expected width '{expected_width}' found '{width}'"
         self.assertEqual(expected_width, width, msg=msg)
 
@@ -522,7 +522,7 @@ class TestILI9225(unittest.TestCase):
         y = self._tft.display_max_y / 2
         st = 'BBB'
         self._tft.set_font(Terminal12x16)
-        st_len - len(st)
+        st_len = len(st)
         expect_currx = x + (st_len * 11) + st_len
         currx = self._tft.draw_text(x, y, 'ABC')
         msg = f"Expected cursor x '{expect_currx}' found '{currx}'"
@@ -532,8 +532,9 @@ class TestILI9225(unittest.TestCase):
         """
         Test that the correct character width in pixels is returned.
         """
+        self._tft.set_font(Terminal12x16)
         width = self._tft.get_char_width('B')
-        expected_width = 11
+        expected_width = 12
         msg = f"Expected width '{expected_width}' found '{width}'"
         self.assertEqual(expected_width, width, msg=msg)
 
@@ -542,6 +543,7 @@ class TestILI9225(unittest.TestCase):
         """
         Test that the correct text strint width in pixels is returmed.
         """
+        self._tft.set_font(Terminal12x16)
         width = self._tft.get_text_width('ABC')
         expected_width = 33
         msg = f"Expected width '{expected_width}' found '{width}'"
