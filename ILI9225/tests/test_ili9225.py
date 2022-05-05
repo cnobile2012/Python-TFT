@@ -6,7 +6,7 @@ import unittest
 import re
 
 from ILI9225 import ILI9225
-from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont
+from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont, GFXGlyph
 from utils import (Boards, TFTException, CompatibilityException,
                    Terminal12x16, BGR16BitColor as Colors)
 from fonts.FreeSerifItalic18pt7b import FreeSerifItalic18pt7b
@@ -193,7 +193,7 @@ class TestILI9225(unittest.TestCase):
     def _run_spi_test(self, expect, func_name):
         ret = self._read_spi_buff(func_name)
         data = self._find_data(ret)
-        msg = (f"Expected length {len(expect)} is not equal to "
+        msg = (f"Expected length {len(expect)} is not equal to found "
                f"length {len(data)}, data '{data}'")
         self.assertEqual(len(expect), len(data), msg=msg)
         msg1 = "Command {}--should be: {}, found: {}"
@@ -220,8 +220,8 @@ class TestILI9225(unittest.TestCase):
 
                 for j in range(expect[idx][num]):
                     found_value = item[2][j]
-                    msg2_tmp = msg2.format(expect_name, expect_value,
-                                           found_value)
+                    msg2_tmp = msg2.format(
+                        expect_name, expect_value, found_value)
                     self.assertEqual(expect_value, found_value, msg=msg2_tmp)
 
     #@unittest.skip("Temporary")
@@ -573,9 +573,9 @@ class TestILI9225(unittest.TestCase):
         """
         x = self._tft.display_max_x / 2
         y = self._tft.display_max_y / 2
-        ch = 'A'
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
-        self._tft.draw_gfx_char(x, y, 'A')
+        ch = 'A'
+        char_width = self._tft.draw_gfx_char(x, y, ch)
         expect = (
             (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
             (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0x64),
@@ -592,13 +592,6 @@ class TestILI9225(unittest.TestCase):
             (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
             )
         self._run_spi_test(expect, 'test_draw_gfx_char')
-
-
-
-
-
-
-
-
-
-
+        glyph = GFXGlyph(self._tft._gfx_font.glyph[ch])
+        msg = f"Expect char width '{glyph.x_advance}' found '{char_width}'"
+        self.assertEqual(glyph.x_advance, char_width, msg=msg)

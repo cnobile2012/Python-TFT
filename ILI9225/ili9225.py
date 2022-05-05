@@ -740,10 +740,11 @@ class ILI9225(Compatibility):
         # Add character clipping here one day.
         for yy in range(h):
             for xx in range(w):
-                if not (bit & 7):
+                bit += 1
+
+                if not ((bit - 1) & 7):
                     bits = bitmap[bo]
                     bo += 1
-                    bit += 1
 
                 if bits & 0x80:
                     self.draw_pixel(x + xo + xx, y + yo + yy, color)
@@ -1342,7 +1343,7 @@ class ILI9225(Compatibility):
             self._end_write()
             raise e
         else:
-            result = 'Command: {}\n'.format(result) if self.TESTING else None
+            result = 'Command: {}\n'.format(result) if self.TESTING else ""
             return self.__write_spi_test_buff(result)
 
     def _write_data(self, data):
@@ -1355,7 +1356,7 @@ class ILI9225(Compatibility):
             self._end_write()
             raise e
         else:
-            result = '   Data: {}\n'.format(result) if self.TESTING else None
+            result = '   Data: {}\n'.format(result) if self.TESTING else ""
             return self.__write_spi_test_buff(result)
 
     def __write_spi_test_buff(self, data):
