@@ -3,6 +3,7 @@
 #
 
 import unittest
+import os
 import re
 
 from ILI9225 import ILI9225
@@ -113,6 +114,8 @@ class TestILI9225(unittest.TestCase):
     CMD_NAMES = [cmd for cmd in dir(ILI9225) if cmd.startswith('CMD_')]
     CMD_NAMES_REV = {getattr(ILI9225, n): n for n in CMD_NAMES}
 
+    CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
+
     def __init__(self, name):
         super().__init__(name)
 
@@ -129,7 +132,7 @@ class TestILI9225(unittest.TestCase):
     def _read_data_file(self, filename):
         data = []
 
-        with open(filename, 'r') as f:
+        with open(f"{self.CURRENT_PATH}/{filename}", 'r') as f:
             result = f.read()
             data[:] = eval(result)
 
@@ -608,7 +611,7 @@ class TestILI9225(unittest.TestCase):
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
         ch = 'A'
         char_width = self._tft.draw_gfx_char(x, y, ch)
-        expect = self._read_data_file(draw_gfx_char.txt)
+        expect = self._read_data_file('draw_gfx_char.txt')
         self._run_spi_test(expect, 'test_draw_gfx_char')
         glyph = GFXGlyph(self._tft._gfx_font.glyph[ch])
         msg = f"Expect char width '{glyph.x_advance}' found '{char_width}'"
