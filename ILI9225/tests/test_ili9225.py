@@ -126,6 +126,38 @@ class TestILI9225(unittest.TestCase):
         self._tft.clear()
         self._tft.pin_cleanup()
 
+    def _read_data_file(self, filename):
+        data = []
+
+        with open(filename, 'r') as f:
+            result = f.read()
+            data[:] = eval(result)
+
+        cmd_list = []
+
+        for name, cmd, value_list in data:
+            cmds = [cmd]
+            cmd_list.append(cmds)
+            num_count = 0
+            saved_val = None
+            data_len = len(value_list)
+
+            for idx, value in enumerate(value_list, start=1):
+                num_count += 1
+
+                if saved_val is None:
+                    saved_val = value
+                elif saved_val != value or idx == data_len:
+                    if idx != data_len:
+                        num_count -= 1
+
+                cmds.append(num_count)
+                cmds.append(saved_val)
+                num_count = 1
+                saved_val = value
+
+        return cmd_list
+
     def _read_spi_buff(self, func_name=""):
         """
         This method is only used for testing when the board is a Raspberry Pi
@@ -576,21 +608,7 @@ class TestILI9225(unittest.TestCase):
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
         ch = 'A'
         char_width = self._tft.draw_gfx_char(x, y, ch)
-        expect = (
-            (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0x64),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x58),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0x7d),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x6e),
-            (self._tft.CMD_RAM_ADDR_SET1, 1, 0x58),
-            (self._tft.CMD_RAM_ADDR_SET2, 1, 0x6e),
-
-            (self._tft.CMD_GRAM_DATA_REG, 38720 , 0xec1d),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
-            )
+        expect = self._read_data_file(draw_gfx_char.txt)
         self._run_spi_test(expect, 'test_draw_gfx_char')
         glyph = GFXGlyph(self._tft._gfx_font.glyph[ch])
         msg = f"Expect char width '{glyph.x_advance}' found '{char_width}'"
