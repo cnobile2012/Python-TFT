@@ -556,11 +556,11 @@ class TestILI9225(unittest.TestCase):
         """
         x = self._tft.display_max_x / 2
         y = self._tft.display_max_y / 2
-        st = 'BBB'
+        st = 'ABC'
         self._tft.set_font(Terminal12x16)
         st_len = len(st)
         expect_currx = x + (st_len * 11) + st_len
-        currx = self._tft.draw_text(x, y, 'ABC')
+        currx = self._tft.draw_text(x, y, st)
         msg = f"Expected cursor x '{expect_currx}' found '{currx}'"
 
     #@unittest.skip("Temporary")
@@ -608,11 +608,48 @@ class TestILI9225(unittest.TestCase):
         """
         x = self._tft.display_max_x / 2
         y = self._tft.display_max_y / 2
+
+        # Test that an exception is raised when a font is not set first.
+        with self.assertRaises(TFTException) as cm:
+            self._tft.draw_char(x, y, 'A')
+
+        expect_msg = self._tft.SPI_ERROR_MSGS.get('GFX_FONT')
+        found = str(cm.exception)
+        msg = f"Error message expected '{expect_msg}' found '{found}'"
+        self.assertEqual(expect_msg, found, msg=msg)
+
+        # Test that a character is drawn at the provided coordinates.
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
         ch = 'A'
         char_width = self._tft.draw_gfx_char(x, y, ch)
         expect = self._read_data_file('draw_gfx_char.txt')
         self._run_spi_test(expect, 'test_draw_gfx_char')
-        glyph = GFXGlyph(self._tft._gfx_font.glyph[ch])
+        ch_tmp = ord(ch) - FreeSerifItalic18pt7b[2] # GFXFont.first
+        glyph = GFXGlyph(FreeSerifItalic18pt7b[1][ch_tmp]) # GFXFont.glyph
         msg = f"Expect char width '{glyph.x_advance}' found '{char_width}'"
         self.assertEqual(glyph.x_advance, char_width, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_draw_gfx_text(self):
+        """
+        Test that a string of text is drawn to the display correctly.
+        """
+        x = self._tft.display_max_x / 2
+        y = self._tft.display_max_y / 2
+        self._tft.set_gfx_font(FreeSerifItalic18pt7b)
+        st = 'ABC'
+        first = FreeSerifItalic18pt7b[2] # GFXFont.first
+        st_ord = [ord(c) - first for c in st]
+        expect_currx = x + st_ord[0] + st_ord[1] + st_ord[2]
+        currx = self._tft.draw_gfx_text(x, y, st)
+        msg = f"Expected cursor x '{expect_currx}' found '{currx}'"
+        self.assertEqual(expect_currx, currx, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_get_gfx_char_extent(self):
+        """
+        Test that the proper character extent is returned.
+        """
+        pass
+
+

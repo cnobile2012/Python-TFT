@@ -92,6 +92,7 @@ class ILI9225(Compatibility):
 
     SPI_ERROR_MSGS = {
         'STD_FONT': "Please set a standard font before using this method.",
+        'GFX_FONT': "Please set a GFX font before using this method.",
         'SET_WINDOW': "Invalid orientation: {} (0..2) or mode: {} (0..7), {}"
         }
 
@@ -719,13 +720,14 @@ class ILI9225(Compatibility):
         :type x: int
         :param y: Point coordinate (y-axis).
         :type y: int
-        :param ch: Character to draw on the display.
-        :type ch: int
+        :param ch: A single character to draw on the display.
+        :type ch: str
         :param color: A 16-bit BGR color (default=white).
         :type color: int
         :return: The width of character in display pixels.
         :rtype: int
         """
+        self._is_gfx_font_set()
         ch = ord(ch) - self._gfx_font.first
         glyph = GFXGlyph(self._gfx_font.glyph[ch])
         bitmap = self._gfx_font.bitmap
@@ -765,13 +767,16 @@ class ILI9225(Compatibility):
         :type s: str
         :param color: A 16-bit BGR color (default=white).
         :type color: int
+        :return: The position of x after the text is displayed.
+        :rtype: int
         """
         currx = x
 
-        if self._gfx_font:
-            # Draw every character in the string.
-            for ch in s:
-                currx += self.draw_gfx_char(currx, y, ch, color) + 1
+        # Draw every character in the string.
+        for ch in s:
+            currx += self.draw_gfx_char(currx, y, ch, color) + 1
+
+        return currx
 
     def get_gfx_char_extent(self, x, y, ch, color=Colors.WHITE):
         """
@@ -791,6 +796,9 @@ class ILI9225(Compatibility):
                  to advance cursor on the x axis.
         :rtype: tuple
         """
+        self._is_gfx_font_set()
+        ch = ord(ch)
+
         # Is char present in this font?
         if self._gfx_font.first <= ch <= self._gfx_font.last:
             glyph = GFXGlyph(self._gfx_font.glyph[ch - self._gfx_font.first])
@@ -825,6 +833,10 @@ class ILI9225(Compatibility):
             w += xa
 
         return w, h
+
+    def _is_gfx_font_set(self):
+        if self._gfx_font is None:
+            raise TFTException(self.SPI_ERROR_MSGS.get('GFX_FONT'))
 
     #
     # End of GFX font methods.
