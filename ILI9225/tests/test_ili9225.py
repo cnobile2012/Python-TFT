@@ -650,11 +650,57 @@ class TestILI9225(unittest.TestCase):
         msg = f"Expected cursor x '{expect_currx}' found '{currx}'"
         self.assertEqual(expect_currx, currx, msg=msg)
 
-    @unittest.skip("Temporary")
+    #@unittest.skip("Temporary")
     def test_get_gfx_char_extent(self):
         """
         Test that the proper character extent is returned.
         """
-        pass
+        x = self._tft.display_max_x / 2
+        y = self._tft.display_max_y / 2
 
+        # Test that an exception is raised when a font is not set first.
+        with self.assertRaises(TFTException) as cm:
+            self._tft.get_gfx_char_extent(x, y, 'A')
 
+        expect_msg = self._tft.ERROR_MSGS.get('GFX_FONT')
+        found = str(cm.exception)
+        msg = f"Error message expected '{expect_msg}' found '{found}'"
+        self.assertEqual(expect_msg, found, msg=msg)
+
+        ch = 'B'
+        self._tft.set_gfx_font(FreeSerifItalic18pt7b)
+        w, h, xa = self._tft.get_gfx_char_extent(x, y, ch)
+        ch_tmp = ord(ch) - FreeSerifItalic18pt7b[2] # GFXFont.first
+        glyph = GFXGlyph(FreeSerifItalic18pt7b[1][ch_tmp]) # GFXFont.glyph
+        expect_w = glyph.width
+        expect_h = glypy.height
+        expect_xa = glyph.x_advance
+        msg = (f"Expect w={expect_w}, h={expect_h}, xa={expect_xa} "
+               f"found w={w}, h={h}, xa={xa}")
+        self.assertEqual(expect_w, w, msg=msg)
+        self.assertEqual(expect_h, h, msg=msg)
+        self.assertEqual(expect_xa, xa, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_get_gfx_text_extent(self):
+        """
+        Test that the proper text string extent is returned.
+        """
+        x = self._tft.display_max_x / 2
+        y = self._tft.display_max_y / 2
+        st = 'ABC'
+        self._tft.set_gfx_font(FreeSerifItalic18pt7b)
+        w, h = self._tft.get_gfx_text_extent(x, y, st)
+        glypys = []
+
+        for ch in st:
+            # GFXFont.first
+            ch_tmp = ord(ch) - FreeSerifItalic18pt7b[2]
+            # GFXFont.glyph
+            glyphs.append(GFXGlyph(FreeSerifItalic18pt7b[1][ch_tmp]))
+
+        expect_w = sum([g.width for g in glyphs])
+        expect_h = max([g.height for g in glyphs])
+        msg = f"Expect w={expect_w}, h={expect_h} found w={w}, h={h}"
+        self.assertEqual(expect_w, w, msg=msg)
+        self.assertEqual(expect_h, h, msg=msg)

@@ -14,7 +14,6 @@ RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
 COVERAGE_FILE	= .coveragerc
-RUN_TESTS	= 1
 
 #----------------------------------------------------------------------
 all	: doc tar
@@ -24,7 +23,8 @@ rpi-tests: clean
 	@rm -rf $(DOCS_DIR)/htmlcov
 	@coverage erase --rcfile=$(COVERAGE_FILE)
 	@coverage run --rcfile=$(COVERAGE_FILE) $$VIRTUAL_ENV/bin/nosetests
-	coverage report --rcfile=$(COVERAGE_FILE)
+	@coverage report --rcfile=$(COVERAGE_FILE)
+	@coverage html --rcfile=$(COVERAGE_FILE)
 	@echo $(TODAY)
 
 .PHONY	: sphinx
