@@ -90,7 +90,7 @@ class ILI9225(Compatibility):
     DEBUG = False
     TESTING = True
 
-    SPI_ERROR_MSGS = {
+    ERROR_MSGS = {
         'STD_FONT': "Please set a standard font before using this method.",
         'GFX_FONT': "Please set a GFX font before using this method.",
         'SET_WINDOW': "Invalid orientation: {} (0..2) or mode: {} (0..7), {}"
@@ -682,7 +682,7 @@ class ILI9225(Compatibility):
 
     def _is_font_set(self):
         if len(self._cfont.font) <= 0:
-            raise TFTException(self.SPI_ERROR_MSGS.get('STD_FONT'))
+            raise TFTException(self.ERROR_MSGS.get('STD_FONT'))
 
     def _bit_read(self, value, bit):
         """
@@ -836,7 +836,7 @@ class ILI9225(Compatibility):
 
     def _is_gfx_font_set(self):
         if self._gfx_font is None:
-            raise TFTException(self.SPI_ERROR_MSGS.get('GFX_FONT'))
+            raise TFTException(self.ERROR_MSGS.get('GFX_FONT'))
 
     #
     # End of GFX font methods.
@@ -1301,7 +1301,7 @@ class ILI9225(Compatibility):
             try:
                 mode = self._MODE_TAB[self._orientation - 1][mode]
             except IndexError as e:
-                msg = self.SPI_ERROR_MSGS.get('SET_WINDOW').format(
+                msg = self.ERROR_MSGS.get('SET_WINDOW').format(
                     self._orientation, mode, e)
                 raise TFTException(msg)
 

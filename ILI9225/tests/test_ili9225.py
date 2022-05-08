@@ -513,7 +513,7 @@ class TestILI9225(unittest.TestCase):
         with self.assertRaises(TFTException) as cm:
             self._tft.draw_char(x, y, 'A')
 
-        expect_msg = self._tft.SPI_ERROR_MSGS.get('STD_FONT')
+        expect_msg = self._tft.ERROR_MSGS.get('STD_FONT')
         found = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found}'"
         self.assertEqual(expect_msg, found, msg=msg)
@@ -611,9 +611,9 @@ class TestILI9225(unittest.TestCase):
 
         # Test that an exception is raised when a font is not set first.
         with self.assertRaises(TFTException) as cm:
-            self._tft.draw_char(x, y, 'A')
+            self._tft.draw_gfx_char(x, y, 'A')
 
-        expect_msg = self._tft.SPI_ERROR_MSGS.get('GFX_FONT')
+        expect_msg = self._tft.ERROR_MSGS.get('GFX_FONT')
         found = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found}'"
         self.assertEqual(expect_msg, found, msg=msg)
@@ -639,13 +639,18 @@ class TestILI9225(unittest.TestCase):
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
         st = 'ABC'
         first = FreeSerifItalic18pt7b[2] # GFXFont.first
-        st_ord = [ord(c) - first for c in st]
-        expect_currx = x + st_ord[0] + st_ord[1] + st_ord[2]
+        xa = []
+
+        for c in [ord(c) - first for c in st]:
+            glyph = GFXGlyph(FreeSerifItalic18pt7b[1][c]) # GFXFont.glyph
+            xa.append(glyph.x_advance)
+
+        expect_currx = x + xa[0] + xa[1] + xa[2]
         currx = self._tft.draw_gfx_text(x, y, st)
         msg = f"Expected cursor x '{expect_currx}' found '{currx}'"
         self.assertEqual(expect_currx, currx, msg=msg)
 
-    #@unittest.skip("Temporary")
+    @unittest.skip("Temporary")
     def test_get_gfx_char_extent(self):
         """
         Test that the proper character extent is returned.
