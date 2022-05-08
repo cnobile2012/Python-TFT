@@ -5,6 +5,8 @@ ILI9225/ili9225.py
 Driver for the ILI9225 chip TFT LCD displays.
 """
 
+import os
+
 from utils.compatibility import Compatibility
 from utils import (Boards, TFTException, CompatibilityException,
                    BGR16BitColor as Colors)
@@ -87,8 +89,12 @@ class ILI9225(Compatibility):
     """
     Main ILI9225 class.
     """
-    DEBUG = False
-    TESTING = True
+    try:
+        DEBUG = eval(os.getenv('TFT_DEBUG', default='False'))
+        TESTING = eval(os.getenv('TFT_TESTING', default='False'))
+    except AttributeError: # MicroPython and CircuitPython will raise
+        DEBUG = False
+        TESTING = False
 
     ERROR_MSGS = {
         'STD_FONT': "Please set a standard font before using this method.",
@@ -1379,9 +1385,9 @@ class ILI9225(Compatibility):
 
             self._spi_buff.write(data)
 
-    def _start_write(self):
+    def _start_write(self, reuse=False):
         if self._write_function_level == 0:
-            self.spi_start_transaction()
+            self.spi_start_transaction(reuse=reuse)
             self.digital_write(self._cs, self.LOW)
             self._write_function_level += 1
         else:
@@ -1389,12 +1395,12 @@ class ILI9225(Compatibility):
                    ).format(self._write_function_level)
             print(msg)
 
-    def _end_write(self):
+    def _end_write(self, reuse=False):
         self._write_function_level -= 1
 
         if self._write_function_level == 0:
             self.digital_write(self._cs, self.HIGH)
-            self.spi_end_transaction()
+            self.spi_end_transaction(reuse=reuse)
         else:
             msg = ("DEBUG: Could not end write, _write_function_level = {}."
                    ).format(self._write_function_level)

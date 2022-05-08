@@ -92,9 +92,22 @@ class PiVersion:
         GPIO.cleanup()
 
     def delay(self, ms):
+        """
+        Set a delat in milliseconds.
+
+        :param ms: The value in milliseconds.
+        :type ms: int
+        """
         sleep(ms/1000) # Convert to floating point.
 
     def spi_start_transaction(self, reuse=False):
+        """
+        Create the SPI connection.
+
+        :param reuse: True will reuse the previous connection
+                      (default is False).
+        :type reuse: bool
+        """
         if self._spi is None or not reuse:
             from utils import Boards, CompatibilityException
 
@@ -105,16 +118,29 @@ class PiVersion:
                 self._spi.open(port, device)
                 self._spi.max_speed_hz = Boards.get_frequency(self.BOARD)
                 self._spi.mode = self._SPI_MODE
-            except Exception as e:
+            except Exception as e: # pragma: no cover
                 self.spi_end_transaction()
                 raise CompatibilityException(e)
 
-    def spi_end_transaction(self):
-        if self._spi:
+    def spi_end_transaction(self, reuse=False):
+        """
+        Destroy the SPI connection.
+
+        :param reuse: True will reuse the previous connection
+                      (default is False).
+        :type reuse: bool
+        """
+        if self._spi is not None and not reuse:
             self._spi.close()
             self._spi = None
 
     def spi_write(self, values):
+        """
+        Write to the SPI port the given values.
+
+        :param values: The values to write.
+        :type values: int, list, or tuple
+        """
         from utils import CompatibilityException
 
         if not isinstance(values, (list, tuple)):
@@ -135,7 +161,7 @@ class PiVersion:
 
                 if self.BOARD == Boards.RASPI:
                     result = self._spi.xfer2(items)
-            else:
+            else: # pragma: no cover
                 self._spi.writebytes(items)
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
@@ -145,9 +171,27 @@ class PiVersion:
                 return hex((high << 8) | low)
 
     def setup_pwm(self, pin, freq, *, duty_cycle=None):
+        """
+        Setup a PWM for controlling the back light LEDs brightness.
+
+        :param pin: The pin to setup the PWM on.
+        :type pin: int
+        :param freq: The frequency of the PWM.
+        :type freq: int
+        :param duty_cycle: Sets the 1/2 the period of a cycle (default is 50%).
+        :type duty_cycle: int
+        """
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, freq)
         if duty_cycle is None: duty_cycle = freq / 2 # Set to 50%
         self.__pwm_pin_states[pin].start(duty_cycle)
 
     def analog_write(self, pin, value):
+        """
+        Writes the value to the analog PWM pin.
+
+        :param pin: The pin to setup the PWM on.
+        :type pin: int
+        :param value: The value to write.
+        :type value: int
+        """
         self.__pwm_pin_states[pin].ChangeDutyCycle(value)
