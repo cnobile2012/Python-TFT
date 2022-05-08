@@ -13,6 +13,7 @@ DOCS_DIR	= $(PREFIX)/docs
 RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
+COVERAGE_FILE	= .coveragerc
 RUN_TESTS	= 1
 
 #----------------------------------------------------------------------
@@ -21,16 +22,9 @@ all	: doc tar
 .PHONY	: rpi-tests
 rpi-tests: clean
 	@rm -rf $(DOCS_DIR)/htmlcov
-	@nosetests --with-coverage --cover-erase --nocapture --nologcapture \
-                   --cover-package=$(PREFIX)/ILI9225 \
-                   --cover-package=$(PREFIX)/ILI9341 \
-                   --cover-package=$(PREFIX)/utils \
-                   --cover-package=$(PREFIX)/fonts \
-                   --cover-package=$(PREFIX)/py_versions/raspberrypi.py
-#                   --cover-inclusive \
-#                   --cover-html --cover-html-dir=$(DOCS_DIR)/htmlcov
-#	coverage combine
-#	coverage report
+	@coverage erase --rcfile=$(COVERAGE_FILE)
+	@coverage run --rcfile=$(COVERAGE_FILE) $$VIRTUAL_ENV/bin/nosetests
+	coverage report --rcfile=$(COVERAGE_FILE)
 	@echo $(TODAY)
 
 .PHONY	: sphinx
