@@ -673,7 +673,7 @@ class TestILI9225(unittest.TestCase):
         ch_tmp = ord(ch) - FreeSerifItalic18pt7b[2] # GFXFont.first
         glyph = GFXGlyph(FreeSerifItalic18pt7b[1][ch_tmp]) # GFXFont.glyph
         expect_w = glyph.width
-        expect_h = glypy.height
+        expect_h = glyph.height
         expect_xa = glyph.x_advance
         msg = (f"Expect w={expect_w}, h={expect_h}, xa={expect_xa} "
                f"found w={w}, h={h}, xa={xa}")
@@ -691,7 +691,7 @@ class TestILI9225(unittest.TestCase):
         st = 'ABC'
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
         w, h = self._tft.get_gfx_text_extent(x, y, st)
-        glypys = []
+        glyphs = []
 
         for ch in st:
             # GFXFont.first
