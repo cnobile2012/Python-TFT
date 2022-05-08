@@ -20,10 +20,11 @@ all	: doc tar
 
 .PHONY	: rpi-tests
 rpi-tests: clean
-	export set TFT_TESTING=True
 	@rm -rf $(DOCS_DIR)/htmlcov
 	@coverage erase --rcfile=$(COVERAGE_FILE)
-	@coverage run --rcfile=$(COVERAGE_FILE) $$VIRTUAL_ENV/bin/nosetests
+	@export TFT_TESTING=True; \
+        $$VIRTUAL_ENV/bin/coverage run --rcfile=$(COVERAGE_FILE) \
+                                   $$VIRTUAL_ENV/bin/nosetests
 	@coverage report --rcfile=$(COVERAGE_FILE)
 	@coverage html --rcfile=$(COVERAGE_FILE)
 	@echo $(TODAY)
