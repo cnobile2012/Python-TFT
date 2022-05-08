@@ -645,7 +645,7 @@ class TestILI9225(unittest.TestCase):
             glyph = GFXGlyph(FreeSerifItalic18pt7b[1][c]) # GFXFont.glyph
             xa.append(glyph.x_advance)
 
-        expect_currx = x + xa[0] + xa[1] + xa[2]
+        expect_currx = x + xa[0] + xa[1] + xa[2] + len(st)
         currx = self._tft.draw_gfx_text(x, y, st)
         msg = f"Expected cursor x '{expect_currx}' found '{currx}'"
         self.assertEqual(expect_currx, currx, msg=msg)
