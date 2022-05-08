@@ -699,7 +699,7 @@ class TestILI9225(unittest.TestCase):
             # GFXFont.glyph
             glyphs.append(GFXGlyph(FreeSerifItalic18pt7b[1][ch_tmp]))
 
-        expect_w = sum([g.width for g in glyphs])
+        expect_w = sum([g.x_advance for g in glyphs])
         expect_h = max([g.height for g in glyphs])
         msg = f"Expect w={expect_w}, h={expect_h} found w={w}, h={h}"
         self.assertEqual(expect_w, w, msg=msg)
