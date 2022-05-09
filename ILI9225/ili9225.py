@@ -971,9 +971,9 @@ class ILI9225(Compatibility):
             self.draw_line(x0 + y, y0 - x, x0 + y, y0 + x, color) # right
             self.draw_line(x0 - y, y0 - x, x0 - y, y0 + x, color) # left
 
-        self.fill_rectangle(x0 - x, y0 - y, x0 + x, y0 + y, color)
         self.spi_close_override = False
         self._end_write(reuse=False)
+        self.fill_rectangle(x0 - x, y0 - y, x0 + x, y0 + y, color)
 
     def draw_triangle(self, x0, y0, x1, y1, x2, y2, color):
         """

@@ -738,7 +738,17 @@ class TestILI9225(unittest.TestCase):
         self._tft.draw_circle(x, y, radius, Colors.BLUE)
         expect = self._read_data_file('draw_circle.txt')
         self._run_spi_test(expect, 'test_draw_circle')
-        
 
+    #@unittest.skip("Temporary")
+    def test_fill_circle(self):
+        """
+        Test that a filled circle is drawn on the display.
+        """
+        x = self._tft.display_max_x / 2
+        y = self._tft.display_max_y / 2
+        radius = 50
+        self._tft.fill_circle(x, y, radius, Colors.BLUE)
+        expect = () #self._read_data_file('draw_circle.txt')
+        self._run_spi_test(expect, 'test_fill_circle')
 
 
