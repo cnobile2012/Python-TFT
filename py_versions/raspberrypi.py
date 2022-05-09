@@ -100,15 +100,11 @@ class PiVersion:
         """
         sleep(ms/1000) # Convert to floating point.
 
-    def spi_start_transaction(self, reuse=False):
+    def spi_start_transaction(self):
         """
         Create the SPI connection.
-
-        :param reuse: True will reuse the previous connection
-                      (default is False).
-        :type reuse: bool
         """
-        if self._spi is None or not reuse:
+        if self._spi is None:
             from utils import Boards, CompatibilityException
 
             try:
@@ -122,17 +118,22 @@ class PiVersion:
                 self.spi_end_transaction()
                 raise CompatibilityException(e)
 
-    def spi_end_transaction(self, reuse=False):
+    def spi_end_transaction(self):
         """
         Destroy the SPI connection.
-
-        :param reuse: True will reuse the previous connection
-                      (default is False).
-        :type reuse: bool
         """
-        if self._spi is not None and not reuse:
+        if self._spi is not None:
             self._spi.close()
             self._spi = None
+
+    def is_spi_connected(self):
+        """
+        Check if the SPI connection is established.
+
+        :return: True if connected else False
+        :rtype: bool
+        """
+        return True if self._spi is not None else False
 
     def spi_write(self, values):
         """

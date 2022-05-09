@@ -1385,9 +1385,9 @@ class ILI9225(Compatibility):
 
             self._spi_buff.write(data)
 
-    def _start_write(self, reuse=False):
+    def _start_write(self):
         if self._write_function_level == 0:
-            self.spi_start_transaction(reuse=reuse)
+            self.spi_start_transaction()
             self.digital_write(self._cs, self.LOW)
             self._write_function_level += 1
         else:
@@ -1395,12 +1395,12 @@ class ILI9225(Compatibility):
                    ).format(self._write_function_level)
             print(msg)
 
-    def _end_write(self, reuse=False):
+    def _end_write(self):
         self._write_function_level -= 1
 
         if self._write_function_level == 0:
             self.digital_write(self._cs, self.HIGH)
-            self.spi_end_transaction(reuse=reuse)
+            self.spi_end_transaction()
         else:
             msg = ("DEBUG: Could not end write, _write_function_level = {}."
                    ).format(self._write_function_level)

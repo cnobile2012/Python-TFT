@@ -704,3 +704,15 @@ class TestILI9225(unittest.TestCase):
         msg = f"Expect w={expect_w}, h={expect_h} found w={w}, h={h}"
         self.assertEqual(expect_w, w, msg=msg)
         self.assertEqual(expect_h, h, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_draw_rectangle(self):
+        """
+        Test that the correct data is sent to the ILI9225 board.
+        """
+        expect = (
+            )
+        self._run_spi_test(expect, 'test_draw_rectangle')
+
+
+
