@@ -1151,7 +1151,6 @@ class ILI9225(Compatibility):
         else:
             ystep = -1
 
-        self.spi_close_override = True
         self._start_write()
 
         while x0 <= x1:
@@ -1168,7 +1167,6 @@ class ILI9225(Compatibility):
 
             x0 += 1
 
-        self.spi_close_override = False
         self._end_write(reuse=False)
 
     def draw_pixel(self, x0, y0, color):
@@ -1189,53 +1187,6 @@ class ILI9225(Compatibility):
             self._write_register(self.CMD_RAM_ADDR_SET2, y0)
             self._write_register(self.CMD_GRAM_DATA_REG, color)
             self._end_write(reuse=False)
-
-    def rgb16_to_bgr16(color):
-        """
-        Convert 16-bit RGB to 16-bit BGR color format.
-
-        :param color: A 16-bit RGB color.
-        :type color: int
-        :return A 16-bit BGR color.
-        :rtype: int
-        """
-        return (
-            ((color & 0b1111100000000000) >> 11)
-            | (color & 0b0000011111100000)
-            | ((color & 0b0000000000011111) << 11)
-            )
-
-    def rgb24_to_rgb16(self, red, green, blue):
-        """
-        Convert 24-bit RGB color components to a 16-bit RGB color.
-
-        :param red: The RED component in the RGB color.
-        :type red: int
-        :param green: The GREEN component in the RGB color.
-        :type green: int
-        :param blue: The BLUE component in the RGB color.
-        :type blue: int
-        :return: An 16-bit RGB color.
-        :rtype: int
-        """
-        #return ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
-        return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
-                (round((0x3F * (green + 2)) / 0xFF) << 5) |
-                round((0x1F * (blue + 4)) / 0xFF))
-
-    def rgb16_to_rgb24(self, color):
-        """
-        Convert 16-bit RGB color to a 24-bit RGB color components.
-
-        :param color: An RGB 16-bit color.
-        :type color: int
-        :return: A tuple of the RGB 8-bit components, (red, grn, blu).
-        :rtype: tuple
-        """
-        red = (color & 0b1111100000000000) >> 11 << 3
-        grn = (color & 0b0000011111100000) >> 5 << 2
-        blu = (color & 0b0000000000011111) << 3
-        return red, grn, blu
 
     def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
                     transparent=False, x_bit=False):
@@ -1304,6 +1255,53 @@ class ILI9225(Compatibility):
 
         self.spi_close_override = False
         self._end_write(reuse=False)
+
+    def rgb16_to_bgr16(color):
+        """
+        Convert 16-bit RGB to 16-bit BGR color format.
+
+        :param color: A 16-bit RGB color.
+        :type color: int
+        :return A 16-bit BGR color.
+        :rtype: int
+        """
+        return (
+            ((color & 0b1111100000000000) >> 11)
+            | (color & 0b0000011111100000)
+            | ((color & 0b0000000000011111) << 11)
+            )
+
+    def rgb24_to_rgb16(self, red, green, blue):
+        """
+        Convert 24-bit RGB color components to a 16-bit RGB color.
+
+        :param red: The RED component in the RGB color.
+        :type red: int
+        :param green: The GREEN component in the RGB color.
+        :type green: int
+        :param blue: The BLUE component in the RGB color.
+        :type blue: int
+        :return: An 16-bit RGB color.
+        :rtype: int
+        """
+        #return ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
+        return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
+                (round((0x3F * (green + 2)) / 0xFF) << 5) |
+                round((0x1F * (blue + 4)) / 0xFF))
+
+    def rgb16_to_rgb24(self, color):
+        """
+        Convert 16-bit RGB color to a 24-bit RGB color components.
+
+        :param color: An RGB 16-bit color.
+        :type color: int
+        :return: A tuple of the RGB 8-bit components, (red, grn, blu).
+        :rtype: tuple
+        """
+        red = (color & 0b1111100000000000) >> 11 << 3
+        grn = (color & 0b0000011111100000) >> 5 << 2
+        blu = (color & 0b0000000000011111) << 3
+        return red, grn, blu
 
     def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):
         """
