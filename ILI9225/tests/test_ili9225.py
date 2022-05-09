@@ -710,8 +710,12 @@ class TestILI9225(unittest.TestCase):
         """
         Test that the correct data is sent to the ILI9225 board.
         """
-        expect = (
-            )
+        x1 = 44
+        y1 = 55
+        x2 = 132
+        y2 = 165
+        self._tft.draw_rectangle(x1, y1, x2, y2, Colors.LIGHTGREEN)
+        expect = self._read_data_file('draw_rectangle.txt')
         self._run_spi_test(expect, 'test_draw_rectangle')
 
 
