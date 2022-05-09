@@ -206,6 +206,7 @@ class ILI9225(Compatibility):
         self._max_x = 0
         self._max_y = 0
         ## self._write_function_level = 0
+        self.__spi_close_override = False
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
@@ -219,6 +220,14 @@ class ILI9225(Compatibility):
             print("Warning: The board has not been set. The board "
                   "keyword argument must be passed during instantiation or "
                   "the set_board() method must be run after instantiation.")
+
+    @property
+    def spi_close_override(self):
+        return self.__spi_close_override
+
+    @spi_close_override.setter
+    def spi_close_override(self, value):
+        self.__spi_close_override = value
 
     def begin(self):
         # Setup reset pin.
@@ -260,27 +269,9 @@ class ILI9225(Compatibility):
         if self.DEBUG: # pragma: no cover
             print("Finished setting up pins.")
 
-        # Start initial sequence.
-        # Set SS bit and direction output from S528 to S1
-        ## self._start_write()
-        ## # Set SAP,DSTB,STB
-        ## self._write_register(self.CMD_POWER_CTRL1, 0x0000)
-        ## # Set APON,PON,AON,VCI1EN,VC
-        ## self._write_register(self.CMD_POWER_CTRL2, 0x0000)
-        ## # Set BT,DC1,DC2,DC3
-        ## self._write_register(self.CMD_POWER_CTRL3, 0x0000)
-        ## # Set GVDD
-        ## self._write_register(self.CMD_POWER_CTRL4, 0x0000)
-        ## # Set VCOMH/VCOML voltage
-        ## self._write_register(self.CMD_POWER_CTRL5, 0x0000)
-        ## self._end_write()
-        ## self.delay(40)
-
-        ## if self.DEBUG: # pragma: no cover
-        ##     print("Finished initial sequence.")
-
         # Power-on sequence
         self._start_write()
+        self.spi_close_override = True
         # Set APON,PON,AON,VCI1EN,VC
         self._write_register(self.CMD_POWER_CTRL2, 0x0018)
         # Set BT,DC1,DC2,DC3
@@ -291,15 +282,15 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_POWER_CTRL5, 0x495F)
         # Set SAP,DSTB,STB
         self._write_register(self.CMD_POWER_CTRL1, 0x0800)
-        self._end_write()
+        ## self._end_write()
         self.delay(10)
-        self._start_write()
+        ## self._start_write()
         # Set APON,PON,AON,VCI1EN,VC
         self._write_register(self.CMD_POWER_CTRL2, 0x103B)
-        self._end_write()
+        ## self._end_write()
         self.delay(50)
 
-        self._start_write()
+        ## self._start_write()
         # Set the display line number and display direction
         self._write_register(self.CMD_DRIVER_OUTPUT_CTRL, 0x011C) # 0x001C
         # Set 1 line inversion
@@ -353,11 +344,10 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_GAMMA_CTRL10, 0x000E)
 
         self._write_register(self.CMD_DISP_CTRL1, 0x0012)
-        self._end_write()
+        ## self._end_write()
         self.delay(50)
-        self._start_write()
+        ## self._start_write()
         self._write_register(self.CMD_DISP_CTRL1, 0x1017)
-        self._end_write()
 
         if self.DEBUG: # pragma: no cover
             print("Finished set GAMMA curve.")
@@ -370,6 +360,8 @@ class ILI9225(Compatibility):
             print("Finished turning on backlight.")
 
         self.clear()
+        self.spi_close_override = False
+        self._end_write(reuse=False)
 
         if self.DEBUG: # pragma: no cover
             print("Finished initialize background color.")
@@ -404,7 +396,7 @@ class ILI9225(Compatibility):
         """
         self._start_write()
         self._write_command(self._INVON if flag else self._INVOFF)
-        self._end_write()
+        self._end_write(reuse=False)
 
     def set_backlight(self, flag):
         """
@@ -440,21 +432,21 @@ class ILI9225(Compatibility):
             self._start_write()
             self._write_register(0x00ff, 0x0000)
             self._write_register(self.CMD_POWER_CTRL1, 0x0000)
-            self._end_write()
+            ## self._end_write()
             self.delay(50)
-            self._start_write()
+            ## self._start_write()
             self._write_register(self.CMD_DISP_CTRL1, 0x1017)
-            self._end_write()
+            self._end_write(reuse=False)
             self.delay(200)
         else:
             self._start_write()
             self._write_register(0x00ff, 0x0000)
             self._write_register(self.CMD_DISP_CTRL1, 0x0000)
-            self._end_write()
+            ## self._end_write()
             self.delay(50)
-            self._start_write()
+            ## self._start_write()
             self._write_register(self.CMD_POWER_CTRL1, 0x0003)
-            self._end_write()
+            self._end_write(reuse=False)
             self.delay(200)
 
     def set_orientation(self, orientation):
@@ -595,6 +587,8 @@ class ILI9225(Compatibility):
             self._set_window(x, y, x + char_width + 1,
                              y + self._cfont.height - 1)
 
+        self._start_write()
+
         # Each font "column" (+1 blank column for spacing).
         for i in range(char_width + 1):
             h = 0  # Keep track of char height.
@@ -611,10 +605,8 @@ class ILI9225(Compatibility):
                     if h >= self._cfont.height: break
 
                     if fast_mode:
-                        self._start_write()
                         self._write_data(color if self._bit_read(
                             char_data, k) else bg_color)
-                        self._end_write()
                     else:
                         self.draw_pixel(x + i, y + (j * 8) + k,
                                         color if self._bit_read(char_data, k)
@@ -623,6 +615,7 @@ class ILI9225(Compatibility):
                     h += 1
 
         if fast_mode: self._reset_window()
+        self._end_write(reuse=False)
         return char_width
 
     def draw_text(self, x, y, s, color=Colors.WHITE, bg_color=Colors.BLACK):
@@ -643,10 +636,14 @@ class ILI9225(Compatibility):
         :rtype: int
         """
         currx = x
+        self.spi_close_override = True
+        self._start_write()
 
         for k in range(len(s)):
             currx += self.draw_char(currx, y, s[k], color, bg_color) + 1
 
+        self.spi_close_override = False
+        self._end_write(reuse=False)
         return currx
 
     def get_char_width(self, ch):
@@ -777,11 +774,15 @@ class ILI9225(Compatibility):
         :rtype: int
         """
         currx = x
+        self.spi_close_override = True
+        self._start_write()
 
         # Draw every character in the string.
         for ch in s:
             currx += self.draw_gfx_char(currx, y, ch, color) + 1
 
+        self.spi_close_override = False
+        self._end_write(reuse=False)
         return currx
 
     def get_gfx_char_extent(self, x, y, ch, color=Colors.WHITE):
@@ -885,15 +886,17 @@ class ILI9225(Compatibility):
         :param color: A 16-bit BGR color
         :type color: int
         """
-        self._set_window(x0, y0, x1, y1)
+        self.spi_close_override = True
         self._start_write()
+        self._set_window(x0, y0, x1, y1)
 
         # Count backwards from (y1 - y0 + 1) * (x1 - x0 + 1)) + 1 ending at 1.
         for t in range(1, ((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)[::-1]:
             self._write_data(color)
 
-        self._end_write(reuse=False)
         self._reset_window()
+        self.spi_close_override = False
+        self._end_write(reuse=False)
 
     def draw_circle(self, x0, y0, radius, color):
         """
@@ -913,6 +916,8 @@ class ILI9225(Compatibility):
         ddf_y = -2 * radius
         x = 0
         y = radius
+        self.spi_close_override = True
+        self._start_write()
 
         self.draw_pixel(x0, y0 + radius, color)
         self.draw_pixel(x0, y0 - radius, color)
@@ -938,6 +943,9 @@ class ILI9225(Compatibility):
             self.draw_pixel(x0 + y, y0 - x, color)
             self.draw_pixel(x0 - y, y0 - x, color)
 
+        self.spi_close_override = False
+        self._end_write(reuse=False)
+
     def fill_circle(self, x0, y0, radius, color):
         """
         Fill a circle.
@@ -956,6 +964,8 @@ class ILI9225(Compatibility):
         ddf_y = -2 * radius
         x = 0
         y = radius
+        self.spi_close_override = True
+        self._start_write()
 
         while x < y:
             if f >= 0:
@@ -973,6 +983,8 @@ class ILI9225(Compatibility):
             self.draw_line(x0 - y, y0 - x, x0 - y, y0 + x, color) # left
 
         self.fill_rectangle(x0 - x, y0 - y, x0 + x, y0 + y, color)
+        self.spi_close_override = False
+        self._end_write(reuse=False)
 
     def draw_triangle(self, x0, y0, x1, y1, x2, y2, color):
         """
@@ -993,9 +1005,13 @@ class ILI9225(Compatibility):
         :param color: A 16-bit BGR color.
         :type color: int
         """
+        self.spi_close_override = True
+        self._start_write()
         self.draw_line(x0, y0, x1, y1, color)
         self.draw_line(x1, y1, x2, y2, color)
         self.draw_line(x2, y2, x0, y0, color)
+        self.spi_close_override = False
+        self._end_write(reuse=False)
 
     def fill_triangle(self, x0, y0, x1, y1, x2, y2, color):
         """
@@ -1063,6 +1079,8 @@ class ILI9225(Compatibility):
         y = y0
         sa = 0
         sb = 0
+        self.spi_close_override = True
+        self._start_write()
 
         while y <= last:
             a = x0 + sa / dy11
@@ -1094,6 +1112,9 @@ class ILI9225(Compatibility):
             if a > b: a, b = b, a
             self.draw_line(a, y, b, y, color)
             y += 1
+
+        self.spi_close_override = False
+        self._end_write(reuse=False)
 
     def draw_line(self, x0, y0, x1, y1, color):
         """
@@ -1130,6 +1151,9 @@ class ILI9225(Compatibility):
         else:
             ystep = -1
 
+        self.spi_close_override = True
+        self._start_write()
+
         while x0 <= x1:
             if steep:
                 self.draw_pixel(y0, x0, color)
@@ -1143,6 +1167,9 @@ class ILI9225(Compatibility):
                 err += dx
 
             x0 += 1
+
+        self.spi_close_override = False
+        self._end_write(reuse=False)
 
     def draw_pixel(self, x0, y0, color):
         """
@@ -1161,7 +1188,7 @@ class ILI9225(Compatibility):
             self._write_register(self.CMD_RAM_ADDR_SET1, x0)
             self._write_register(self.CMD_RAM_ADDR_SET2, y0)
             self._write_register(self.CMD_GRAM_DATA_REG, color)
-            self._end_write()
+            self._end_write(reuse=False)
 
     def rgb16_to_bgr16(color):
         """
@@ -1246,6 +1273,8 @@ class ILI9225(Compatibility):
         wy1 = (self._max_y if y + h > self._max_y else y + h) - 1
         wh = wy1 - wy0 + 1
 
+        self.spi_close_override = True
+        self._start_write()
         self._set_window(wx0, wy0, wx1, wy1, AutoIncMode.L2R_TOP_DOWN)
 
         for j in range((0 if y >= 0 else -y) + wh):
@@ -1266,16 +1295,15 @@ class ILI9225(Compatibility):
                             self.draw_pixel(x + i, y + j, color)
                             no_auto_inc = False
                         else:
-                            self._start_write()
                             self._write_data(color)
-                            self._end_write()
                     elif transparent:
                         # No autoincrement in transparent area!
                         no_auto_inc = True
                     else:
-                        self._start_write()
                         self._write_data(bg)
-                        self._end_write()
+
+        self.spi_close_override = False
+        self._end_write(reuse=False)
 
     def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):
         """
@@ -1337,7 +1365,7 @@ class ILI9225(Compatibility):
             self._write_register(self.CMD_RAM_ADDR_SET2, y0)
 
         self._write_command(self.CMD_GRAM_DATA_REG)
-        self._end_write()
+        self._end_write(reuse=False)
 
     def _reset_window(self):
         self._start_write()
@@ -1347,7 +1375,7 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1,
                              self.LCD_HEIGHT - 1)
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0)
-        self._end_write()
+        self._end_write(reuse=False)
 
     def _write_register(self, command, data):
         self._write_command(command)
@@ -1360,7 +1388,7 @@ class ILI9225(Compatibility):
             result = self.spi_write(command)
             self.digital_write(self._cs, self.HIGH)
         except CompatibilityException as e:
-            self._end_write()
+            self._end_write(reuse=False)
             raise e
         else:
             result = 'Command: {}\n'.format(result) if self.TESTING else ""
@@ -1373,7 +1401,7 @@ class ILI9225(Compatibility):
             result = self.spi_write(data)
             self.digital_write(self._cs, self.HIGH)
         except CompatibilityException as e:
-            self._end_write()
+            self._end_write(reuse=False)
             raise e
         else:
             result = '   Data: {}\n'.format(result) if self.TESTING else ""
@@ -1402,7 +1430,6 @@ class ILI9225(Compatibility):
             self.spi_start_transaction()
             self.digital_write(self._cs, self.LOW)
 
-
     ## def _end_write(self):
     ##     self._write_function_level -= 1
 
@@ -1415,6 +1442,9 @@ class ILI9225(Compatibility):
     ##         print(msg)
 
     def _end_write(self, reuse=True):
+        if self.spi_close_override:
+            reuse = True
+
         if not reuse and self.is_spi_connected():
             self.digital_write(self._cs, self.HIGH)
             self.spi_end_transaction()
