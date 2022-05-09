@@ -205,7 +205,7 @@ class ILI9225(Compatibility):
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
-        self._write_function_level = 0
+        ## self._write_function_level = 0
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
@@ -863,10 +863,12 @@ class ILI9225(Compatibility):
         :param color: A 16-bit BGR color.
         :type color: int
         """
+        self._start_write()
         self.draw_line(x0, y0, x0, y1, color)
         self.draw_line(x0, y0, x1, y0, color)
         self.draw_line(x0, y1, x1, y1, color)
         self.draw_line(x1, y0, x1, y1, color)
+        self._end_write(reuse=False)
 
     def fill_rectangle(self, x0, y0, x1, y1, color):
         """
@@ -890,7 +892,7 @@ class ILI9225(Compatibility):
         for t in range(1, ((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)[::-1]:
             self._write_data(color)
 
-        self._end_write()
+        self._end_write(reuse=False)
         self._reset_window()
 
     def draw_circle(self, x0, y0, radius, color):
@@ -1385,26 +1387,37 @@ class ILI9225(Compatibility):
 
             self._spi_buff.write(data)
 
+    ## def _start_write(self):
+    ##     if self._write_function_level == 0:
+    ##         self.spi_start_transaction()
+    ##         self.digital_write(self._cs, self.LOW)
+    ##         self._write_function_level += 1
+    ##     else:
+    ##         msg = ("DEBUG: Could not start write, _write_function_level = {}."
+    ##                ).format(self._write_function_level)
+    ##         print(msg)
+
     def _start_write(self):
-        if self._write_function_level == 0:
+        if not self.is_spi_connected():
             self.spi_start_transaction()
             self.digital_write(self._cs, self.LOW)
-            self._write_function_level += 1
-        else:
-            msg = ("DEBUG: Could not start write, _write_function_level = {}."
-                   ).format(self._write_function_level)
-            print(msg)
 
-    def _end_write(self):
-        self._write_function_level -= 1
 
-        if self._write_function_level == 0:
+    ## def _end_write(self):
+    ##     self._write_function_level -= 1
+
+    ##     if self._write_function_level == 0:
+    ##         self.digital_write(self._cs, self.HIGH)
+    ##         self.spi_end_transaction()
+    ##     else:
+    ##         msg = ("DEBUG: Could not end write, _write_function_level = {}."
+    ##                ).format(self._write_function_level)
+    ##         print(msg)
+
+    def _end_write(self, reuse=True):
+        if not reuse and self.is_spi_connected():
             self.digital_write(self._cs, self.HIGH)
             self.spi_end_transaction()
-        else:
-            msg = ("DEBUG: Could not end write, _write_function_level = {}."
-                   ).format(self._write_function_level)
-            print(msg)
 
     def __repr__(self):
         return "<{} object using {}>".format(

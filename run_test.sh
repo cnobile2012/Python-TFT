@@ -2,6 +2,13 @@
 #
 # Run a single test file with coverage.
 #
+# Arguments can take the following forms. Be aware of the : (colons) below.
+#
+# test.module
+# another.test:TestCase.test_method
+# another.test:TestCase
+# /path/to/test/file.py:test_function
+#
 
 PREFIX=$(pwd)
 COVERAGE_FILE=.coveragerc
