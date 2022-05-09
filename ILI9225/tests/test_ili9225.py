@@ -710,10 +710,8 @@ class TestILI9225(unittest.TestCase):
         """
         Test that the correct data is sent to the ILI9225 board.
         """
-        x1 = 44
-        y1 = 55
-        x2 = 132
-        y2 = 165
+        x1, y1 = 44, 55
+        x2, y2 = 132, 165
         self._tft.draw_rectangle(x1, y1, x2, y2, Colors.LIGHTGREEN)
         expect = self._read_data_file('draw_rectangle.txt')
         self._run_spi_test(expect, 'test_draw_rectangle')
@@ -723,10 +721,24 @@ class TestILI9225(unittest.TestCase):
         """
         Test that a rectangle area is filled with c color.
         """
-        x1 = 44
-        y1 = 55
-        x2 = 132
-        y2 = 165
+        x1, y1 = 44, 55
+        x2, y2 = 132, 165
         self._tft.fill_rectangle(x1, y1, x2, y2, Colors.LIGHTGREEN)
         expect = self._read_data_file('fill_rectangle.txt')
         self._run_spi_test(expect, 'test_fill_rectangle')
+
+    #@unittest.skip("Temporary")
+    def test_draw_circle(self):
+        """
+        Test that a circle is drawn on the display.
+        """
+        x = self._tft.display_max_x / 2
+        y = self._tft.display_max_y / 2
+        radius = 50
+        self._tft.draw_circle(x, y, radius, Colors.BLUE)
+        expect = self._read_data_file('draw_circle.txt')
+        self._run_spi_test(expect, 'test_draw_circle')
+        
+
+
+
