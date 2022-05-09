@@ -728,5 +728,5 @@ class TestILI9225(unittest.TestCase):
         x2 = 132
         y2 = 165
         self._tft.fill_rectangle(x1, y1, x2, y2, Colors.LIGHTGREEN)
-        expect = ()
+        expect = self._read_data_file('fill_rectangle.txt')
         self._run_spi_test(expect, 'test_fill_rectangle')
