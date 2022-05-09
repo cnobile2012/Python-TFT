@@ -205,7 +205,6 @@ class ILI9225(Compatibility):
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
-        ## self._write_function_level = 0
         self.__spi_close_override = False
         self._current_font = None
         self._cfont = CurrentFont()
@@ -282,15 +281,11 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_POWER_CTRL5, 0x495F)
         # Set SAP,DSTB,STB
         self._write_register(self.CMD_POWER_CTRL1, 0x0800)
-        ## self._end_write()
         self.delay(10)
-        ## self._start_write()
         # Set APON,PON,AON,VCI1EN,VC
         self._write_register(self.CMD_POWER_CTRL2, 0x103B)
-        ## self._end_write()
         self.delay(50)
 
-        ## self._start_write()
         # Set the display line number and display direction
         self._write_register(self.CMD_DRIVER_OUTPUT_CTRL, 0x011C) # 0x001C
         # Set 1 line inversion
@@ -344,9 +339,7 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_GAMMA_CTRL10, 0x000E)
 
         self._write_register(self.CMD_DISP_CTRL1, 0x0012)
-        ## self._end_write()
         self.delay(50)
-        ## self._start_write()
         self._write_register(self.CMD_DISP_CTRL1, 0x1017)
 
         if self.DEBUG: # pragma: no cover
@@ -432,9 +425,7 @@ class ILI9225(Compatibility):
             self._start_write()
             self._write_register(0x00ff, 0x0000)
             self._write_register(self.CMD_POWER_CTRL1, 0x0000)
-            ## self._end_write()
             self.delay(50)
-            ## self._start_write()
             self._write_register(self.CMD_DISP_CTRL1, 0x1017)
             self._end_write(reuse=False)
             self.delay(200)
@@ -442,9 +433,7 @@ class ILI9225(Compatibility):
             self._start_write()
             self._write_register(0x00ff, 0x0000)
             self._write_register(self.CMD_DISP_CTRL1, 0x0000)
-            ## self._end_write()
             self.delay(50)
-            ## self._start_write()
             self._write_register(self.CMD_POWER_CTRL1, 0x0003)
             self._end_write(reuse=False)
             self.delay(200)
@@ -1413,31 +1402,10 @@ class ILI9225(Compatibility):
 
             self._spi_buff.write(data)
 
-    ## def _start_write(self):
-    ##     if self._write_function_level == 0:
-    ##         self.spi_start_transaction()
-    ##         self.digital_write(self._cs, self.LOW)
-    ##         self._write_function_level += 1
-    ##     else:
-    ##         msg = ("DEBUG: Could not start write, _write_function_level = {}."
-    ##                ).format(self._write_function_level)
-    ##         print(msg)
-
     def _start_write(self):
         if not self.is_spi_connected():
             self.spi_start_transaction()
             self.digital_write(self._cs, self.LOW)
-
-    ## def _end_write(self):
-    ##     self._write_function_level -= 1
-
-    ##     if self._write_function_level == 0:
-    ##         self.digital_write(self._cs, self.HIGH)
-    ##         self.spi_end_transaction()
-    ##     else:
-    ##         msg = ("DEBUG: Could not end write, _write_function_level = {}."
-    ##                ).format(self._write_function_level)
-    ##         print(msg)
 
     def _end_write(self, reuse=True):
         if self.spi_close_override:
