@@ -718,5 +718,15 @@ class TestILI9225(unittest.TestCase):
         expect = self._read_data_file('draw_rectangle.txt')
         self._run_spi_test(expect, 'test_draw_rectangle')
 
-
-
+    #@unittest.skip("Temporary")
+    def test_fill_rectangle(self):
+        """
+        Test that a rectangle area is filled with c color.
+        """
+        x1 = 44
+        y1 = 55
+        x2 = 132
+        y2 = 165
+        self._tft.fill_rectangle(x1, y1, x2, y2, Colors.LIGHTGREEN)
+        expect = ()
+        self._run_spi_test(expect, 'test_fill_rectangle')
