@@ -794,9 +794,9 @@ class TestILI9225(unittest.TestCase):
         x0, y0 = 88, 75
         self._tft.draw_pixel(x0, y0, Colors.BLUE)
         expect = [
-            ['CMD_RAM_ADDR_SET1', 32, [88]],
-            ['CMD_RAM_ADDR_SET2', 33, [75]],
-            ['CMD_GRAM_DATA_REG', 34, [31]]
+            [self._tft.CMD_RAM_ADDR_SET1, 1, 88],
+            [self._tft.CMD_RAM_ADDR_SET2, 1, 75],
+            [self._tft.CMD_GRAM_DATA_REG, 1, 31]
             ]
         self._run_spi_test(expect, 'test_draw_pixel')
 
