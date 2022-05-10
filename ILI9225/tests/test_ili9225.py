@@ -9,7 +9,7 @@ import re
 from ILI9225 import ILI9225
 from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont, GFXGlyph
 from utils import (Boards, TFTException, CompatibilityException,
-                   Terminal12x16, BGR16BitColor as Colors)
+                   Terminal12x16, RGB16BitColor as Colors)
 from fonts.FreeSerifItalic18pt7b import FreeSerifItalic18pt7b
 
 
@@ -750,5 +750,33 @@ class TestILI9225(unittest.TestCase):
         self._tft.fill_circle(x, y, radius, Colors.BLUE)
         expect = self._read_data_file('fill_circle.txt')
         self._run_spi_test(expect, 'test_fill_circle')
+
+    #@unittest.skip("Temporary")
+    def test_draw_triangle(self):
+        """
+        Test that a triangle is correctly drawn on the display.
+        """
+        x0, y0 = 88, 165
+        x1, y1 = 44, 55
+        x2, y2 = 132, 55
+        self._tft.draw_triangle(x0, y0, x1, y1, x2, y2, Colors.RED)
+        expect = () #self._read_data_file('draw_triangle.txt')
+        self._run_spi_test(expect, 'test_draw_triangle')
+
+    #@unittest.skip("Temporary")
+    def test_fill_triangle(self):
+        """
+        Test that a filled triangle is correctly drawn on the display.
+        """
+        x0, y0 = 88, 165
+        x1, y1 = 44, 55
+        x2, y2 = 132, 55
+        self._tft.fill_triangle(x0, y0, x1, y1, x2, y2, Colors.BLUE)
+        expect = () #self._read_data_file('fill_triangle.txt')
+        self._run_spi_test(expect, 'test_fill_triangle')
+
+
+
+
 
 
