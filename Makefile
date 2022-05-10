@@ -23,8 +23,8 @@ rpi-tests: clean
 	@rm -rf $(DOCS_DIR)/htmlcov
 	@coverage erase --rcfile=$(COVERAGE_FILE)
 	@export TFT_TESTING=True; \
-        $$VIRTUAL_ENV/bin/coverage run --rcfile=$(COVERAGE_FILE) \
-                                   $$VIRTUAL_ENV/bin/nosetests
+        $${VIRTUAL_ENV}/bin/coverage run --rcfile=$(COVERAGE_FILE) \
+                                     $${VIRTUAL_ENV}/bin/nosetests
 	@coverage report --rcfile=$(COVERAGE_FILE)
 	@coverage html --rcfile=$(COVERAGE_FILE)
 	@echo $(TODAY)
@@ -53,9 +53,8 @@ python-api:
 .PHONY	: clean
 clean	:
 	$(shell $(RM_CMD))
-#	@(cd ${DOCS_DIR}; make clean)
+	@(cd ${DOCS_DIR}; make clean)
 
 .PHONY	: clobber
 clobber	: clean
-#	@(cd $(DOCS_DIR); make clobber)
 	@rm -rf build dist ${PACKAGE_DIR}.egg-info

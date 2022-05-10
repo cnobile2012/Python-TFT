@@ -979,17 +979,17 @@ class ILI9225(Compatibility):
         """
         Draw a triangle using triangular coordinates.
 
-        :param x0: Start point coordinate (x0-axis).
+        :param x0: Corner 1 coordinate (x-axis).
         :type x0: int
-        :param y0: Center point coordinate (y0-axis).
+        :param y0: Corner 1 coordinate (y-axis).
         :type y0: int
-        :param x1: Center point coordinate (x1-axis).
+        :param x1: Corner 2 coordinate (x-axis).
         :type x1: int
-        :param y1: Center point coordinate (y1-axis).
+        :param y1: Corner 2 coordinate (y-axis).
         :type y1: int
-        :param x2: Center point coordinate (x1-axis).
+        :param x2: Corner 3 coordinate (x-axis).
         :type x2: int
-        :param y2: Center point coordinate (y1-axis).
+        :param y2: Corner 3 coordinate (y-axis).
         :type y2: int
         :param color: A 16-bit BGR color.
         :type color: int
@@ -1006,17 +1006,17 @@ class ILI9225(Compatibility):
         """
         Fill solid triangle using triangular coordinates.
 
-        :param x0: Start point coordinate (x0-axis).
+        :param x0: Corner 1 coordinate (x-axis).
         :type x0: int
-        :param y0: Center point coordinate (y0-axis).
+        :param y0: Corner 1 coordinate (y-axis).
         :type y0: int
-        :param x1: Center point coordinate (x1-axis).
+        :param x1: Corner 2 coordinate (x-axis).
         :type x1: int
-        :param y1: Center point coordinate (y1-axis).
+        :param y1: Corner 2 coordinate (y-axis).
         :type y1: int
-        :param x2: Center point coordinate (x1-axis).
+        :param x2: Corner 3 coordinate (x-axis).
         :type x2: int
-        :param y2: Center point coordinate (y1-axis).
+        :param y2: Corner 3 coordinate (y-axis).
         :type y2: int
         :param color: A 16-bit BGR color.
         :type color: int
@@ -1052,7 +1052,7 @@ class ILI9225(Compatibility):
         dx12 = x2 - x0
         dy12 = y2 - y0
         dx22 = x2 - x1
-        dx22 = y2 - y1
+        dy22 = y2 - y1
 
         # For upper part of triangle, find scanline crossings for segments
         # 0-1 and 0-2.  If y1=y2 (flat-bottomed triangle), the scanline y2
