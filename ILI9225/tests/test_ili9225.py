@@ -748,7 +748,7 @@ class TestILI9225(unittest.TestCase):
         y = self._tft.display_max_y / 2
         radius = 50
         self._tft.fill_circle(x, y, radius, Colors.BLUE)
-        expect = () #self._read_data_file('draw_circle.txt')
+        expect = self._read_data_file('fill_circle.txt')
         self._run_spi_test(expect, 'test_fill_circle')
 
 
