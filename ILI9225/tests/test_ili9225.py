@@ -783,7 +783,7 @@ class TestILI9225(unittest.TestCase):
         x0, y0 = 88, 75
         x1, y1 = 88, 145
         self._tft.draw_line(x0, y0, x1, y1, Colors.RED)
-        expect = () #self._read_data_file('draw_line.txt')
+        expect = self._read_data_file('draw_line.txt')
         self._run_spi_test(expect, 'test_draw_line')
 
     #@unittest.skip("Temporary")
@@ -793,7 +793,11 @@ class TestILI9225(unittest.TestCase):
         """
         x0, y0 = 88, 75
         self._tft.draw_pixel(x0, y0, Colors.BLUE)
-        expect = () #self._read_data_file('draw_pixel.txt')
+        expect = [
+            ['CMD_RAM_ADDR_SET1', 32, [88]],
+            ['CMD_RAM_ADDR_SET2', 33, [75]],
+            ['CMD_GRAM_DATA_REG', 34, [31]]
+            ]
         self._run_spi_test(expect, 'test_draw_pixel')
 
 
