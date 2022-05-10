@@ -9,7 +9,7 @@ import os
 
 from utils.compatibility import Compatibility
 from utils import (Boards, TFTException, CompatibilityException,
-                   BGR16BitColor as Colors)
+                   RGB16BitColor as Colors)
 
 
 class AutoIncMode:
@@ -369,7 +369,7 @@ class ILI9225(Compatibility):
         """
         Set the background color of the display.
 
-        :param color: The BGR color for the display, default is black.
+        :param color: The RGB color for the display, default is black.
         :type color: int
         """
         old_orientation = self._orientation
@@ -548,7 +548,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param ch: The character to draw on the display.
         :type ch: str
-        :param color: A 16-bit BGR color (default=white).
+        :param color: A 16-bit RGB color (default=white).
         :type color: int
         :param bg_color: Set the character background color (default = black).
         :type bg_color: int
@@ -617,7 +617,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param s: The string to draw on the display.
         :type s: str
-        :param color: A 16-bit BGR color (default=white).
+        :param color: A 16-bit RGB color (default=white).
         :type color: int
         :param bg_color: Set the character background color (default = black).
         :type bg_color: int
@@ -714,7 +714,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param ch: A single character to draw on the display.
         :type ch: str
-        :param color: A 16-bit BGR color (default=white).
+        :param color: A 16-bit RGB color (default=white).
         :type color: int
         :return: The width of character in display pixels.
         :rtype: int
@@ -757,7 +757,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param s: The string to draw on the display.
         :type s: str
-        :param color: A 16-bit BGR color (default=white).
+        :param color: A 16-bit RGB color (default=white).
         :type color: int
         :return: The position of x after the text is displayed.
         :rtype: int
@@ -785,7 +785,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param ch: The character to draw on the display.
         :type ch: str
-        :param color: A 16-bit BGR color (default=white).
+        :param color: A 16-bit RGB color (default=white).
         :type color: int
         :return: A tuple (gw, gh, xa) where gw is the width in pixels
                  of the character, gh is the height, and xa is the distance
@@ -815,7 +815,7 @@ class ILI9225(Compatibility):
         :type y: int
         :param s: The character to draw on the display.
         :type s: str
-        :param color: A 16-bit BGR color (default=white).
+        :param color: A 16-bit RGB color (default=white).
         :type color: int
         :return: A tuple (w, h) where w is the width of the string and
                  h is the height.
@@ -850,7 +850,7 @@ class ILI9225(Compatibility):
         :type x1: int
         :param y1: Center point coordinate (y1-axis).
         :type y1: int
-        :param color: A 16-bit BGR color.
+        :param color: A 16-bit RGB color.
         :type color: int
         """
         self._start_write()
@@ -872,7 +872,7 @@ class ILI9225(Compatibility):
         :type x1: int
         :param y1: Center point coordinate (y1-axis).
         :type y1: int
-        :param color: A 16-bit BGR color
+        :param color: A 16-bit RGB color
         :type color: int
         """
         self.spi_close_override = True
@@ -897,7 +897,7 @@ class ILI9225(Compatibility):
         :type y0: int
         :param radius: The radius of the circle.
         :type radius: int
-        :param color: A 16-bit BGR color.
+        :param color: A 16-bit RGB color.
         :type color: int
         """
         f = 1 - radius
@@ -945,7 +945,7 @@ class ILI9225(Compatibility):
         :type y0: int
         :param radius: The radius of the circle.
         :type radius: int
-        :param color: A 16-bit BGR color.
+        :param color: A 16-bit RGB color.
         :type color: int
         """
         f = 1 - radius
@@ -991,7 +991,7 @@ class ILI9225(Compatibility):
         :type x2: int
         :param y2: Corner 3 coordinate (y-axis).
         :type y2: int
-        :param color: A 16-bit BGR color.
+        :param color: A 16-bit RGB color.
         :type color: int
         """
         self.spi_close_override = True
@@ -1018,7 +1018,7 @@ class ILI9225(Compatibility):
         :type x2: int
         :param y2: Corner 3 coordinate (y-axis).
         :type y2: int
-        :param color: A 16-bit BGR color.
+        :param color: A 16-bit RGB color.
         :type color: int
         """
         # Sort coordinates by Y order (y2 >= y1 >= y0)
@@ -1117,7 +1117,7 @@ class ILI9225(Compatibility):
         :type x1: int
         :param y1: Center point coordinate (y1-axis).
         :type y1: int
-        :param color: A 16-bit BGR color.
+        :param color: A 16-bit RGB color.
         :type color: int
         """
         # Classic Bresenham algorithm
@@ -1166,7 +1166,7 @@ class ILI9225(Compatibility):
         :type x0: int
         :param y0: Point coordinate (y-axis).
         :type y0: int
-        :param color: A 16-bit BGR color.
+        :param color: A 16-bit RGB color.
         :type color: int
         """
         if not ((x0 >= self._max_x) or (y0 >= self._max_y)):
@@ -1192,9 +1192,9 @@ class ILI9225(Compatibility):
         :type w: int
         :param h: Height
         :type h: int
-        :param color: A 16-bit BGR color (default=white).
+        :param color: A 16-bit RGB color (default=white).
         :type color: int
-        :param bg: A 16-bit BGR background color.
+        :param bg: A 16-bit RGB background color.
         :type bg: int
         :param transparent: True = transparent bitmap, False = not transparent.
         :type transparent: bool
