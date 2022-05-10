@@ -760,7 +760,7 @@ class TestILI9225(unittest.TestCase):
         x1, y1 = 44, 55
         x2, y2 = 132, 55
         self._tft.draw_triangle(x0, y0, x1, y1, x2, y2, Colors.RED)
-        expect = () #self._read_data_file('draw_triangle.txt')
+        expect = self._read_data_file('draw_triangle.txt')
         self._run_spi_test(expect, 'test_draw_triangle')
 
     #@unittest.skip("Temporary")
@@ -772,7 +772,7 @@ class TestILI9225(unittest.TestCase):
         x1, y1 = 44, 55
         x2, y2 = 132, 55
         self._tft.fill_triangle(x0, y0, x1, y1, x2, y2, Colors.BLUE)
-        expect = () #self._read_data_file('fill_triangle.txt')
+        expect = self._read_data_file('fill_triangle.txt')
         self._run_spi_test(expect, 'test_fill_triangle')
 
 
