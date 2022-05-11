@@ -92,7 +92,8 @@ class ILI9225(Compatibility):
     try:
         DEBUG = eval(os.getenv('TFT_DEBUG', default='False'))
         TESTING = eval(os.getenv('TFT_TESTING', default='False'))
-    except AttributeError: # MicroPython and CircuitPython will raise
+    except AttributeError: # pragma: no cover
+        # MicroPython and CircuitPython will raise
         DEBUG = False
         TESTING = False
 
@@ -266,7 +267,7 @@ class ILI9225(Compatibility):
         self.delay(50)
 
         if self.DEBUG: # pragma: no cover
-            print("Finished setting up pins.")
+            print("begin: Finished setting up pins.")
 
         # Power-on sequence
         self._start_write()
@@ -309,7 +310,7 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_RAM_ADDR_SET2, 0x0000)
 
         if self.DEBUG: # pragma: no cover
-            print("Finished power-on sequence.")
+            print("begin: Finished power-on sequence.")
 
         # Set GRAM area
         self._write_register(self.CMD_GATE_SCAN_CTRL, 0x0000)
@@ -324,7 +325,7 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0x0000)
 
         if self.DEBUG: # pragma: no cover
-            print("Finished set GRAM area.")
+            print("begin: Finished set GRAM area.")
 
         # Adjust GAMMA curve
         self._write_register(self.CMD_GAMMA_CTRL1, 0x0000)
@@ -343,21 +344,21 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_DISP_CTRL1, 0x1017)
 
         if self.DEBUG: # pragma: no cover
-            print("Finished set GAMMA curve.")
+            print("begin: Finished set GAMMA curve.")
 
         # Turn on backlight
         self.set_backlight(True)
         self.set_orientation(0)
 
         if self.DEBUG: # pragma: no cover
-            print("Finished turning on backlight.")
+            print("begin: Finished turning on backlight.")
 
         self.clear()
         self.spi_close_override = False
         self._end_write(reuse=False)
 
         if self.DEBUG: # pragma: no cover
-            print("Finished initialize background color.")
+            print("begin: Finished initialize background color.")
 
     def clear(self):
         """
@@ -1205,13 +1206,19 @@ class ILI9225(Compatibility):
         byte_width = (w + 7) / 8
         byte = 0
         mask_bit = 0x01 if x_bit else 0x80
+
         # Adjust window height/width to display dimensions
-        # DEBUG ONLY -- DB_PRINT("DrawBitmap.. maxX=%d, maxY=%d", _maxX,_maxY)
         wx0 = 0 if x < 0 else x
         wy0 = 0 if y < 0 else y
         wx1 = (self._max_x if x + w > self._max_x else x + w) - 1
         wy1 = (self._max_y if y + h > self._max_y else y + h) - 1
         wh = wy1 - wy0 + 1
+
+        if self.DEBUG: # pragma: no cover
+            print("draw_bitmap: max_x={}, max_y={}".format(
+                self._max_x, self._max_y))
+            print("draw_bitmap: wx0={}, wy0={}, wx1={}, wy1={}".format(
+                wx0, wy0, wx1, wy1))
 
         self.spi_close_override = True
         self._start_write()
@@ -1223,7 +1230,6 @@ class ILI9225(Compatibility):
                     if x_bit: byte >>= 1
                     else: byte <<= 1
                 else:
-                    # pgm_read_byte(bitmap + j * byteWidth + i / 8)
                     byte = bitmap[j * byte_width + i / 8]
 
                 if wx0 <= x + i <= wx1:
@@ -1231,7 +1237,7 @@ class ILI9225(Compatibility):
                     if byte & mask_bit:
                         if no_auto_inc:
                             # There was a transparent area,
-                            # set pixel coordinates again
+                            # set pixel coordinates again.
                             self.draw_pixel(x + i, y + j, color)
                             no_auto_inc = False
                         else:
