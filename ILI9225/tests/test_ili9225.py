@@ -832,12 +832,12 @@ class TestILI9225(unittest.TestCase):
     #@unittest.skip("Temporary")
     def test_rgb24_to_rgb16(self):
         """
-        Test that a 24 bit RGB color is correctly converted to a
+        Test that a 24 bit RGB components is correctly converted to a
         16 bit RGB color.
         """
-        rgb24_red_red = 0xFF # 24 bit RED
-        rgb24_red_grn = 0x00 # 24 bit RED
-        rgb24_red_blu = 0x00 # 24 bit RED
+        rgb24_red_red = 0xFF # 24 bit RED component
+        rgb24_red_grn = 0x00 # 24 bit GRN component
+        rgb24_red_blu = 0x00 # 24 bit BLU component
         rgb16_red = Colors.RED
         found_color = self._tft.rgb24_to_rgb16(
             rgb24_red_red, rgb24_red_grn, rgb24_red_blu)
@@ -848,17 +848,17 @@ class TestILI9225(unittest.TestCase):
     def test_rgb16_to_rgb24(self):
         """
         Test that a 16 bit RGB color is correctly converted to a
-        24 bit RGB color.
+        24 bit RGB components.
         """
         rgb16_red = Colors.RED
         rgb24_red_red = 0xFF # 24 bit RED
         rgb24_red_grn = 0x00 # 24 bit RED
         rgb24_red_blu = 0x00 # 24 bit RED
-        found_color = self._tft.rgb16_to_rgb24(rgb16_red)
+        found_components = self._tft.rgb16_to_rgb24(rgb16_red)
         msg = "Expect RGB 24 color  {} component '{}' found '{}'"
-        self.assertEqual(rgb24_red_red, found_color[0], msg=msg.format(
-            'RED', rgb24_red_red, found_color[0))
-        self.assertEqual(rgb24_red_grn, found_color[1], msg=msg.format(
-            'GRN', rgb24_red_grn, found_color[1))
-        self.assertEqual(rgb24_red_blu, found_color[2], msg=msg.format(
-            'RED', rgb24_red_blu, found_color[2))
+        self.assertEqual(rgb24_red_red, found_components[0], msg=msg.format(
+            'RED', rgb24_red_red, found_components[0]))
+        self.assertEqual(rgb24_red_grn, found_components[1], msg=msg.format(
+            'GRN', rgb24_red_grn, found_components[1]))
+        self.assertEqual(rgb24_red_blu, found_components[2], msg=msg.format(
+            'BLU', rgb24_red_blu, found_components[2]))
