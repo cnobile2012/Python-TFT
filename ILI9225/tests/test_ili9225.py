@@ -9,7 +9,7 @@ import unittest
 from ILI9225 import ILI9225
 from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont, GFXGlyph
 from utils import (Boards, TFTException, CompatibilityException,
-                   Terminal12x16, RGB16BitColor as Colors)
+                   Terminal12x16, BGR16BitColor, RGB16BitColor as Colors)
 from fonts.FreeSerifItalic18pt7b import FreeSerifItalic18pt7b
 
 
@@ -800,7 +800,7 @@ class TestILI9225(unittest.TestCase):
             ]
         self._run_spi_test(expect, 'test_draw_pixel')
 
-    #@unittest.skip("Temporary")
+    @unittest.skip("Temporary")
     def test_draw_bitmap(self):
         """
         Test that a bitmap image is correctly drawn to the display.
@@ -816,3 +816,39 @@ class TestILI9225(unittest.TestCase):
         self._tft.draw_bitmap(x, y, bitmap, 220, 176, Colors.LIGHTGREY)
         expect = () #self._read_data_file('draw_bitmap.txt')
         self._run_spi_test(expect, 'test_draw_bitmap')
+
+    #@unittest.skip("Temporary")
+    def test_rgb16_to_bgr16(self):
+        """
+        Test that a 16 bit RGB color is correctly converted to a
+        16 bit BGR color.
+        """
+        rgb_blue = Colors.BLUE
+        bgr_blue = BGR16BitColor.BLUE
+        found_color = self._tft.rgb16_to_bgr16(rgb_blue)
+        msg = f"Expect BGR color '{bgr_blue}' found '{found_color}'"
+        self.assertEqual(bgr_blue, found_color, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_rgb24_to_rgb16(self):
+        """
+        Test that a 24 bit RGB color is correctly converted to a
+        16 bit RGB color.
+        """
+        rgb24_red = 0xFF0000 # 24 bit RED
+        rgb16_red = Colors.RED
+        found_color = self._tft.rgb24_to_rgb16(rgb24_red)
+        msg = f"Expect RGB 16 color '{rgb16_red}' found '{found_color}'"
+        self.assertEqual(rgb16_red, found_color, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_rgb16_to_rgb24(self):
+        """
+        Test that a 16 bit RGB color is correctly converted to a
+        24 bit RGB color.
+        """
+        rgb16_red = Colors.RED
+        rgb24_red = 0xFF0000 # 24 bit RED
+        found_color = self._tft.rgb16_to_rgb24(rgb16_red)
+        msg = f"Expect RGB 24 color '{rgb24_red}' found '{found_color}'"
+        self.assertEqual(rgb24_red, found_color, msg=msg)

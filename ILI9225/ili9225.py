@@ -1230,7 +1230,7 @@ class ILI9225(Compatibility):
                     if x_bit: byte >>= 1
                     else: byte <<= 1
                 else:
-                    byte = bitmap[j * byte_width + i / 8]
+                    byte = bitmap[round(j * byte_width + i / 8)]
 
                 if wx0 <= x + i <= wx1:
                     # Write only if pixel is within window.
