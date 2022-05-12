@@ -110,6 +110,7 @@ class TestILI9225(unittest.TestCase):
 
     REGEX_DATA = re.compile(
         r"Command: (0x[\dA-Fa-f]+)|   Data: (0x[\dA-Fa-f]+)")
+    REGEX_REPR = re.compile(r"^.+the (?P<platform>.+) platform.+$")
 
     CMD_NAMES = [cmd for cmd in dir(ILI9225) if cmd.startswith('CMD_')]
     CMD_NAMES_REV = {getattr(ILI9225, n): n for n in CMD_NAMES}
@@ -862,3 +863,36 @@ class TestILI9225(unittest.TestCase):
             'GRN', rgb24_red_grn, found_components[1]))
         self.assertEqual(rgb24_red_blu, found_components[2], msg=msg.format(
             'BLU', rgb24_red_blu, found_components[2]))
+
+    #@unittest.skip("Temporary")
+    def test__set_window(self):
+        """
+        Test that the _set_window() method creates a window to draw in which
+        is smaller than the size of the full display.
+        """
+        tests = ((59, 73, 117, 147),
+                 (73, 59, 147, 117),
+                 (59, 73, 117, 147),
+                 (73, 59, 147, 117))
+        expect = ()
+
+        for o in range(4)[::-1]: # Count backwards
+            self._tft.set_orientation(0)
+            x, y, x1, y1 = tests[o]
+
+            for mode in [m for m in dir(AutoIncMode) if not m.startswith('_')]:
+                self._tft._set_window(x, y, x1, y1, mode)
+                self._run_spi_test(expect, 'test__set_window')
+                self._tft._reset_window()
+                self._read_spi_buff('dummy') # Clear the previous data.
+
+    #@unittest.skip("Temporary")
+    def test___repr__(self):
+        """
+        Test that the __repr__ method work correctly.
+        """
+        rpi_name = self._tft.PLATFORM
+        sre = REGEX_REPR.search(str(self._tft))
+        found = sre.group('platform')
+        msg = f"The platform should be '{rpi_name}' found '{found}'"
+        self.assertEqual(rpi_name, found, msg=msg)

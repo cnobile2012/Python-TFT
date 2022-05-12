@@ -100,7 +100,6 @@ class ILI9225(Compatibility):
     ERROR_MSGS = {
         'STD_FONT': "Please set a standard font before using this method.",
         'GFX_FONT': "Please set a GFX font before using this method.",
-        'SET_WINDOW': "Invalid orientation: {} (0..2) or mode: {} (0..7), {}"
         }
 
     LCD_WIDTH                   = 176
@@ -202,7 +201,7 @@ class ILI9225(Compatibility):
         self._sdi = sdi
         self._clk = clk
         self._brightness = brightness # Set to maximum brightness.
-        self._orientation = 0
+        self.__orientation = 0
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
@@ -348,7 +347,7 @@ class ILI9225(Compatibility):
 
         # Turn on backlight
         self.set_backlight(True)
-        self.set_orientation(0)
+        self.set__orientation(0)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished turning on backlight.")
@@ -373,7 +372,7 @@ class ILI9225(Compatibility):
         :param color: The RGB color for the display, default is black.
         :type color: int
         """
-        old_orientation = self._orientation
+        old_orientation = self.__orientation
         self.set_orientation(0)
         self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1, color)
         self.set_orientation(old_orientation)
@@ -447,18 +446,18 @@ class ILI9225(Compatibility):
                             2=reverse portrait, 3=left rotated landscape
         :type orientation: int
         """
-        self._orientation = orientation % 4
+        self.__orientation = orientation % 4
 
-        if self._orientation == 0:
+        if self.__orientation == 0: # 0=portrait
             self._max_x = self.LCD_WIDTH
             self._max_y = self.LCD_HEIGHT
-        elif self._orientation == 1:
+        elif self.__orientation == 1: # 1=right rotated landscape
             self._max_x = self.LCD_HEIGHT
             self._max_y = self.LCD_WIDTH
-        elif self._orientation == 2:
+        elif self.__orientation == 2: # 2=reverse portrait
             self._max_x = self.LCD_WIDTH
             self._max_y = self.LCD_HEIGHT
-        elif self._orientation == 3:
+        elif self.__orientation == 3: # 3=left rotated landscape
             self._max_x = self.LCD_HEIGHT
             self._max_y = self.LCD_WIDTH
 
@@ -469,20 +468,20 @@ class ILI9225(Compatibility):
         :return: Return the current orientation.
         :rtype: int
         """
-        return self._orientation
+        return self.__orientation
 
     def _orient_coordinates(self, x, y):
-        if self._orientation == 1:
+        if self.__orientation == 1:
             y = self._max_y - y - 1
             x, y = y, x
-        elif self._orientation == 2:
+        elif self.__orientation == 2:
             x = self._max_x - x - 1
             y = self._max_y - y - 1
-        elif self._orientation == 3:
+        elif self.__orientation == 3:
             x = self._max_x - x - 1
             x, y = y, x
 
-        # if self._orientation == 0: We fall through.
+        # if self.__orientation == 0: We fall through.
         return x, y
 
     @property
@@ -1299,7 +1298,7 @@ class ILI9225(Compatibility):
 
     def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):
         """
-        Set the window orientation.
+        Set the window that will be drawn using the current orientation.
 
         :param x0: Start x coordinent.
         :type x0: int
@@ -1325,13 +1324,8 @@ class ILI9225(Compatibility):
         if y1 < y0: y0, y1 = y1, y0
 
         # Autoincrement mode
-        if self._orientation > 0:
-            try:
-                mode = self._MODE_TAB[self._orientation - 1][mode]
-            except IndexError as e:
-                msg = self.ERROR_MSGS.get('SET_WINDOW').format(
-                    self._orientation, mode, e)
-                raise TFTException(msg)
+        if self.__orientation > 0:
+            mode = self._MODE_TAB[self.__orientation - 1][mode]
 
         self._start_write()
         self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3))
@@ -1379,7 +1373,7 @@ class ILI9225(Compatibility):
             self.digital_write(self._cs, self.LOW)
             result = self.spi_write(command)
             self.digital_write(self._cs, self.HIGH)
-        except CompatibilityException as e:
+        except CompatibilityException as e: # pragma: no cover
             self._end_write(reuse=False)
             raise e
         else:
@@ -1392,7 +1386,7 @@ class ILI9225(Compatibility):
             self.digital_write(self._cs, self.LOW)
             result = self.spi_write(data)
             self.digital_write(self._cs, self.HIGH)
-        except CompatibilityException as e:
+        except CompatibilityException as e: # pragma: no cover
             self._end_write(reuse=False)
             raise e
         else:
@@ -1421,5 +1415,5 @@ class ILI9225(Compatibility):
             self.spi_end_transaction()
 
     def __repr__(self):
-        return "<{} object using {}>".format(
+        return "<{} object using the {} platform>".format(
             self.__class__.__name__, self.PLATFORM)
