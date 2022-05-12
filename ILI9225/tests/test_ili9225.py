@@ -835,9 +835,12 @@ class TestILI9225(unittest.TestCase):
         Test that a 24 bit RGB color is correctly converted to a
         16 bit RGB color.
         """
-        rgb24_red = 0xFF0000 # 24 bit RED
+        rgb24_red_red = 0xFF # 24 bit RED
+        rgb24_red_grn = 0x00 # 24 bit RED
+        rgb24_red_blu = 0x00 # 24 bit RED
         rgb16_red = Colors.RED
-        found_color = self._tft.rgb24_to_rgb16(rgb24_red)
+        found_color = self._tft.rgb24_to_rgb16(
+            rgb24_red_red, rgb24_red_grn, rgb24_red_blu)
         msg = f"Expect RGB 16 color '{rgb16_red}' found '{found_color}'"
         self.assertEqual(rgb16_red, found_color, msg=msg)
 
@@ -848,7 +851,14 @@ class TestILI9225(unittest.TestCase):
         24 bit RGB color.
         """
         rgb16_red = Colors.RED
-        rgb24_red = 0xFF0000 # 24 bit RED
+        rgb24_red_red = 0xFF # 24 bit RED
+        rgb24_red_grn = 0x00 # 24 bit RED
+        rgb24_red_blu = 0x00 # 24 bit RED
         found_color = self._tft.rgb16_to_rgb24(rgb16_red)
-        msg = f"Expect RGB 24 color '{rgb24_red}' found '{found_color}'"
-        self.assertEqual(rgb24_red, found_color, msg=msg)
+        msg = "Expect RGB 24 color  {} component '{}' found '{}'"
+        self.assertEqual(rgb24_red_red, found_color[0], msg=msg.format(
+            'RED', rgb24_red_red, found_color[0))
+        self.assertEqual(rgb24_red_grn, found_color[1], msg=msg.format(
+            'GRN', rgb24_red_grn, found_color[1))
+        self.assertEqual(rgb24_red_blu, found_color[2], msg=msg.format(
+            'RED', rgb24_red_blu, found_color[2))

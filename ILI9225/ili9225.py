@@ -1251,7 +1251,7 @@ class ILI9225(Compatibility):
         self.spi_close_override = False
         self._end_write(reuse=False)
 
-    def rgb16_to_bgr16(color):
+    def rgb16_to_bgr16(self, color):
         """
         Convert 16-bit RGB to 16-bit BGR color format.
 
