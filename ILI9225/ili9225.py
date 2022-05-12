@@ -1279,7 +1279,6 @@ class ILI9225(Compatibility):
         :return: An 16-bit RGB color.
         :rtype: int
         """
-        #return ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3)
         return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
                 (round((0x3F * (green + 2)) / 0xFF) << 5) |
                 round((0x1F * (blue + 4)) / 0xFF))
@@ -1293,9 +1292,9 @@ class ILI9225(Compatibility):
         :return: A tuple of the RGB 8-bit components, (red, grn, blu).
         :rtype: tuple
         """
-        red = (color & 0b1111100000000000) >> 11 << 3
-        grn = (color & 0b0000011111100000) >> 5 << 2
-        blu = (color & 0b0000000000011111) << 3
+        red = round((0xFF * ((color & 0b1111100000000000) + 4)) / 0x1F) >> 11
+        grn = round((0xFF * ((color & 0b0000011111100000) + 2)) / 0x3F) >> 5
+        blu = round((0xFF * (color & 0b0000000000011111)) / 0x1F)
         return red, grn, blu
 
     def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):

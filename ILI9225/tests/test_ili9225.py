@@ -851,9 +851,9 @@ class TestILI9225(unittest.TestCase):
         24 bit RGB components.
         """
         rgb16_red = Colors.RED
-        rgb24_red_red = 0xFF # 24 bit RED
-        rgb24_red_grn = 0x00 # 24 bit RED
-        rgb24_red_blu = 0x00 # 24 bit RED
+        rgb24_red_red = 0xFF # 24 bit RED component
+        rgb24_red_grn = 0x00 # 24 bit GRN component
+        rgb24_red_blu = 0x00 # 24 bit BLU component
         found_components = self._tft.rgb16_to_rgb24(rgb16_red)
         msg = "Expect RGB 24 color  {} component '{}' found '{}'"
         self.assertEqual(rgb24_red_red, found_components[0], msg=msg.format(
