@@ -20,7 +20,6 @@ all	: doc tar
 
 .PHONY	: rpi-tests
 rpi-tests: clean
-	@rm -rf $(DOCS_DIR)/htmlcov
 	@coverage erase --rcfile=$(COVERAGE_FILE)
 	@export TFT_TESTING=True; \
         $${VIRTUAL_ENV}/bin/coverage run --rcfile=$(COVERAGE_FILE) \
@@ -30,6 +29,7 @@ rpi-tests: clean
 
 .PHONY	: rpi-html
 rpi-html:
+	@rm -rf $(DOCS_DIR)/htmlcov
 	@coverage html --rcfile=$(COVERAGE_FILE)
 
 .PHONY	: sphinx
