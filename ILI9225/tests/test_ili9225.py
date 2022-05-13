@@ -880,7 +880,8 @@ class TestILI9225(unittest.TestCase):
             self._tft.set_orientation(0)
             x, y, x1, y1 = tests[o]
 
-            for mode in [m for m in dir(AutoIncMode) if not m.startswith('_')]:
+            for mode in [getattr(AutoIncMode, m)
+                         for m in dir(AutoIncMode) if not m.startswith('_')]:
                 self._tft._set_window(x, y, x1, y1, mode)
                 self._run_spi_test(expect, 'test__set_window')
                 self._tft._reset_window()
@@ -892,7 +893,7 @@ class TestILI9225(unittest.TestCase):
         Test that the __repr__ method work correctly.
         """
         rpi_name = self._tft.PLATFORM
-        sre = REGEX_REPR.search(str(self._tft))
+        sre = self.REGEX_REPR.search(str(self._tft))
         found = sre.group('platform')
         msg = f"The platform should be '{rpi_name}' found '{found}'"
         self.assertEqual(rpi_name, found, msg=msg)

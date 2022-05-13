@@ -347,7 +347,7 @@ class ILI9225(Compatibility):
 
         # Turn on backlight
         self.set_backlight(True)
-        self.set__orientation(0)
+        self.set_orientation(0)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished turning on backlight.")
