@@ -362,9 +362,10 @@ class TestILI9225(unittest.TestCase):
         self._run_spi_test(expect, 'test_set_display')
 
     #@unittest.skip("Temporary")
-    def test_set_orientation(self):
+    def test_orientation(self):
         """
-        Test that the orientation can be set to all four orientations.
+        Test that the orientation property can be set to all four
+        orientations.
 
         We make five checks in this order 3, 1, 2, 0, and then 500 which
         should be equal to 0 because of the modulo in the code.
@@ -376,7 +377,7 @@ class TestILI9225(unittest.TestCase):
 
         for orient, x, y in tests:
             for orientation in orient:
-                self._tft.set_orientation(orientation)
+                self._tft.orientation = orientation
                 msg = (f"Should be orientation {orientation}: '{x}' "
                        f"found '{self._tft._max_x}'")
                 self.assertEqual(x, self._tft._max_x, msg=msg)
@@ -392,8 +393,8 @@ class TestILI9225(unittest.TestCase):
         tests = ((3, 3), (2, 2), (1, 1), (0, 0), (500, 0))
 
         for orient, expect in tests:
-            self._tft.set_orientation(orient)
-            orientation = self._tft.get_orientation()
+            self._tft.orientation = orient
+            orientation = self._tft.orientation
             msg = f"Expect '{expect}' found '{orientation}'"
             self.assertEqual(expect, orientation, msg=msg)
 
@@ -413,7 +414,7 @@ class TestILI9225(unittest.TestCase):
             )
 
         for orient, xx, yy in tests:
-            self._tft.set_orientation(orient)
+            self._tft.orientation = orient
             xxx, yyy = self._tft._orient_coordinates(x, y)
             msg = f"Orientation '{orient}': Expect x = {xx} found x = {xxx}"
             self.assertEqual(xx, xxx, msg=msg)
@@ -434,7 +435,7 @@ class TestILI9225(unittest.TestCase):
             )
 
         for orientation, xx in tests:
-            self._tft.set_orientation(orientation)
+            self._tft.orientation = orientation
             xxx = self._tft.display_max_x
             msg = f"Expect x = {xx} found x = {xxx}"
             self.assertEqual(xx, xxx, msg=msg)
@@ -453,7 +454,7 @@ class TestILI9225(unittest.TestCase):
             )
 
         for orientation, yy in tests:
-            self._tft.set_orientation(orientation)
+            self._tft.orientation = orientation
             yyy = self._tft.display_max_y
             msg = f"Expect y = {yy} found y = {yyy}"
             self.assertEqual(yy, yyy, msg=msg)
@@ -812,7 +813,7 @@ class TestILI9225(unittest.TestCase):
         with open(f"{self.CURRENT_PATH}/{filename}", 'rb') as f:
             bitmap = f.read()
 
-        self._tft.set_orientation(1)
+        self._tft.orientation = 1
         x, y = 0, 0
         self._tft.draw_bitmap(x, y, bitmap, 220, 176, Colors.LIGHTGREY)
         expect = () #self._read_data_file('draw_bitmap.txt')
@@ -886,7 +887,7 @@ class TestILI9225(unittest.TestCase):
             ]
 
         for o in range(4)[::-1]: # Count backwards
-            self._tft.set_orientation(0)
+            self._tft.orientation = o
             x, y, x1, y1 = tests[o]
 
             for mode in [getattr(AutoIncMode, m)

@@ -347,7 +347,7 @@ class ILI9225(Compatibility):
 
         # Turn on backlight
         self.set_backlight(True)
-        self.set_orientation(0)
+        self.orientation = 0
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished turning on backlight.")
@@ -373,9 +373,9 @@ class ILI9225(Compatibility):
         :type color: int
         """
         old_orientation = self.__orientation
-        self.set_orientation(0)
+        self.orientation = 0
         self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1, color)
-        self.set_orientation(old_orientation)
+        self.orientation = old_orientation
         self.delay(10)
 
     def invert(self, flag):
@@ -438,7 +438,18 @@ class ILI9225(Compatibility):
             self._end_write(reuse=False)
             self.delay(200)
 
-    def set_orientation(self, orientation):
+    @property
+    def orientation(self):
+        """
+        Get the orientation.
+
+        :return: Return the current orientation.
+        :rtype: int
+        """
+        return self.__orientation
+
+    @orientation.setter
+    def orientation(self, orientation):
         """
         Set the orientation.
 
@@ -460,15 +471,6 @@ class ILI9225(Compatibility):
         elif self.__orientation == 3: # 3=left rotated landscape
             self._max_x = self.LCD_HEIGHT
             self._max_y = self.LCD_WIDTH
-
-    def get_orientation(self):
-        """
-        Get the orientation.
-
-        :return: Return the current orientation.
-        :rtype: int
-        """
-        return self.__orientation
 
     def _orient_coordinates(self, x, y):
         if self.__orientation == 1:
