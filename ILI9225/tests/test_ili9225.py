@@ -874,7 +874,16 @@ class TestILI9225(unittest.TestCase):
                  (73, 59, 147, 117),
                  (59, 73, 117, 147),
                  (73, 59, 147, 117))
-        expect = ()
+        expect = [
+            [self._tft.CMD_ENTRY_MODE, 1, 4120],
+            [self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 147],
+            [self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 73],
+            [self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 117],
+            [self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 59],
+            [self._tft.CMD_RAM_ADDR_SET1, 1, 73],
+            [self._tft.CMD_RAM_ADDR_SET2, 1, 117],
+            [self._tft.CMD_GRAM_DATA_REG, 1, 0x00]
+            ]
 
         for o in range(4)[::-1]: # Count backwards
             self._tft.set_orientation(0)
