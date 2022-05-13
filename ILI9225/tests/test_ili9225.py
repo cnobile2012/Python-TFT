@@ -886,9 +886,9 @@ class TestILI9225(unittest.TestCase):
             [self._tft.CMD_GRAM_DATA_REG, 1, 0x00]
             ]
 
-        for o in range(4)[::-1]: # Count backwards
-            self._tft.orientation = o
-            x, y, x1, y1 = tests[o]
+        for orientation in range(4)[::-1]: # Count backwards
+            self._tft.orientation = orientation
+            x, y, x1, y1 = tests[orientation]
 
             for mode in [getattr(AutoIncMode, m)
                          for m in dir(AutoIncMode) if not m.startswith('_')]:

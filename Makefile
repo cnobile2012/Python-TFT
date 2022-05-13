@@ -13,7 +13,7 @@ DOCS_DIR	= $(PREFIX)/docs
 RM_REGEX	= '(^.*.pyc$$)|(^.*.wsgic$$)|(^.*~$$)|(.*\#$$)|(^.*,cover$$)'
 RM_CMD		= find $(PREFIX) -regextype posix-egrep -regex $(RM_REGEX) \
                   -exec rm {} \;
-COVERAGE_FILE	= .coveragerc
+COVERAGE_FILE	= $(PREFIX)/.coveragerc
 
 #----------------------------------------------------------------------
 all	: doc tar
@@ -26,8 +26,11 @@ rpi-tests: clean
         $${VIRTUAL_ENV}/bin/coverage run --rcfile=$(COVERAGE_FILE) \
                                      $${VIRTUAL_ENV}/bin/nosetests
 	@coverage report --rcfile=$(COVERAGE_FILE)
-	@coverage html --rcfile=$(COVERAGE_FILE)
 	@echo $(TODAY)
+
+.PHONY	: rpi-html
+rpi-html:
+	@coverage html --rcfile=$(COVERAGE_FILE)
 
 .PHONY	: sphinx
 sphinx	: clean
