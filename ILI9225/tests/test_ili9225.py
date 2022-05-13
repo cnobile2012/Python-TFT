@@ -802,22 +802,22 @@ class TestILI9225(unittest.TestCase):
             ]
         self._run_spi_test(expect, 'test_draw_pixel')
 
-    @unittest.skip("Temporary")
-    def test_draw_bitmap(self):
-        """
-        Test that a bitmap image is correctly drawn to the display.
-        """
-        bitmap = None
-        filename = 'lena.bmp'
+    ## @unittest.skip("Temporary")
+    ## def test_draw_bitmap(self):
+    ##     """
+    ##     Test that a bitmap image is correctly drawn to the display.
+    ##     """
+    ##     bitmap = None
+    ##     filename = 'lena.bmp'
 
-        with open(f"{self.CURRENT_PATH}/{filename}", 'rb') as f:
-            bitmap = f.read()
+    ##     with open(f"{self.CURRENT_PATH}/{filename}", 'rb') as f:
+    ##         bitmap = f.read()
 
-        self._tft.orientation = 1
-        x, y = 0, 0
-        self._tft.draw_bitmap(x, y, bitmap, 220, 176, Colors.LIGHTGREY)
-        expect = () #self._read_data_file('draw_bitmap.txt')
-        self._run_spi_test(expect, 'test_draw_bitmap')
+    ##     self._tft.orientation = 1
+    ##     x, y = 0, 0
+    ##     self._tft.draw_bitmap(x, y, bitmap, 220, 176, Colors.LIGHTGREY)
+    ##     expect = () #self._read_data_file('draw_bitmap.txt')
+    ##     self._run_spi_test(expect, 'test_draw_bitmap')
 
     #@unittest.skip("Temporary")
     def test_rgb16_to_bgr16(self):

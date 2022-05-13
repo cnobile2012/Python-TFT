@@ -93,7 +93,7 @@ class ILI9225(Compatibility):
         DEBUG = eval(os.getenv('TFT_DEBUG', default='False'))
         TESTING = eval(os.getenv('TFT_TESTING', default='False'))
     except AttributeError: # pragma: no cover
-        # MicroPython and CircuitPython will raise
+        # MicroPython and CircuitPython will raise AttributeError.
         DEBUG = False
         TESTING = False
 
@@ -1179,78 +1179,81 @@ class ILI9225(Compatibility):
             self._write_register(self.CMD_GRAM_DATA_REG, color)
             self._end_write(reuse=False)
 
-    def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
-                    transparent=False, x_bit=False):
-        """
-        Draw a bitmap image.
+    ## def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
+    ##                 transparent=False, x_bit=False):
+    ##     """
+    ##     Draw a bitmap image.
 
-        :param x: Point coordinate (x-axis).
-        :type x: int
-        :param y: Point coordinate (y-axis).
-        :type y: int
-        :param bitmap: A 2D 16-bit color bitmap image to draw on the display.
-        :type bitmap: int
-        :param w: Width
-        :type w: int
-        :param h: Height
-        :type h: int
-        :param color: A 16-bit RGB color (default=white).
-        :type color: int
-        :param bg: A 16-bit RGB background color.
-        :type bg: int
-        :param transparent: True = transparent bitmap, False = not transparent.
-        :type transparent: bool
-        :param x_bit: This indicates that the left most (8th) bit is set.
-        :type x_bit: bool
-        """
-        no_auto_inc = False # Flag set when transparent pixel was 'written'.
-        byte_width = (w + 7) / 8
-        byte = 0
-        mask_bit = 0x01 if x_bit else 0x80
+    ##     :param x: Point coordinate (x-axis).
+    ##     :type x: int
+    ##     :param y: Point coordinate (y-axis).
+    ##     :type y: int
+    ##     :param bitmap: A 2D 16-bit color bitmap image to draw on the display.
+    ##     :type bitmap: int
+    ##     :param w: Width
+    ##     :type w: int
+    ##     :param h: Height
+    ##     :type h: int
+    ##     :param color: A 16-bit RGB color (default=white).
+    ##     :type color: int
+    ##     :param bg: A 16-bit RGB background color.
+    ##     :type bg: int
+    ##     :param transparent: True = transparent bitmap, False = not transparent.
+    ##     :type transparent: bool
+    ##     :param x_bit: This indicates that the left most (8th) bit is set.
+    ##     :type x_bit: bool
+    ##     """
+    ##     no_auto_inc = False # Flag set when transparent pixel was 'written'.
+    ##     byte_width = (w + 7) / 8
+    ##     byte = 0
+    ##     mask_bit = 0x01 if x_bit else 0x80
 
-        # Adjust window height/width to display dimensions
-        wx0 = 0 if x < 0 else x
-        wy0 = 0 if y < 0 else y
-        wx1 = (self._max_x if x + w > self._max_x else x + w) - 1
-        wy1 = (self._max_y if y + h > self._max_y else y + h) - 1
-        wh = wy1 - wy0 + 1
+    ##     # Adjust window height/width to display dimensions
+    ##     wx0 = 0 if x < 0 else x
+    ##     wy0 = 0 if y < 0 else y
+    ##     wx1 = (self._max_x if x + w > self._max_x else x + w) - 1
+    ##     wy1 = (self._max_y if y + h > self._max_y else y + h) - 1
+    ##     wh = wy1 - wy0 + 1
 
-        if self.DEBUG: # pragma: no cover
-            print("draw_bitmap: max_x={}, max_y={}".format(
-                self._max_x, self._max_y))
-            print("draw_bitmap: wx0={}, wy0={}, wx1={}, wy1={}".format(
-                wx0, wy0, wx1, wy1))
+    ##     if self.DEBUG: # pragma: no cover
+    ##         print("draw_bitmap: max_x={}, max_y={}".format(
+    ##             self._max_x, self._max_y))
+    ##         print("draw_bitmap: wx0={}, wy0={}, wx1={}, wy1={}".format(
+    ##             wx0, wy0, wx1, wy1))
 
-        self.spi_close_override = True
-        self._start_write()
-        self._set_window(wx0, wy0, wx1, wy1, AutoIncMode.L2R_TOP_DOWN)
+    ##     self.spi_close_override = True
+    ##     self._start_write()
+    ##     self._set_window(wx0, wy0, wx1, wy1, AutoIncMode.L2R_TOP_DOWN)
 
-        for j in range((0 if y >= 0 else -y) + wh):
-            for i in range(w):
-                if i & 7:
-                    if x_bit: byte >>= 1
-                    else: byte <<= 1
-                else:
-                    byte = bitmap[round(j * byte_width + i / 8)]
+    ##     # for (j = y >= 0 ? 0 : -y; j < (y >= 0 ? 0 : -y)+wh; j++) {...}
+    ##     yy = 0 if y >= 0 else -y
 
-                if wx0 <= x + i <= wx1:
-                    # Write only if pixel is within window.
-                    if byte & mask_bit:
-                        if no_auto_inc:
-                            # There was a transparent area,
-                            # set pixel coordinates again.
-                            self.draw_pixel(x + i, y + j, color)
-                            no_auto_inc = False
-                        else:
-                            self._write_data(color)
-                    elif transparent:
-                        # No autoincrement in transparent area!
-                        no_auto_inc = True
-                    else:
-                        self._write_data(bg)
+    ##     for j in range(yy, yy + wh):
+    ##         for i in range(w):
+    ##             if i & 7:
+    ##                 if x_bit: byte >>= 1
+    ##                 else: byte <<= 1
+    ##             else:
+    ##                 byte = bitmap[round(j * byte_width + i / 8)]
 
-        self.spi_close_override = False
-        self._end_write(reuse=False)
+    ##             if wx0 <= x + i <= wx1:
+    ##                 # Write only if pixel is within window.
+    ##                 if byte & mask_bit:
+    ##                     if no_auto_inc:
+    ##                         # There was a transparent area,
+    ##                         # set pixel coordinates again.
+    ##                         self.draw_pixel(x + i, y + j, color)
+    ##                         no_auto_inc = False
+    ##                     else:
+    ##                         self._write_data(color)
+    ##                 elif transparent:
+    ##                     # No autoincrement in transparent area!
+    ##                     no_auto_inc = True
+    ##                 else:
+    ##                     self._write_data(bg)
+
+    ##     self.spi_close_override = False
+    ##     self._end_write(reuse=False)
 
     def rgb16_to_bgr16(self, color):
         """
