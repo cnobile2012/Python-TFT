@@ -97,6 +97,7 @@ class Compatibility(PiVersion):
         self._spi = None
 
     def _get_board_name(self, board=None):
+        board = 1000 if board is None and self.BOARD is None else board
         board = board if board is not None else self.BOARD
         return Boards._BOARDS.get(board, "Unknown board")
 

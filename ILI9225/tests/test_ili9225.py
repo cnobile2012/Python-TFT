@@ -271,7 +271,7 @@ class TestILI9225(unittest.TestCase):
             tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
                           invalid_board)
 
-        board_name = self._tft._get_board_name(board)
+        board_name = self._tft._get_board_name(invalid_board)
         expect_msg = self._tft.ERROR_MSGS['BRD_UNSUP'].format(board_name)
         found = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found}'"
