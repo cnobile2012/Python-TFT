@@ -100,6 +100,7 @@ class ILI9225(Compatibility):
     ERROR_MSGS = {
         'STD_FONT': "Please set a standard font before using this method.",
         'GFX_FONT': "Please set a GFX font before using this method.",
+        'BRD_UNSUP': "Error: The {} board is not supported."
         }
 
     LCD_WIDTH                   = 176
@@ -166,8 +167,8 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, cs, sdi, clk, led=-1, *,
-                 brightness=MAX_BRIGHTNESS, board=None, rpi_mode=None):
+    def __init__(self, rst, rs, cs, sdi, clk, led=-1, board=None, *,
+                 brightness=MAX_BRIGHTNESS, rpi_mode=None):
         """
         Initialize the ILI9225 class.
 
@@ -209,16 +210,7 @@ class ILI9225(Compatibility):
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
-
-        if board is not None:
-            try:
-                self.set_board(board)
-            except CompatibilityException as e: # pragma: no cover
-                print(e)
-        else:
-            print("Warning: The board has not been set. The board "
-                  "keyword argument must be passed during instantiation or "
-                  "the set_board() method must be run after instantiation.")
+        self.set_board(board)
 
     @property
     def spi_close_override(self):

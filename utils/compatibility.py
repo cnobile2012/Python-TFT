@@ -117,7 +117,7 @@ class Compatibility(PiVersion):
 
         if board_name not in [v for v in dir(Boards) if not v.startswith('_')]:
             raise CompatibilityException(
-                "Error: The {} board is not supported.".format(board_name))
+                self.ERROR_MSGS['BRD_UNSUP'].format(board_name))
 
         self.BOARD = board
 

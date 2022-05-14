@@ -261,6 +261,23 @@ class TestILI9225(unittest.TestCase):
                     self.assertEqual(expect_value, found_value, msg=msg2_tmp)
 
     #@unittest.skip("Temporary")
+    def test___init__(self):
+        """
+        Test that an invalid board is passed into the constructor.
+        """
+        invalid_board = 1000
+
+        with self.assertRaises(CompatibilityException) as cm:
+            tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
+                          invalid_board)
+
+        board_name = self._tft._get_board_name(board)
+        expect_msg = self._tft.ERROR_MSGS['BRD_UNSUP'].format(board_name)
+        found = str(cm.exception)
+        msg = f"Error message expected '{expect_msg}' found '{found}'"
+        self.assertEqual(expect_msg, found, msg=msg)
+
+    #@unittest.skip("Temporary")
     def test_clear(self):
         """
         Test that the screen clears to black.
