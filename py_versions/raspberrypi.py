@@ -178,15 +178,16 @@ class PiVersion:
 
         .. notes::
 
-          The duty_cycle is derived by dividing the frequency by
-          the brightness.
+          The duty_cycle is derived by multiplying the brightness by 100
+          then  dividing by the maximum number of brightness values.
 
         :param pin: The pin to setup the PWM on.
         :type pin: int
         :param brightness: Sets the duty cycle.
         :type brightness: int
         """
-        duty_cycle = self.__FREQ / brightness if brightness != 0 else 0
+        duty_cycle = (brightness * 100 / (self._tft.MAX_BRIGHTNESS + 1)
+                      if brightness != 0 else 0)
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, self.__FREQ)
         self.__pwm_pin_states[pin].start(duty_cycle)
 
@@ -199,5 +200,6 @@ class PiVersion:
         :param brightness: The brightness value.
         :type value: int
         """
-        duty_cycle = self.__FREQ / brightness if brightness != 0 else 0
+        duty_cycle = (brightness * 100 / (self._tft.MAX_BRIGHTNESS + 1)
+                      if brightness != 0 else 0)
         self.__pwm_pin_states[pin].ChangeDutyCycle(duty_cycle)

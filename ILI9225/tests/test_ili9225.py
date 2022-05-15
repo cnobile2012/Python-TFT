@@ -355,7 +355,7 @@ class TestILI9225(unittest.TestCase):
         msg = f"Should be 'self._tft.MAX_BRIGHTNESS' found '{value}'"
         self.assertEqual(self._tft.MAX_BRIGHTNESS, value, msg=msg)
         # Test set to 50%
-        expected_value = (self._tft.MAX_BRIGHTNESS + 1) / 2)
+        expected_value = (self._tft.MAX_BRIGHTNESS + 1) / 2
         self._tft.set_backlight(True, expected_value)
         value = self._tft.brightness
         msg = f"Should be '{expected_value}' found '{value}'"
