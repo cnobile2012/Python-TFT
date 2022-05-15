@@ -374,7 +374,7 @@ class TestILI9225(unittest.TestCase):
         """
         brightness = self._tft.brightness # Just grab the default
         msg = f"Expect 0..255 found {brightness}"
-        self.assertTrue(0 >= brightness <= self._tft.MAX_BRIGHTNESS, msg=msg)
+        self.assertTrue(0 <= brightness <= self._tft.MAX_BRIGHTNESS, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_set_brightness(self):
@@ -385,7 +385,7 @@ class TestILI9225(unittest.TestCase):
             self._tft.brightness = brightness
             found = self._tft.brightness
             msg = f"Expect 0..255 found {found}"
-            self.assertTrue(0 >= brightness <= self._tft.MAX_BRIGHTNESS,
+            self.assertTrue(0 <= brightness <= self._tft.MAX_BRIGHTNESS,
                             msg=msg)
 
     #@unittest.skip("Temporary")
