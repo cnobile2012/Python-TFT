@@ -23,6 +23,7 @@ class PiVersion:
     INPUT_PULLUP = GPIO.PUD_UP
     INPUT_PULLDOWN = GPIO.PUD_DOWN
     INPUT_PULLOFF = GPIO.PUD_OFF
+    __FREQ = 25500
 
     # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".
     _SPI_HARDWARE_PINS = {
@@ -171,28 +172,30 @@ class PiVersion:
                 high, low = result
                 return hex((high << 8) | low)
 
-    def setup_pwm(self, pin, freq, *, duty_cycle=None):
+    def setup_pwm(self, pin, brightness):
         """
         Setup a PWM for controlling the back light LEDs brightness.
 
+        .. notes::
+
+          The duty_cycle is derived by dividing the frequency by
+          the brightness.
+
         :param pin: The pin to setup the PWM on.
         :type pin: int
-        :param freq: The frequency of the PWM.
-        :type freq: int
-        :param duty_cycle: Sets the 1/2 the period of a cycle (default is 50%).
-        :type duty_cycle: int
+        :param brightness: Sets the duty cycle.
+        :type brightness: int
         """
-        self.__pwm_pin_states[pin] = GPIO.PWM(pin, freq)
-        if duty_cycle is None: duty_cycle = freq / 2 # Set to 50%
-        self.__pwm_pin_states[pin].start(duty_cycle)
+        self.__pwm_pin_states[pin] = GPIO.PWM(pin, self.__FREQ)
+        self.__pwm_pin_states[pin].start(self.__FREQ / brightness)
 
-    def analog_write(self, pin, value):
+    def change_duty_cycle(self, pin, brightness):
         """
         Writes the value to the analog PWM pin.
 
         :param pin: The pin to setup the PWM on.
         :type pin: int
-        :param value: The value to write.
+        :param brightness: The brightness value.
         :type value: int
         """
-        self.__pwm_pin_states[pin].ChangeDutyCycle(value)
+        self.__pwm_pin_states[pin].ChangeDutyCycle(self.__FREQ / brightness)

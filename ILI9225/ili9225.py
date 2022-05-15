@@ -201,7 +201,7 @@ class ILI9225(Compatibility):
         self._led = led
         self._sdi = sdi
         self._clk = clk
-        self._brightness = brightness # Set to maximum brightness.
+        self.__brightness = brightness # Default it maximum brightness.
         self.__orientation = 0
         self._bl_state = True
         self._max_x = 0
@@ -228,8 +228,7 @@ class ILI9225(Compatibility):
         # Set up backlight pin, turn off initially.
         if self._led >= 0:
             self.pin_mode(self._led, self.OUTPUT)
-            self.setup_pwm(self._led, self.MAX_BRIGHTNESS,
-                           duty_cycle=self.MAX_BRIGHTNESS)
+            self.setup_pwm(self._led, self.MAX_BRIGHTNESS)
             self.set_backlight(False)
 
         # Control pins
@@ -383,9 +382,10 @@ class ILI9225(Compatibility):
         self._write_command(self._INVON if flag else self._INVOFF)
         self._end_write(reuse=False)
 
-    def set_backlight(self, flag):
+    def set_backlight(self, flag, brightness=MAX_BRIGHTNESS):
         """
-        Set the backlight on or off.
+        Set the backlight on or off and set the brightness if there
+        is an LED pin.
 
         :param flag: True = backlight on and False = backlight off.
         :type flag: bool
@@ -393,18 +393,11 @@ class ILI9225(Compatibility):
         self._bl_state = flag
 
         if self._led >= 0:
-            self.analog_write(
-                self._led, self._brightness if self._bl_state else 0)
+            if self.MAX_BRIGHTNESS != self.__brightness != brightness:
+                self.__brightness = brightness
 
-    def set_backlight_brightness(self, brightness):
-        """
-        Set the backlight brightness.
-
-        :param brightness: Set the brightness to 0..255
-        :type brightness: int
-        """
-        self._brightness = brightness
-        self.set_backlight(self._bl_state)
+            self.change_duty_cycle(
+                self._led, self.__brightness if self._bl_state else 0)
 
     def set_display(self, flag):
         """

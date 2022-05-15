@@ -107,6 +107,7 @@ class TestILI9225(unittest.TestCase):
     CS = 8
     MOSI = 10
     CLK = 11
+    LED = 22
 
     REGEX_DATA = re.compile(
         r"Command: (0x[\dA-Fa-f]+)|   Data: (0x[\dA-Fa-f]+)")
@@ -122,7 +123,7 @@ class TestILI9225(unittest.TestCase):
 
     def setUp(self):
         self._tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
-                            board=Boards.RASPI)
+                            led=self.LED, board=Boards.RASPI)
         self._tft.begin()
         self._read_spi_buff('dummy') # Clear the previous data.
 
@@ -345,7 +346,7 @@ class TestILI9225(unittest.TestCase):
         self.assertFalse(value, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_set_backlight_brightness(self):
+    def test_set_backlight_with_brightness(self):
         """
         Test that the backlight brightness variable has been set properly.
         """
@@ -355,7 +356,13 @@ class TestILI9225(unittest.TestCase):
         self.assertEqual(self._tft.MAX_BRIGHTNESS, value, msg=msg)
         # Test set to 50%
         expected_value = round(self._tft.MAX_BRIGHTNESS / 2)
-        self._tft.set_backlight_brightness(expected_value)
+        self._tft.set_backlight(True, expected_value)
+        value = self._tft._brightness
+        msg = f"Should be '{expected_value}' found '{value}'"
+        self.assertEqual(expected_value, value, msg=msg)
+        # Test set to 100%
+        expected_value = self._tft.MAX_BRIGHTNESS
+        self._tft.set_backlight(True, expected_value)
         value = self._tft._brightness
         msg = f"Should be '{expected_value}' found '{value}'"
         self.assertEqual(expected_value, value, msg=msg)
