@@ -351,19 +351,19 @@ class TestILI9225(unittest.TestCase):
         Test that the backlight brightness variable has been set properly.
         """
         # Test initial value.
-        value = self._tft._brightness
+        value = self._tft.brightness
         msg = f"Should be 'self._tft.MAX_BRIGHTNESS' found '{value}'"
         self.assertEqual(self._tft.MAX_BRIGHTNESS, value, msg=msg)
         # Test set to 50%
         expected_value = round(self._tft.MAX_BRIGHTNESS / 2)
         self._tft.set_backlight(True, expected_value)
-        value = self._tft._brightness
+        value = self._tft.brightness
         msg = f"Should be '{expected_value}' found '{value}'"
         self.assertEqual(expected_value, value, msg=msg)
         # Test set to 100%
         expected_value = self._tft.MAX_BRIGHTNESS
         self._tft.set_backlight(True, expected_value)
-        value = self._tft._brightness
+        value = self._tft.brightness
         msg = f"Should be '{expected_value}' found '{value}'"
         self.assertEqual(expected_value, value, msg=msg)
 

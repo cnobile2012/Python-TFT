@@ -201,7 +201,8 @@ class ILI9225(Compatibility):
         self._led = led
         self._sdi = sdi
         self._clk = clk
-        self.__brightness = brightness # Default it maximum brightness.
+        self.__brightness = 0
+        self.brightness = brightness # Default it maximum brightness.
         self.__orientation = 0
         self._bl_state = True
         self._max_x = 0
@@ -393,11 +394,29 @@ class ILI9225(Compatibility):
         self._bl_state = flag
 
         if self._led >= 0:
+            brightness = brightness % (self.MAX_BRIGHTNESS + 1)
+
             if self.MAX_BRIGHTNESS != self.__brightness != brightness:
                 self.__brightness = brightness
 
             self.change_duty_cycle(
                 self._led, self.__brightness if self._bl_state else 0)
+
+    @property
+    def brightness(self):
+        """
+        Get the current brightness.
+        """
+        return self.__brightness
+
+    @brightness.setter
+    def brightness(self, brightness):
+        """
+        Set a different brightness.
+
+        :param brightness: The brightness value to set (0 .. 255)
+        """
+        self.__brightness = brightness % (self.MAX_BRIGHTNESS + 1)
 
     def set_display(self, flag):
         """
