@@ -355,7 +355,7 @@ class TestILI9225(unittest.TestCase):
         msg = f"Should be 'self._tft.MAX_BRIGHTNESS' found '{value}'"
         self.assertEqual(self._tft.MAX_BRIGHTNESS, value, msg=msg)
         # Test set to 50%
-        expected_value = round(self._tft.MAX_BRIGHTNESS / 2)
+        expected_value = (self._tft.MAX_BRIGHTNESS + 1) / 2)
         self._tft.set_backlight(True, expected_value)
         value = self._tft.brightness
         msg = f"Should be '{expected_value}' found '{value}'"
@@ -366,6 +366,27 @@ class TestILI9225(unittest.TestCase):
         value = self._tft.brightness
         msg = f"Should be '{expected_value}' found '{value}'"
         self.assertEqual(expected_value, value, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_get_brightness(self):
+        """
+        Test that the brightness is returned through the property.
+        """
+        brightness = self._tft.brightness # Just grab the default
+        msg = f"Expect 0..255 found {brightness}"
+        self.assertTrue(0 >= brightness <= self._tft.MAX_BRIGHTNESS, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_set_brightness(self):
+        """
+        Test that brightness property is set with a value between 0..255.
+        """
+        for brightness in range(512, 10):
+            self._tft.brightness = brightness
+            found = self._tft.brightness
+            msg = f"Expect 0..255 found {found}"
+            self.assertTrue(0 >= brightness <= self._tft.MAX_BRIGHTNESS,
+                            msg=msg)
 
     #@unittest.skip("Temporary")
     def test_set_display(self):

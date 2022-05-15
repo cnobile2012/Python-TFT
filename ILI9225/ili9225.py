@@ -394,13 +394,9 @@ class ILI9225(Compatibility):
         self._bl_state = flag
 
         if self._led >= 0:
-            brightness = brightness % (self.MAX_BRIGHTNESS + 1)
-
-            if self.MAX_BRIGHTNESS != self.__brightness != brightness:
-                self.__brightness = brightness
-
+            self.brightness = brightness
             self.change_duty_cycle(
-                self._led, self.__brightness if self._bl_state else 0)
+                self._led, self.brightness if self._bl_state else 0)
 
     @property
     def brightness(self):
