@@ -323,13 +323,6 @@ class TestILI9225(unittest.TestCase):
             )
         self._run_spi_test(expect, 'test_set_display_background')
 
-    @unittest.skip("Temporary")
-    def test_invert(self):
-        """
-        Test
-        """
-        pass
-
     #@unittest.skip("Temporary")
     def test_set_backlight(self):
         """

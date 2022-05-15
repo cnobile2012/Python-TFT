@@ -106,8 +106,6 @@ class ILI9225(Compatibility):
     LCD_WIDTH                   = 176
     LCD_HEIGHT                  = 220
     MAX_BRIGHTNESS              = 255   # 0..255
-    _INVOFF                     = 0x20  # Invert off
-    _INVON                      = 0x21  # Invert on
     _SPI_MODE                   = 0
 
     CMD_DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
@@ -369,19 +367,6 @@ class ILI9225(Compatibility):
         self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1, color)
         self.orientation = old_orientation
         self.delay(10)
-
-    def invert(self, flag):
-        """
-        Invert the screen.
-
-        *** TODO *** This method seems to do nothing.
-
-        :param flag: True = invert and False = normal screen.
-        :type flag: bool
-        """
-        self._start_write()
-        self._write_command(self._INVON if flag else self._INVOFF)
-        self._end_write(reuse=False)
 
     def set_backlight(self, flag, brightness=MAX_BRIGHTNESS):
         """
