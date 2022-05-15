@@ -186,8 +186,7 @@ class PiVersion:
         :param brightness: Sets the duty cycle.
         :type brightness: int
         """
-        duty_cycle = (brightness * 100 / (self._tft.MAX_BRIGHTNESS + 1)
-                      if brightness != 0 else 0)
+        duty_cycle = self.__get_duty_cycle(brightness)
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, self.__FREQ)
         self.__pwm_pin_states[pin].start(duty_cycle)
 
@@ -200,6 +199,9 @@ class PiVersion:
         :param brightness: The brightness value.
         :type value: int
         """
-        duty_cycle = (brightness * 100 / (self._tft.MAX_BRIGHTNESS + 1)
-                      if brightness != 0 else 0)
+        duty_cycle = self.__get_duty_cycle(brightness)
         self.__pwm_pin_states[pin].ChangeDutyCycle(duty_cycle)
+
+    def __get_duty_cycle(self, brightness):
+        return (brightness * 100 / (self.MAX_BRIGHTNESS + 1)
+                if brightness != 0 else 0)
