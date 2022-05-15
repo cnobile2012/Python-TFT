@@ -1042,7 +1042,7 @@ class ILI9225(Compatibility):
         dy22 = y2 - y1
 
         # For upper part of triangle, find scanline crossings for segments
-        # 0-1 and 0-2.  If y1=y2 (flat-bottomed triangle), the scanline y2
+        # 0-1 and 0-2. If y1=y2 (flat-bottomed triangle), the scanline y2
         # is included here (and second loop will be skipped, avoiding a /0
         # error there), otherwise scanline y1 is skipped here and handled
         # in the second loop...which also avoids a /0 error here if y0=y1

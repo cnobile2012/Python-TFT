@@ -546,8 +546,8 @@ class TestILI9225(unittest.TestCase):
         Test that this method correctly draws standard characters
         to the display.
         """
-        x = self._tft.display_max_x / 2
-        y = self._tft.display_max_y / 2
+        x = self._tft.display_max_x / 2 # Origin = 0 (88 = 176 / 2)
+        y = self._tft.display_max_y / 2 # Origin = 0 (110 = 220 / 2)
 
         # Test that an exception is raised when a font is not set first.
         with self.assertRaises(TFTException) as cm:
@@ -557,37 +557,47 @@ class TestILI9225(unittest.TestCase):
         found = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found}'"
         self.assertEqual(expect_msg, found, msg=msg)
+
+        # Test normal operation
+        tests = (
+            (x, y, True),
+            (x, y, False),
+            (x * 2, y, True),
+            (x * 2, y, False),
+            (x, y * 2, True),
+            (x, y * 2, False)
+            )
         width = 0
+        expect = (
+            (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0x64),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x58),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0x7d),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x6e),
+            (self._tft.CMD_RAM_ADDR_SET1, 1, 0x58),
+            (self._tft.CMD_RAM_ADDR_SET2, 1, 0x6e),
+            (self._tft.CMD_GRAM_DATA_REG, 14, 65535, 2, 0, 14, 65535,
+             2, 0, 14, 65535, 2, 0, 2, 65535, 4, 0, 2, 65535, 4, 0, 2,
+             65535, 2, 0, 2, 65535, 4, 0, 2, 65535, 4, 0, 2, 65535, 2, 0,
+             2, 65535, 4, 0, 2, 65535, 4, 0, 2, 65535, 2, 0, 3, 65535, 2,
+             0, 3, 65535, 4, 0, 2, 65535, 2, 0, 9, 65535, 2, 0, 3, 65535,
+             3, 0, 13, 65535, 4, 0, 4, 65535, 1, 0, 6, 65535, 11, 0,
+             4, 65535, 20, 0),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
+            )
 
         # Test that a character is drawn at the provided coordinates.
-        for b in (False, True):
-            self._tft.set_font(Terminal12x16, mono_sp=b)
-            width = self._tft.draw_char(x, y, 'B')
-            expect = (
-                (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
-                (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0x64),
-                (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x58),
-                (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0x7d),
-                (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x6e),
-                (self._tft.CMD_RAM_ADDR_SET1, 1, 0x58),
-                (self._tft.CMD_RAM_ADDR_SET2, 1, 0x6e),
-                (self._tft.CMD_GRAM_DATA_REG, 14, 65535, 2, 0, 14, 65535,
-                 2, 0, 14, 65535, 2, 0, 2, 65535, 4, 0, 2, 65535, 4, 0, 2,
-                 65535, 2, 0, 2, 65535, 4, 0, 2, 65535, 4, 0, 2, 65535, 2, 0,
-                 2, 65535, 4, 0, 2, 65535, 4, 0, 2, 65535, 2, 0, 3, 65535, 2,
-                 0, 3, 65535, 4, 0, 2, 65535, 2, 0, 9, 65535, 2, 0, 3, 65535,
-                 3, 0, 13, 65535, 4, 0, 4, 65535, 1, 0, 6, 65535, 11, 0,
-                 4, 65535, 20, 0),
-                (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
-                (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
-                (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
-                (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
-                )
+        for xx, yy, mono in tests:
+            self._tft.set_font(Terminal12x16, mono_sp=mono)
+            width = self._tft.draw_char(xx, yy, 'B')
             self._run_spi_test(expect, 'test_draw_char')
-
-        expected_width = 12
-        msg = f"Expected width '{expected_width}' found '{width}'"
-        self.assertEqual(expected_width, width, msg=msg)
+            expected_width = 12
+            msg = f"Expected width '{expected_width}' found '{width}'"
+            self.assertEqual(expected_width, width, msg=msg)
+            self._read_spi_buff('dummy') # Clear the previous data.
 
     #@unittest.skip("Temporary")
     def test_draw_text(self):
@@ -808,12 +818,18 @@ class TestILI9225(unittest.TestCase):
         """
         Test that a filled triangle is correctly drawn on the display.
         """
-        x0, y0 = 88, 165
-        x1, y1 = 44, 55
-        x2, y2 = 132, 55
-        self._tft.fill_triangle(x0, y0, x1, y1, x2, y2, Colors.BLUE)
+        tests = (
+            #x0, y0,  x1, y1, x2 , y2   look at the code to understand.
+            (44, 55, 132, 55, 88, 165), # No swap
+            (88, 165, 132, 55, 44, 55), # y0 > y1 swaped first
+            (44, 55, 88, 165, 132, 55), # y1 > y2 swaped second
+            )
         expect = self._read_data_file('fill_triangle.txt')
-        self._run_spi_test(expect, 'test_fill_triangle')
+
+        for corrd in tests:
+            self._tft.fill_triangle(*corrd, Colors.BLUE)
+            self._run_spi_test(expect, 'test_fill_triangle')
+            self._read_spi_buff('dummy') # Clear the previous data.
 
     #@unittest.skip("Temporary")
     def test_draw_line(self):
