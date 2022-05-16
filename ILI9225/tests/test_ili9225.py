@@ -820,17 +820,22 @@ class TestILI9225(unittest.TestCase):
         """
         tests = (
             #x0, y0,  x1, y1, x2 , y2   look at the code to understand.
-            (44, 55, 132, 55, 88, 165),  # No swap
-            (88, 165, 132, 55, 44, 165), # y0 > y1 swaped first
-            (44, 55, 88, 165, 132, 55),  # y1 > y2 swaped second
-            (88, 165, 132, 55, 44, 55),  # y0 > y1 and y1 > y2 swapped both
-            (44, 55, 88, 55, 132, 55),   # Straight line
+            # No swap
+            (44, 55, 132, 55, 88, 165, 'fill_triangle_01_03_04.txt'),
+            # y0 > y1 swaped first
+            (88, 165, 132, 55, 44, 165, 'fill_triangle_02.txt'),
+            # y1 > y2 swaped second
+            (44, 55, 88, 165, 132, 55, 'fill_triangle_01_03_04.txt'),
+            # y0 > y1 and y1 > y2 swapped both
+            (88, 165, 132, 55, 44, 55, 'fill_triangle_01_03_04.txt'),
+            # Straight line
+            (44, 55, 88, 55, 132, 55, 'fill_triangle_05.txt'),
             )
         expect = self._read_data_file('fill_triangle.txt')
 
         for corrd in tests:
-            self._tft.fill_triangle(*corrd, Colors.BLUE)
-            self._run_spi_test(expect, 'test_fill_triangle')
+            self._tft.fill_triangle(*corrd[:-1], Colors.BLUE)
+            self._run_spi_test(expect, corrs[-1])
             self._read_spi_buff('dummy') # Clear the previous data.
 
     #@unittest.skip("Temporary")
