@@ -233,7 +233,7 @@ class TestILI9225(unittest.TestCase):
         msg = (f"Expected length {len(expect)} is not equal to found "
                f"length {len(data)}, data '{data}'")
         self.assertEqual(len(expect), len(data), msg=msg)
-        msg1 = "Command {}--should be: {}, found: {}"
+        msg1 = "Command {}--should be: {}, found: {}, item: {}"
         msg2 = "Command {}--data should be: {}, found: {}"
         msg3 = "Command {}--number of states not even, found {}"
 
@@ -243,7 +243,7 @@ class TestILI9225(unittest.TestCase):
             expect_code = expect[idx][0]
             expect_name = self.CMD_NAMES_REV.get(expect_code)
             found_code = item[1] # Command code
-            msg1_tmp = msg1.format(expect_name, expect_code, found_code)
+            msg1_tmp = msg1.format(expect_name, expect_code, found_code, item)
             self.assertEqual(expect_code, found_code, msg=msg1_tmp)
 
             # Test for number of states of values
