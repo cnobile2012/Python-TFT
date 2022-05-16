@@ -831,11 +831,11 @@ class TestILI9225(unittest.TestCase):
             # Straight line
             (44, 55, 88, 55, 132, 55, 'fill_triangle_05.txt'),
             )
-        expect = self._read_data_file('fill_triangle.txt')
 
         for corrd in tests:
             self._tft.fill_triangle(*corrd[:-1], Colors.BLUE)
-            self._run_spi_test(expect, corrs[-1])
+            expect = self._read_data_file(corrs[-1])
+            self._run_spi_test(expect, 'test_fill_triangle')
             self._read_spi_buff('dummy') # Clear the previous data.
 
     #@unittest.skip("Temporary")
