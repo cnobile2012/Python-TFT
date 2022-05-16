@@ -820,9 +820,11 @@ class TestILI9225(unittest.TestCase):
         """
         tests = (
             #x0, y0,  x1, y1, x2 , y2   look at the code to understand.
-            (44, 55, 132, 55, 88, 165), # No swap
-            (88, 165, 132, 55, 44, 55), # y0 > y1 swaped first
-            (44, 55, 88, 165, 132, 55), # y1 > y2 swaped second
+            (44, 55, 132, 55, 88, 165),  # No swap
+            (88, 165, 132, 55, 44, 165), # y0 > y1 swaped first
+            (44, 55, 88, 165, 132, 55),  # y1 > y2 swaped second
+            (88, 165, 132, 55, 44, 55),  # y0 > y1 and y1 > y2 swapped both
+            (44, 55, 88, 55, 132, 55),   # Straight line
             )
         expect = self._read_data_file('fill_triangle.txt')
 

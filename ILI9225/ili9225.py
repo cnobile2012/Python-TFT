@@ -1017,9 +1017,9 @@ class ILI9225(Compatibility):
             y2, y1 = y1, y2
             x2, x1 = x1, x2
 
-        if y0 > y1:
-            y0, y1 = y1, y0
-            x0, x1 = x1, x0
+        ## if y0 > y1:
+        ##     y0, y1 = y1, y0
+        ##     x0, x1 = x1, x0
 
         # Handle awkward all-on-same-line case as its own thing.
         if y0 == y2:
