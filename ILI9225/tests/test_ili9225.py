@@ -834,7 +834,7 @@ class TestILI9225(unittest.TestCase):
 
         for corrd in tests:
             self._tft.fill_triangle(*corrd[:-1], Colors.BLUE)
-            expect = self._read_data_file(corrs[-1])
+            expect = self._read_data_file(corrd[-1])
             self._run_spi_test(expect, 'test_fill_triangle')
             self._read_spi_buff('dummy') # Clear the previous data.
 
