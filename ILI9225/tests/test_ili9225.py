@@ -560,12 +560,12 @@ class TestILI9225(unittest.TestCase):
 
         # Test normal operation
         tests = (
-            (x, y, True),
-            (x, y, False),
-            (x * 2, y, True),
-            (x * 2, y, False),
-            (x, y * 2, True),
-            (x, y * 2, False)
+            (x, y, True, 12),
+            (x, y, False, 11),
+            (x * 2, y, True, 0),
+            (x * 2, y, False, 0),
+            (x, y * 2, True, 0),
+            (x, y * 2, False, 0)
             )
         width = 0
         expect = (
@@ -590,11 +590,10 @@ class TestILI9225(unittest.TestCase):
             )
 
         # Test that a character is drawn at the provided coordinates.
-        for xx, yy, mono in tests:
+        for xx, yy, mono, expected_width in tests:
             self._tft.set_font(Terminal12x16, mono_sp=mono)
             width = self._tft.draw_char(xx, yy, 'B')
             self._run_spi_test(expect, 'test_draw_char')
-            expected_width = 12
             msg = f"Expected width '{expected_width}' found '{width}'"
             self.assertEqual(expected_width, width, msg=msg)
             self._read_spi_buff('dummy') # Clear the previous data.
