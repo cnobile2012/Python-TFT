@@ -227,12 +227,15 @@ class TestILI9225(unittest.TestCase):
 
         return cmds
 
-    def _run_spi_test(self, expect, func_name):
+    def _run_spi_test(self, expect, func_name, idx=None):
         ret = self._read_spi_buff(func_name)
         data = self._find_data(ret)
-        msg = (f"Expected length {len(expect)} is not equal to found "
-               f"length {len(data)}, data '{data}'")
-        self.assertEqual(len(expect), len(data), msg=msg)
+        expect_len = len(expect)
+        data_len = len(data)
+        msg = (f"Expected length {expect_len} is not equal to found "
+               f"length {data_len}, data '{data}'")
+        msg += f" index {idx}" if idx is not None else ""
+        self.assertEqual(expect_len, data_len, msg=msg)
         msg1 = "Command {}--should be: {}, found: {}, item: {}"
         msg2 = "Command {}--data should be: {}, found: {}"
         msg3 = "Command {}--number of states not even, found {}"
@@ -562,10 +565,10 @@ class TestILI9225(unittest.TestCase):
         tests = (
             (x, y, True, 12),
             (x, y, False, 11),
-            (x * 2, y, True, 0),
-            (x * 2, y, False, 0),
-            (x, y * 2, True, 0),
-            (x, y * 2, False, 0)
+            (x * 2, y, True, 12),
+            (x * 2, y, False, 12),
+            (x, y * 2, True, 12),
+            (x, y * 2, False, 12)
             )
         width = 0
         expect = (
@@ -590,11 +593,13 @@ class TestILI9225(unittest.TestCase):
             )
 
         # Test that a character is drawn at the provided coordinates.
-        for xx, yy, mono, expected_width in tests:
+        for idx, data in enumerate(tests):
+            xx, yy, mono, expected_width = data
             self._tft.set_font(Terminal12x16, mono_sp=mono)
             width = self._tft.draw_char(xx, yy, 'B')
-            self._run_spi_test(expect, 'test_draw_char')
-            msg = f"Expected width '{expected_width}' found '{width}'"
+            self._run_spi_test(expect, 'test_draw_char', idx=idx)
+            msg = (f"Expected width on index '{idx}': '{expected_width}' "
+                   f"found '{width}'")
             self.assertEqual(expected_width, width, msg=msg)
             self._read_spi_buff('dummy') # Clear the previous data.
 
