@@ -574,6 +574,7 @@ class TestILI9225(unittest.TestCase):
 
         # Test normal operation
         tests = (
+            #x  y  mono  width filename
             (x, y, True, 12, 'draw_char_00_01.txt'),
             (x, y, False, 11, 'draw_char_00_01.txt'),
             (x * 2, y, True, 12, 'draw_char_02.txt'),
