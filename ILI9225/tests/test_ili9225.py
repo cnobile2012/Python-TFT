@@ -112,6 +112,7 @@ class TestILI9225(unittest.TestCase):
     REGEX_DATA = re.compile(
         r"Command: (0x[\dA-Fa-f]+)|   Data: (0x[\dA-Fa-f]+)")
     REGEX_REPR = re.compile(r"^.+the (?P<platform>.+) platform.+$")
+    REGEX_PARSE = re.compile(r"(self._tft\.\w+), ([ ,\w]+)")
 
     CMD_NAMES = [cmd for cmd in dir(ILI9225) if cmd.startswith('CMD_')]
     CMD_NAMES_REV = {getattr(ILI9225, n): n for n in CMD_NAMES}
@@ -132,34 +133,44 @@ class TestILI9225(unittest.TestCase):
         self._tft.pin_cleanup()
 
     def _read_data_file(self, filename):
-        data = []
-
         with open(f"{self.CURRENT_PATH}/{filename}", 'r') as f:
             result = f.read()
-            data[:] = eval(result)
 
         cmd_list = []
+        items = self.REGEX_PARSE.findall(
+            result.replace("\n", "").replace("   ", ""))
 
-        for name, cmd, value_list in data:
-            cmds = [cmd]
-            cmd_list.append(cmds)
-            num_count = 0
-            saved_val = None
-            data_len = len(value_list)
+        if items:
+            for cmd, data in items:
+                cmd = cmd.replace('self._tft.', '')
+                num_cmd = eval(f"ILI9225.{cmd}")
+                cmds = [num_cmd]
+                cmd_list.append(cmds)
 
-            for idx, value in enumerate(value_list, start=1):
-                num_count += 1
+                for item in eval(data):
+                    cmds.append(item)
+        else:
+            # Throw away the name.
+            for name, cmd, value_list in eval(result):
+                cmds = [cmd]
+                cmd_list.append(cmds)
+                num_count = 0
+                saved_val = None
+                data_len = len(value_list)
 
-                if saved_val is None:
+                for idx, value in enumerate(value_list, start=1):
+                    num_count += 1
+
+                    if saved_val is None:
+                        saved_val = value
+                    elif saved_val != value or idx == data_len:
+                        if idx != data_len:
+                            num_count -= 1
+
+                    cmds.append(num_count)
+                    cmds.append(saved_val)
+                    num_count = 1
                     saved_val = value
-                elif saved_val != value or idx == data_len:
-                    if idx != data_len:
-                        num_count -= 1
-
-                cmds.append(num_count)
-                cmds.append(saved_val)
-                num_count = 1
-                saved_val = value
 
         return cmd_list
 
@@ -563,40 +574,20 @@ class TestILI9225(unittest.TestCase):
 
         # Test normal operation
         tests = (
-            (x, y, True, 12),
-            (x, y, False, 11),
-            (x * 2, y, True, 12),
-            (x * 2, y, False, 12),
-            (x, y * 2, True, 12),
-            (x, y * 2, False, 12)
-            )
-        width = 0
-        expect = (
-            (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0x64),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x58),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0x7d),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x6e),
-            (self._tft.CMD_RAM_ADDR_SET1, 1, 0x58),
-            (self._tft.CMD_RAM_ADDR_SET2, 1, 0x6e),
-            (self._tft.CMD_GRAM_DATA_REG, 14, 65535, 2, 0, 14, 65535,
-             2, 0, 14, 65535, 2, 0, 2, 65535, 4, 0, 2, 65535, 4, 0, 2,
-             65535, 2, 0, 2, 65535, 4, 0, 2, 65535, 4, 0, 2, 65535, 2, 0,
-             2, 65535, 4, 0, 2, 65535, 4, 0, 2, 65535, 2, 0, 3, 65535, 2,
-             0, 3, 65535, 4, 0, 2, 65535, 2, 0, 9, 65535, 2, 0, 3, 65535,
-             3, 0, 13, 65535, 4, 0, 4, 65535, 1, 0, 6, 65535, 11, 0,
-             4, 65535, 20, 0),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
-            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
-            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
+            (x, y, True, 12, 'draw_char_00_01.txt'),
+            (x, y, False, 11, 'draw_char_00_01.txt'),
+            (x * 2, y, True, 12, 'draw_char_02.txt'),
+            (x * 2, y, False, 12, 'draw_char_02.txt'),
+            (x, y * 2, True, 12, 'draw_char_02.txt'),
+            (x, y * 2, False, 12, 'draw_char_02.txt')
             )
 
         # Test that a character is drawn at the provided coordinates.
         for idx, data in enumerate(tests):
-            xx, yy, mono, expected_width = data
+            xx, yy, mono, expected_width, filename = data
             self._tft.set_font(Terminal12x16, mono_sp=mono)
             width = self._tft.draw_char(xx, yy, 'B')
+            expect = self._read_data_file(filename)
             self._run_spi_test(expect, 'test_draw_char', idx=idx)
             msg = (f"Expected width on index '{idx}': '{expected_width}' "
                    f"found '{width}'")
