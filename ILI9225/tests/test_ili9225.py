@@ -577,10 +577,10 @@ class TestILI9225(unittest.TestCase):
             #x  y  mono  width filename
             (x, y, True, 12, 'draw_char_00_01.txt'),
             (x, y, False, 11, 'draw_char_00_01.txt'),
-            (x * 2, y, True, 12, 'draw_char_02.txt'),
-            (x * 2, y, False, 12, 'draw_char_02.txt'),
-            (x, y * 2, True, 12, 'draw_char_02.txt'),
-            (x, y * 2, False, 12, 'draw_char_02.txt')
+            ((x * 2) - 5, y, True, 12, 'draw_char_02_03.txt'),
+            ((x * 2) - 5, y, False, 11, 'draw_char_02_03.txt'),
+            (x, (y * 2) - 5, True, 12, 'draw_char_04.txt'),
+            (x, (y * 2) - 5, False, 11, 'draw_char_05.txt')
             )
 
         # Test that a character is drawn at the provided coordinates.
