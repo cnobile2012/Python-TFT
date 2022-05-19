@@ -94,7 +94,7 @@ class PiVersion:
 
     def delay(self, ms):
         """
-        Set a delat in milliseconds.
+        Set a delay in milliseconds.
 
         :param ms: The value in milliseconds.
         :type ms: int

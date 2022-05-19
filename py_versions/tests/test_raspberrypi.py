@@ -3,7 +3,9 @@
 #
 
 import os
+import io
 import unittest
+from contextlib import redirect_stdout
 
 from py_versions.raspberrypi import PiVersion
 
@@ -107,8 +109,6 @@ class TestPiVersion(unittest.TestCase):
         """
         # Set pin mode.
         self._pyv.pin_mode(self.TEST_PIN, self._pyv.OUTPUT)
-        # Setup low level read of pin.
-        self.setup_pin(self.TEST_PIN)
         # Run method under test set to HIGH.
         self._pyv.digital_write(self.TEST_PIN, self._pyv.HIGH)
         expect = self._pyv.HIGH
@@ -119,13 +119,26 @@ class TestPiVersion(unittest.TestCase):
         self._pyv.digital_write(self.TEST_PIN, self._pyv.LOW)
         expect = self._pyv.LOW
         found = self.read_pin_value(self.TEST_PIN)
-        msg = f"Pin {self.TEST_PIN} expected '{expect}' found '{found}'"
+        msg = f"For pin {self.TEST_PIN} expected '{expect}' found '{found}'"
         self.assertEqual(expect, found, msg=msg)
 
     #@unittest.skip("Temporary")
-    @timeit
     def test_delay(self):
         """
         Test that the delay in MS is correct.
         """
-        self._pyv.delay(10)
+        buff = io.StringIO()
+        ms = 10
+
+        with redirect_stdout(buff):
+            @timeit
+            def run_it():
+                self._pyv.delay(ms)
+
+            run_it()
+
+        found = buff.getvalue()
+        found = float(found) if len(found) else 0.0
+        buff.close()
+        msg = f"Expected '{ms}' found: {found}"
+        self.assertTrue(ms == found, msg)
