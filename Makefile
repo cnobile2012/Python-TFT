@@ -55,7 +55,7 @@ python-api:
 #----------------------------------------------------------------------
 .PHONY	: clean
 clean	:
-	$(shell $(RM_CMD))
+	@$(shell $(RM_CMD))
 	@(cd ${DOCS_DIR}; make clean)
 
 .PHONY	: clobber

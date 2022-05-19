@@ -38,6 +38,28 @@ class TestPiVersion(unittest.TestCase):
         self._pyv = None
         GPIO.cleanup(self.TEST_PIN)
 
+    @classmethod
+    def timeit(cls, method):
+        """
+        This method declares a method or function decorator.
+        """
+        def timed(*args, **kw):
+            import sys
+            ts = time.time()
+            result = method(*args, **kw)
+            te = time.time()
+            diff = (te - ts) * 1000 # MS results
+
+            if 'log_time' in kw:
+                name = kw.get('log_name', method.__name__.upper())
+                kw['log_time'][name] = int(diff)
+            else:
+                #sys.stdout.write(f"{method.__name__}  {diff:2.2f} ms\n")
+                sys.stdout.write(f"{diff:2.2f}")
+
+            return result
+        return timed
+
     def setup_pin(self, pin):
         path = f"{self.GPIO_PIN_PATH}/export"
         os.system(f"echo {pin} > {path}")
@@ -54,6 +76,7 @@ class TestPiVersion(unittest.TestCase):
         path = f"{self.GPIO_PIN_PATH}/gpio{pin}/direction"
         return os.popen(f"cat {path}").read().strip()
 
+    #@unittest.skip("Temporary")
     def test_pin_mode(self):
         """
         Test that pins can be set properly.
@@ -76,3 +99,33 @@ class TestPiVersion(unittest.TestCase):
         found_dir = self.read_direction(self.TEST_PIN)
         msg = f"Direction should be '{expect_dir}', found '{found_dir}'."
         self.assertEqual(expect_dir, found_dir, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_digital_write(self):
+        """
+        Test that a digital write to a pin works properly.
+        """
+        # Set pin mode.
+        self._pyv.pin_mode(self.TEST_PIN, self._pyv.OUTPUT)
+        # Setup low level read of pin.
+        self.setup_pin(self.TEST_PIN)
+        # Run method under test set to HIGH.
+        self._pyv.digital_write(self.TEST_PIN, self._pyv.HIGH)
+        expect = self._pyv.HIGH
+        found = self.read_pin_value(self.TEST_PIN)
+        msg = f"Pin {self.TEST_PIN} expected '{expect}' found '{found}'"
+        self.assertEqual(expect, found, msg=msg)
+        # Run method under test set to LOW.
+        self._pyv.digital_write(self.TEST_PIN, self._pyv.LOW)
+        expect = self._pyv.LOW
+        found = self.read_pin_value(self.TEST_PIN)
+        msg = f"Pin {self.TEST_PIN} expected '{expect}' found '{found}'"
+        self.assertEqual(expect, found, msg=msg)
+
+    #@unittest.skip("Temporary")
+    @TestPiVersion.timeit
+    def test_delay(self):
+        """
+        Test that the delay in MS is correct.
+        """
+        self._pyv.delay(10)
