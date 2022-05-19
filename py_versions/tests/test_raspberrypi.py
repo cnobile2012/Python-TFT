@@ -10,6 +10,28 @@ from py_versions.raspberrypi import PiVersion
 from RPi import GPIO
 
 
+def timeit(method):
+    """
+    This method declares a method or function decorator.
+    """
+    def timed(*args, **kw):
+        import sys
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+        diff = (te - ts) * 1000 # MS results
+
+        if 'log_time' in kw:
+            name = kw.get('log_name', method.__name__.upper())
+            kw['log_time'][name] = int(diff)
+        else:
+            #sys.stdout.write(f"{method.__name__}  {diff:2.2f} ms\n")
+            sys.stdout.write(f"{diff:2.2f}")
+
+        return result
+    return timed
+
+
 class TestPiVersion(unittest.TestCase):
     """
     Test class for the Raspberry Pi PiVersion class.
@@ -37,28 +59,6 @@ class TestPiVersion(unittest.TestCase):
         self.unset_pin(self.TEST_PIN)
         self._pyv = None
         GPIO.cleanup(self.TEST_PIN)
-
-    @classmethod
-    def timeit(cls, method):
-        """
-        This method declares a method or function decorator.
-        """
-        def timed(*args, **kw):
-            import sys
-            ts = time.time()
-            result = method(*args, **kw)
-            te = time.time()
-            diff = (te - ts) * 1000 # MS results
-
-            if 'log_time' in kw:
-                name = kw.get('log_name', method.__name__.upper())
-                kw['log_time'][name] = int(diff)
-            else:
-                #sys.stdout.write(f"{method.__name__}  {diff:2.2f} ms\n")
-                sys.stdout.write(f"{diff:2.2f}")
-
-            return result
-        return timed
 
     def setup_pin(self, pin):
         path = f"{self.GPIO_PIN_PATH}/export"
@@ -123,7 +123,7 @@ class TestPiVersion(unittest.TestCase):
         self.assertEqual(expect, found, msg=msg)
 
     #@unittest.skip("Temporary")
-    @TestPiVersion.timeit
+    @timeit
     def test_delay(self):
         """
         Test that the delay in MS is correct.
