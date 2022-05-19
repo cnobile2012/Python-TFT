@@ -4,6 +4,8 @@
 
 import os
 import io
+import math
+import time
 import unittest
 from contextlib import redirect_stdout
 
@@ -140,5 +142,5 @@ class TestPiVersion(unittest.TestCase):
         found = buff.getvalue()
         found = float(found) if len(found) else 0.0
         buff.close()
-        msg = f"Expected '{ms}' found: {found}"
-        self.assertTrue(ms == found, msg)
+        msg = f"Expected '{ms} with in 0.12 ms' found: {found}"
+        self.assertTrue(math.isclose(ms, found, abs_tol=0.12), msg)
