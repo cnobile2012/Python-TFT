@@ -49,6 +49,7 @@ class PiVersion:
         GPIO.setmode(mode)
         GPIO.setwarnings(False)
         self.__pwm_pin_states = {}
+        self._spi = None
 
     def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None,
                  alt=-1):

@@ -94,7 +94,6 @@ class Compatibility(PiVersion):
             super().__init__(mode)
 
         self.BOARD = None
-        self._spi = None
 
     def _get_board_name(self, board=None):
         board = 1000 if board is None and self.BOARD is None else board
