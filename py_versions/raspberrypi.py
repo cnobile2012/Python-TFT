@@ -127,9 +127,10 @@ class PiVersion:
             self._spi.close()
             self._spi = None
 
+    @property
     def is_spi_connected(self):
         """
-        Check if the SPI connection is established.
+        Check if the SPI connection has been established.
 
         :return: True if connected else False
         :rtype: bool
@@ -169,8 +170,13 @@ class PiVersion:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
             if self.TESTING and self.BOARD == Boards.RASPI:
-                high, low = result
-                return hex((high << 8) | low)
+                data = []
+
+                for idx in range(0, len(result), 2):
+                    high, low = result[idx: idx + 2]
+                    data.append(hex((high << 8) | low))
+
+                return data
 
     def setup_pwm(self, pin, brightness):
         """

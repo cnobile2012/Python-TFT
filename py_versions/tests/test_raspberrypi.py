@@ -145,3 +145,46 @@ class TestPiVersion(unittest.TestCase):
         approx = 0.35
         msg = f"Expected '{ms} with in {approx} ms' found: {found}"
         self.assertTrue(math.isclose(ms, found, abs_tol=approx), msg)
+
+    #@unittest.skip("Temporary")
+    def test_spi_start_end_is_connected(self):
+        """
+        Test that an SPI connection can be opened and closed and checked.
+        """
+        try:
+            self._pyv.spi_start_transaction()
+            expect = 0xFFFF
+            found = self._pyv.spi_write(expect)
+            exists = self._pyv.is_spi_connected
+            msg = f"Expect '{expect}' found '{found}' exists '{exists}'"
+            self.assertEqual(expect, gound, msg=msg)
+            self.assertTrue(exists, msg=msg)
+        finally:
+            self._pyv.spi_end_transaction()
+            msg = f"Exists '{exists}'"
+            self.assertTrue(exists, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_spi_write():
+        """
+        Test that writing data to the SPI port works properly.
+        """
+        try:
+            # Test non sequence value
+            self._pyv.spi_start_transaction()
+            expect = 0xFFFF
+            found = self._pyv.spi_write(expect)
+            msg = f"Expect '{expect}' found '{found}'"
+            self.assertEqual(expect, gound, msg=msg)
+            # Test a list
+            expect = [0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC]
+            found = self._pyv.spi_write(expect)
+            msg = f"Expect '{expect}' found '{found}'"
+            self.assertEqual(expect, gound, msg=msg)
+            # Test a tuple
+            expect = (0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC)
+            found = self._pyv.spi_write(expect)
+            msg = f"Expect '{expect}' found '{found}'"
+            self.assertEqual(expect, gound, msg=msg)
+        finally:
+            self._pyv.spi_end_transaction()

@@ -1392,7 +1392,7 @@ class ILI9225(Compatibility):
             self._spi_buff.write(data)
 
     def _start_write(self):
-        if not self.is_spi_connected():
+        if not self.is_spi_connected:
             self.spi_start_transaction()
             self.digital_write(self._cs, self.LOW)
 
@@ -1400,7 +1400,7 @@ class ILI9225(Compatibility):
         if self.spi_close_override:
             reuse = True
 
-        if not reuse and self.is_spi_connected():
+        if not reuse and self.is_spi_connected:
             self.digital_write(self._cs, self.HIGH)
             self.spi_end_transaction()
 
