@@ -161,6 +161,7 @@ class TestPiVersion(unittest.TestCase):
             self.assertTrue(exists, msg=msg)
         finally:
             self._pyv.spi_end_transaction()
+            exists = self._pyv.is_spi_connected
             msg = f"Exists '{exists}'"
             self.assertTrue(exists, msg=msg)
 

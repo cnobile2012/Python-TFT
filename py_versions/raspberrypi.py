@@ -102,9 +102,42 @@ class PiVersion:
         """
         sleep(ms/1000) # Convert to floating point.
 
+    def spi_port_device(self, clock, mosi, miso, select):
+        """
+        Convert a mapping of pin definitions, which must contain 'clock',
+        and 'select' at a minimum, to a hardware SPI port, device tuple.
+
+        :param clock: The SPI clock pin number.
+        :type clock: int
+        :param mosi: The SPI -- Master Output Slave Input pin number.
+        :type mosi: int
+        :param miso: The SPI -- Master Input Slave Output pin number.
+        :type miso: int
+        :param select: The SPI Chip Select pin number.
+        :type select: int
+        :returns: A tuple of (port, device).
+        :rtype: tuple
+        :raises CompatibilityException: If the pins do not represent a valid
+                                        hardware SPI device.
+        """
+        from utils import CompatibilityException
+
+        # The port variable is sometimes refered to as the bus.
+        for port, pins in self._SPI_HARDWARE_PINS.items():
+            if all((clock == pins['clock'],
+                    mosi in (None, pins['mosi']),
+                    miso in (None, pins['miso']),
+                    select in pins['select'])):
+                device = pins['select'].index(select)
+                return (port, device)
+
+        raise CompatibilityException(self._SPI_PD_ERR_MSG)
+
     def spi_start_transaction(self):
         """
         Create the SPI connection.
+
+        :raises CompatibilityException: If the spi calls fail.
         """
         if self._spi is None:
             from utils import Boards, CompatibilityException
