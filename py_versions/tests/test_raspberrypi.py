@@ -40,6 +40,11 @@ class TestPiVersion(unittest.TestCase):
     """
     Test class for the Raspberry Pi PiVersion class.
     """
+    RST = 17 # RTD
+    RS = 27
+    CS = 8
+    MOSI = 10
+    CLK = 11
     TEST_PIN = 24 # Not used in TFT code.
     GPIO_PIN_PATH = "/sys/class/gpio"
     DIR = {0: 'out', 1: 'in'}
@@ -57,6 +62,11 @@ class TestPiVersion(unittest.TestCase):
 
     def setUp(self):
         self._pyv = PiVersion()
+        self._pyv._rst = self.RST
+        self._pyv._rs = self.RS
+        self._pyv._cs = self.CS
+        self._pyv._sdi = self.MOSI
+        self._pyv._clk = self.CLK
         self.setup_pin(self.TEST_PIN)
 
     def tearDown(self):
@@ -166,7 +176,7 @@ class TestPiVersion(unittest.TestCase):
             self.assertTrue(exists, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_spi_write():
+    def test_spi_write(self):
         """
         Test that writing data to the SPI port works properly.
         """

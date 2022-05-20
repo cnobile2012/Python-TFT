@@ -129,7 +129,7 @@ class PiVersion:
                     miso in (None, pins['miso']),
                     select in pins['select'])):
                 device = pins['select'].index(select)
-                return (port, device)
+                return port, device
 
         raise CompatibilityException(self._SPI_PD_ERR_MSG)
 
