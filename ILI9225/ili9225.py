@@ -1366,7 +1366,7 @@ class ILI9225(Compatibility):
             self._end_write(reuse=False)
             raise e
         else:
-            result = ','.join(result)
+            result = ','.join(str(v) for v in result)
             result = 'Command: {}\n'.format(result) if self.TESTING else ""
             return self.__write_spi_test_buff(result)
 
@@ -1380,7 +1380,7 @@ class ILI9225(Compatibility):
             self._end_write(reuse=False)
             raise e
         else:
-            result = ','.join(result)
+            result = ','.join(str(v) for v in result)
             result = '   Data: {}\n'.format(result) if self.TESTING else ""
             return self.__write_spi_test_buff(result)
 

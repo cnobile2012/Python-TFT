@@ -209,7 +209,7 @@ class PiVersion:
 
                 for idx in range(0, len(result), 2):
                     high, low = result[idx: idx + 2]
-                    data.append(hex((high << 8) | low))
+                    data.append((high << 8) | low)
 
                 return data
 
