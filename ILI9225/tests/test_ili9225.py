@@ -110,7 +110,7 @@ class TestILI9225(unittest.TestCase):
     LED = 22
 
     REGEX_DATA = re.compile(
-        r"Command: (0x[\dA-Fa-f]+)|   Data: (0x[\dA-Fa-f]+)")
+        r"Command: (0?x?[\dA-Fa-f]+)|   Data: (0?x?[\dA-Fa-f]+)")
     REGEX_REPR = re.compile(r"^.+the (?P<platform>.+) platform.+$")
     REGEX_PARSE = re.compile(r"(self._tft\.\w+), ([ ,\w]+)")
 
