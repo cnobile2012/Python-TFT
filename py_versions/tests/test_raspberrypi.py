@@ -167,7 +167,7 @@ class TestPiVersion(unittest.TestCase):
         try:
             self._pyv.spi_start_transaction()
             expect = 0xFFFF
-            found = eval(self._pyv.spi_write(expect))
+            found = self._pyv.spi_write(expect)
             exists = self._pyv.is_spi_connected
             msg = f"Expect '{expect}' found '{found}' exists '{exists}'"
             self.assertEqual(expect, found, msg=msg)
@@ -187,17 +187,17 @@ class TestPiVersion(unittest.TestCase):
             # Test non sequence value
             self._pyv.spi_start_transaction()
             expect = 0xFFFF
-            found = eval(self._pyv.spi_write(expect))
+            found = self._pyv.spi_write(expect)
             msg = f"Expect '{expect}' found '{found}'"
             self.assertEqual(expect, found, msg=msg)
             # Test a list
             expect = [0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC]
-            found = eval(self._pyv.spi_write(expect))
+            found = self._pyv.spi_write(expect)
             msg = f"Expect '{expect}' found '{found}'"
             self.assertEqual(expect, found, msg=msg)
             # Test a tuple
             expect = (0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC)
-            found = tuple(eval(self._pyv.spi_write(expect)))
+            found = tuple(self._pyv.spi_write(expect))
             msg = f"Expect '{expect}' found '{found}'"
             self.assertEqual(expect, found, msg=msg)
         finally:
