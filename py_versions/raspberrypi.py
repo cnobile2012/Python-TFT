@@ -23,6 +23,7 @@ class PiVersion:
     INPUT_PULLUP = GPIO.PUD_UP
     INPUT_PULLDOWN = GPIO.PUD_DOWN
     INPUT_PULLOFF = GPIO.PUD_OFF
+    _SPI_MODE = 0
     __FREQ = 25500
 
     # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".

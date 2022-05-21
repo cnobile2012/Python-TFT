@@ -67,6 +67,8 @@ class TestPiVersion(unittest.TestCase):
         self._pyv._cs = self.CS
         self._pyv._sdi = self.MOSI
         self._pyv._clk = self.CLK
+        self._pyv.BOARD = None
+        self._pyv.TESTING = True
         self.setup_pin(self.TEST_PIN)
 
     def tearDown(self):
@@ -167,7 +169,7 @@ class TestPiVersion(unittest.TestCase):
             found = self._pyv.spi_write(expect)
             exists = self._pyv.is_spi_connected
             msg = f"Expect '{expect}' found '{found}' exists '{exists}'"
-            self.assertEqual(expect, gound, msg=msg)
+            self.assertEqual(expect, found, msg=msg)
             self.assertTrue(exists, msg=msg)
         finally:
             self._pyv.spi_end_transaction()
@@ -186,7 +188,7 @@ class TestPiVersion(unittest.TestCase):
             expect = 0xFFFF
             found = self._pyv.spi_write(expect)
             msg = f"Expect '{expect}' found '{found}'"
-            self.assertEqual(expect, gound, msg=msg)
+            self.assertEqual(expect, found, msg=msg)
             # Test a list
             expect = [0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC]
             found = self._pyv.spi_write(expect)
@@ -196,6 +198,6 @@ class TestPiVersion(unittest.TestCase):
             expect = (0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC)
             found = self._pyv.spi_write(expect)
             msg = f"Expect '{expect}' found '{found}'"
-            self.assertEqual(expect, gound, msg=msg)
+            self.assertEqual(expect, found, msg=msg)
         finally:
             self._pyv.spi_end_transaction()

@@ -106,7 +106,6 @@ class ILI9225(Compatibility):
     LCD_WIDTH                   = 176
     LCD_HEIGHT                  = 220
     MAX_BRIGHTNESS              = 255   # 0..255
-    _SPI_MODE                   = 0
 
     CMD_DRIVER_OUTPUT_CTRL      = 0x01  # Driver Output Control
     CMD_LCD_AC_DRIVING_CTRL     = 0x02  # LCD AC Driving Control
