@@ -9,6 +9,7 @@ import time
 import unittest
 from contextlib import redirect_stdout
 
+from utils import Boards
 from py_versions.raspberrypi import PiVersion
 
 from RPi import GPIO
@@ -61,14 +62,14 @@ class TestPiVersion(unittest.TestCase):
         GPIO.setwarnings(True)
 
     def setUp(self):
+        PiVersion.TESTING = True
+        PiVersion.BOARD = Boards.RASPI
         self._pyv = PiVersion()
         self._pyv._rst = self.RST
         self._pyv._rs = self.RS
         self._pyv._cs = self.CS
         self._pyv._sdi = self.MOSI
         self._pyv._clk = self.CLK
-        self._pyv.BOARD = None
-        self._pyv.TESTING = True
         self.setup_pin(self.TEST_PIN)
 
     def tearDown(self):
@@ -166,7 +167,7 @@ class TestPiVersion(unittest.TestCase):
         try:
             self._pyv.spi_start_transaction()
             expect = 0xFFFF
-            found = self._pyv.spi_write(expect)
+            found = eval(self._pyv.spi_write(expect))
             exists = self._pyv.is_spi_connected
             msg = f"Expect '{expect}' found '{found}' exists '{exists}'"
             self.assertEqual(expect, found, msg=msg)
@@ -186,17 +187,17 @@ class TestPiVersion(unittest.TestCase):
             # Test non sequence value
             self._pyv.spi_start_transaction()
             expect = 0xFFFF
-            found = self._pyv.spi_write(expect)
+            found = eval(self._pyv.spi_write(expect))
             msg = f"Expect '{expect}' found '{found}'"
             self.assertEqual(expect, found, msg=msg)
             # Test a list
             expect = [0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC]
-            found = self._pyv.spi_write(expect)
+            found = eval(self._pyv.spi_write(expect))
             msg = f"Expect '{expect}' found '{found}'"
-            self.assertEqual(expect, gound, msg=msg)
+            self.assertEqual(expect, found, msg=msg)
             # Test a tuple
             expect = (0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC)
-            found = self._pyv.spi_write(expect)
+            found = tuple(eval(self._pyv.spi_write(expect)))
             msg = f"Expect '{expect}' found '{found}'"
             self.assertEqual(expect, found, msg=msg)
         finally:
