@@ -175,7 +175,7 @@ class TestPiVersion(unittest.TestCase):
             self._pyv.spi_end_transaction()
             exists = self._pyv.is_spi_connected
             msg = f"Exists '{exists}'"
-            self.assertTrue(exists, msg=msg)
+            self.assertFalse(exists, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_spi_write(self):

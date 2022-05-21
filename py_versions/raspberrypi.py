@@ -211,7 +211,7 @@ class PiVersion:
                     high, low = result[idx: idx + 2]
                     data.append(hex((high << 8) | low))
 
-                return data
+                return ', '.join(data)
 
     def setup_pwm(self, pin, brightness):
         """
