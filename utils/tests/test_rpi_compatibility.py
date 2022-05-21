@@ -79,10 +79,13 @@ class TestCompatibility(unittest.TestCase):
         """
         Test that a board can be set.
         """
-        self._tft.set_board(Boards.ESP32)
-        board = self._tft.get_board()
-        msg = f"The board '{board}' does not match '{Boards.ESP32}'."
-        self.assertEqual(board, Boards.ESP32, msg=msg)
+        try:
+            self._tft.set_board(Boards.ESP32)
+            board = self._tft.get_board()
+            msg = f"The board '{board}' does not match '{Boards.ESP32}'."
+            self.assertEqual(board, Boards.ESP32, msg=msg)
+        finally:
+            self._tft.set_board(Boards.RASPI)
 
     def test_unknown_set_board(self):
         """
