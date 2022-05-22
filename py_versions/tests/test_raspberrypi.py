@@ -210,17 +210,18 @@ class TestPiVersion(unittest.TestCase):
         """
         Test that a PWM pin gets setup properly.
         """
-        num_reps = 100
+        num_reps = 1000
 
         # Set brightness to 128 -- 50%
         try:
             self.setup_pin(self.LED)
             self._pyv.pin_mode(self.LED, self._pyv.OUTPUT)
             self._pyv.setup_pwm(self.LED, 128)
+            # 0.00255 based on freq 25500
             readings = [self.read_pin_value(self.LED) for c in range(num_reps)
-                        if not time.sleep(0.0255)] # 0.255 based on freq 25500
+                        if not time.sleep(0.00255)]
             percent = readings.count(1) * 100 / num_reps
-            msg = f"Expect abount 50% found {percent}"
+            msg = f"Expect abount 50% found {percent}%"
             self.assertTrue(math.isclose(50, percent, rel_tol=0.05), msg=msg)
         finally:
             self.unset_pin(self.LED)
