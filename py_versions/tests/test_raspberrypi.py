@@ -211,17 +211,54 @@ class TestPiVersion(unittest.TestCase):
         Test that a PWM pin gets setup properly.
         """
         num_reps = 1000
+        brightness = 128.0
+        expect_percent = 50.0
 
-        # Set brightness to 128 -- 50%
         try:
+            # Set brightness to 128 -- 50%
             self.setup_pin(self.LED)
             self._pyv.pin_mode(self.LED, self._pyv.OUTPUT)
-            self._pyv.setup_pwm(self.LED, 128)
+            self._pyv.setup_pwm(self.LED, brightness)
             # 0.00255 based on freq 25500
             readings = [self.read_pin_value(self.LED) for c in range(num_reps)
                         if not time.sleep(0.00255)]
             percent = readings.count(1) * 100 / num_reps
-            msg = f"Expect abount 50% found {percent}%"
-            self.assertTrue(math.isclose(50, percent, rel_tol=0.05), msg=msg)
+            msg = f"Expect abount {expect_percent}% found {percent}%"
+            self.assertTrue(
+                math.isclose(expect_percent, percent, rel_tol=0.05), msg=msg)
+        finally:
+            self.unset_pin(self.LED)
+
+    #@unittest.skip("Temporary")
+    def test_change_duty_cycle(self):
+        """
+        Test that a PWM pin gets setup properly.
+        """
+        num_reps = 1000
+        brightness = 128.0
+        expect_percent = 50.0
+
+        try:
+            # Set brightness to 128 -- 50%
+            self.setup_pin(self.LED)
+            self._pyv.pin_mode(self.LED, self._pyv.OUTPUT)
+            self._pyv.setup_pwm(self.LED, brightness)
+            # 0.00255 based on freq 25500
+            readings = [self.read_pin_value(self.LED) for c in range(num_reps)
+                        if not time.sleep(0.00255)]
+            percent = readings.count(1) * 100 / num_reps
+            msg = f"Expect abount {expect_percent}% found {percent}%"
+            self.assertTrue(
+                math.isclose(expect_percent, percent, rel_tol=0.05), msg=msg)
+            # Set brightness to 64 == 25%
+            brightness /= 2
+            expect_percent /= 2
+            self.change_duty_cycle(self.LED, brightness)
+            readings = [self.read_pin_value(self.LED) for c in range(num_reps)
+                        if not time.sleep(0.00255)]
+            percent = readings.count(1) * 100 / num_reps
+            msg = f"Expect abount {expect_percent}% found {percent}%"
+            self.assertTrue(
+                math.isclose(expect_percent, percent, rel_tol=0.05), msg=msg)
         finally:
             self.unset_pin(self.LED)
