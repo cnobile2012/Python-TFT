@@ -250,10 +250,10 @@ class TestPiVersion(unittest.TestCase):
             msg = f"Expect abount {expect_percent}% found {percent}%"
             self.assertTrue(
                 math.isclose(expect_percent, percent, rel_tol=0.05), msg=msg)
-            # Set brightness to 64 == 25%
+            # Set brightness to 64 -- 25%
             brightness /= 2
             expect_percent /= 2
-            self.change_duty_cycle(self.LED, brightness)
+            self._pyv.change_duty_cycle(self.LED, brightness)
             readings = [self.read_pin_value(self.LED) for c in range(num_reps)
                         if not time.sleep(0.00255)]
             percent = readings.count(1) * 100 / num_reps
