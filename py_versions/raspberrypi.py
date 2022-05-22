@@ -201,7 +201,7 @@ class PiVersion:
                     result = self._spi.xfer2(items)
             else: # pragma: no cover
                 self._spi.writebytes(items)
-        except Exception as e:
+        except Exception as e: # pragma: no cover
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
             if self.TESTING and self.BOARD == Boards.RASPI:

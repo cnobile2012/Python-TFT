@@ -46,6 +46,7 @@ class TestPiVersion(unittest.TestCase):
     CS = 8
     MOSI = 10
     CLK = 11
+    LED = 22
     TEST_PIN = 24 # Not used in TFT code.
     GPIO_PIN_PATH = "/sys/class/gpio"
     DIR = {0: 'out', 1: 'in'}
@@ -64,6 +65,7 @@ class TestPiVersion(unittest.TestCase):
     def setUp(self):
         PiVersion.TESTING = True
         PiVersion.BOARD = Boards.RASPI
+        PiVersion.MAX_BRIGHTNESS = 255
         self._pyv = PiVersion()
         self._pyv._rst = self.RST
         self._pyv._rs = self.RS
@@ -202,3 +204,22 @@ class TestPiVersion(unittest.TestCase):
             self.assertEqual(expect, found, msg=msg)
         finally:
             self._pyv.spi_end_transaction()
+
+    #@unittest.skip("Temporary")
+    def test_setup_pwm(self):
+        """
+        Test that a PWM pin gets setup properly.
+        """
+        num_reps = 100
+
+        # Set brightness to 128 -- 50%
+        try:
+            self.setup_pin(self.LED)
+            self._pyv.setup_pwm(self.LED, 128)
+            readings = [self.read_pin_value(self.LED) for c in range(num_reps)
+                        if not time.sleep(0.0255)] # 0.255 based on freq 25500
+            percent = readings.count(1) * 100 / num_reps
+            msg = f"Expect abount 50% found {percent}"
+            self.assertTrue(math.isclose(50, percent, rel_tol=0.05), msg=msg)
+        finally:
+            self.unset_pin(self.LED)
