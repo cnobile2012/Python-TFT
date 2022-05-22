@@ -215,6 +215,7 @@ class TestPiVersion(unittest.TestCase):
         # Set brightness to 128 -- 50%
         try:
             self.setup_pin(self.LED)
+            self._pyv.pin_mode(self.LED, self._pyv.OUTPUT)
             self._pyv.setup_pwm(self.LED, 128)
             readings = [self.read_pin_value(self.LED) for c in range(num_reps)
                         if not time.sleep(0.0255)] # 0.255 based on freq 25500
