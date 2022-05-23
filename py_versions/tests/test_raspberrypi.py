@@ -214,7 +214,7 @@ class TestPiVersion(unittest.TestCase):
         num_reps = 1000
         brightness = 128.0
         expect_percent = 50.0
-        sleep = freq / num_reps * 0.0001
+        sleep = freq / num_reps * 0.0000034
 
         try:
             # Set brightness to 128 -- 50%
@@ -241,7 +241,7 @@ class TestPiVersion(unittest.TestCase):
         num_reps = 1000
         brightness = 128.0
         expect_percent = 50.0
-        sleep = freq / num_reps * 0.0001
+        sleep = freq / num_reps * 0.0000034
 
         try:
             # Set brightness to 128 -- 50%
