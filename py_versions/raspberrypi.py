@@ -25,6 +25,7 @@ class PiVersion:
     INPUT_PULLOFF = GPIO.PUD_OFF
     _SPI_MODE = 0
     __FREQ = 25500
+    _SPI_PD_ERR_MSG = 'Invalid pin selection for hardware SPI.'
 
     # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".
     _SPI_HARDWARE_PINS = {
@@ -52,8 +53,7 @@ class PiVersion:
         self.__pwm_pin_states = {}
         self._spi = None
 
-    def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None,
-                 alt=-1):
+    def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None):
         """
         Set a pin, direction, pull, mode, and default.
 
@@ -66,8 +66,6 @@ class PiVersion:
         :type pull: int
         :param default: Set a default value of the pin.
         :type default: int
-        :param alt: Not used on the RPi.
-        :type alt: int
         """
         GPIO.setup(pin, direction, pull_up_down=pull)
 
@@ -103,7 +101,7 @@ class PiVersion:
         """
         sleep(ms/1000) # Convert to floating point.
 
-    def spi_port_device(self, clock, mosi, miso, select):
+    def _spi_port_device(self, clock, mosi, miso, select):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
         and 'select' at a minimum, to a hardware SPI port, device tuple.
@@ -145,7 +143,7 @@ class PiVersion:
 
             try:
                 self._spi = SpiDev()
-                port, device = self.spi_port_device(
+                port, device = self._spi_port_device(
                     self._clk, self._sdi, None, self._cs)
                 self._spi.open(port, device)
                 self._spi.max_speed_hz = Boards.get_frequency(self.BOARD)
@@ -220,7 +218,7 @@ class PiVersion:
         .. notes::
 
           The duty_cycle is derived by multiplying the brightness by 100
-          then  dividing by the maximum number of brightness values.
+          then dividing by the maximum number of brightness values.
 
         :param pin: The pin to setup the PWM on.
         :type pin: int

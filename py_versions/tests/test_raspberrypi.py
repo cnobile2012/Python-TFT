@@ -162,6 +162,42 @@ class TestPiVersion(unittest.TestCase):
         self.assertTrue(math.isclose(ms, found, abs_tol=approx), msg)
 
     #@unittest.skip("Temporary")
+    def test__spi_port_device(self):
+        """
+        Test that a proper pin mapping returns the correct port and device.
+
+        # Second SPI buss
+        dtoverlay=spi1-3cs
+
+        The above line needs to be added to the `/boot/config.txt` on the RPI.
+        """
+        # Port 0
+        port, device = self._pyv._spi_port_device(
+            self.CLK, None, None, self.CS)
+        msg = f"The port should be '0', found '{port}'."
+        self.assertEqual(0, port, msg=msg)
+        msg = f"The device should be '0', found '{device}'."
+        self.assertEqual(0, device, msg=msg)
+        # Port 1
+        port, device = self._pyv._spi_port_device(21, None, None, 16)
+        msg = f"The port should be '1', found '{port}'."
+        self.assertEqual(1, port, msg=msg)
+        msg = f"The device should be '2', found '{device}'."
+        self.assertEqual(2, device, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_invalid__spi_port_device(self):
+        """
+        Test that invalid arguments raises the proper exception.
+        """
+        with self.assertRaises(CompatibilityException) as cm:
+            self._pyv._spi_port_device(100, None, None, 101)
+
+        msg = (f"Error message should be '{self._pyv._SPI_PD_ERR_MSG}', "
+               f"found '{str(cm.exception)}'.")
+        self.assertEqual(self._pyv._SPI_PD_ERR_MSG, str(cm.exception), msg=msg)
+
+    #@unittest.skip("Temporary")
     def test_spi_start_end_is_connected(self):
         """
         Test that an SPI connection can be opened and closed and checked.

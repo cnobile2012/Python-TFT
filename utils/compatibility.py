@@ -87,7 +87,6 @@ class Compatibility(PiVersion):
     """
     Checks the compatibility and version of Python.
     """
-    _SPI_PD_ERR_MSG = 'Invalid pin selection for hardware SPI.'
 
     def __init__(self, mode=None):
         if not None:
