@@ -9,7 +9,7 @@ import time
 import unittest
 from contextlib import redirect_stdout
 
-from utils import Boards
+from utils import Boards, CompatibilityException
 from py_versions.raspberrypi import PiVersion
 
 from RPi import GPIO
