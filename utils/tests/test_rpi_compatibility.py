@@ -16,13 +16,36 @@ class TestBoards(unittest.TestCase):
     def __init__(self, name):
         super().__init__(name)
 
-    def test_get_frequency(self):
+    #@unittest.skip("Temporary")
+    def test_get_board_name(self):
+        """
+        Test that the correct board name is returned with a board id.
+        """
+        board_id = 9
+        expect = Boards._BOARDS.get(board_id)
+        found = Boards.get_board_name(board_id)
+        msg = f"Expect '{expect}' found '{found}'"
+        self.assertEqual(expect, found, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_get_board_id(self):
+        """
+        Test that the correct board id is returned with the board name.
+        """
+        board_name = 'RASPI'
+        expect = Boards._BOARD_IDS.get(board_name)
+        found = Boards.get_board_id(board_name)
+        msg = f"Expect '{expect}' found '{found}'"
+        self.assertEqual(expect, found, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_get_frequencies(self):
         """
         Test that the correct frequence is returned for the board selected.
         """
-        board = Boards.ARDUINO_ARCH_STM32F1
-        freq = Boards._FREQUENCY.get(board)
-        freq_found = Boards.get_frequency(board)
+        board = Boards.ARDUINO_STM32_FEATHER
+        freq = Boards._BOARDS.get(board)[1:]
+        freq_found = Boards.get_frequencies(board)
         msg = f"The board freq should be '{freq}', found '{freq_found}'."
         self.assertEqual(freq, freq_found, msg=msg)
 
@@ -49,6 +72,7 @@ class TestCompatibility(unittest.TestCase):
         self._tft.clear()
         self._tft.pin_cleanup()
 
+    #@unittest.skip("Temporary")
     def test__get_board_name(self):
         """
         Test that the board name matches what was set.
@@ -58,6 +82,7 @@ class TestCompatibility(unittest.TestCase):
         msg = f"The board '{board}' does not match '{tmp_board}'."
         self.assertEqual(board, tmp_board, msg=msg)
 
+    #@unittest.skip("Temporary")
     def test_incorrect_get_board_name(self):
         """
         Test that the board name matches what was set.
@@ -67,6 +92,7 @@ class TestCompatibility(unittest.TestCase):
         msg = f"The board '{board}' matches '{tmp_board}'."
         self.assertNotEqual(board, tmp_board, msg=msg)
 
+    #@unittest.skip("Temporary")
     def test_get_board(self):
         """
         Test that the board value matches what was set.
@@ -75,6 +101,7 @@ class TestCompatibility(unittest.TestCase):
         msg = f"The board '{board_val}' does not match '{self._tft.BOARD}'."
         self.assertEqual(board_val, self._tft.BOARD, msg=msg)
 
+    #@unittest.skip("Temporary")
     def test_set_board(self):
         """
         Test that a board can be set.
@@ -87,6 +114,7 @@ class TestCompatibility(unittest.TestCase):
         finally:
             self._tft.set_board(Boards.RASPI)
 
+    #@unittest.skip("Temporary")
     def test_unknown_set_board(self):
         """
         Test that an invalid board raises the proper exception.

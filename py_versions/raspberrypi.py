@@ -146,7 +146,7 @@ class PiVersion:
                 port, device = self._spi_port_device(
                     self._clk, self._sdi, None, self._cs)
                 self._spi.open(port, device)
-                self._spi.max_speed_hz = Boards.get_frequency(self.BOARD)
+                self._spi.max_speed_hz = Boards.get_frequencies(self.BOARD)[0]
                 self._spi.mode = self._SPI_MODE
             except Exception as e: # pragma: no cover
                 self.spi_end_transaction()

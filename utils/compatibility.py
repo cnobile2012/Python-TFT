@@ -32,55 +32,42 @@ else: # pragma: no cover
     from py_versions.micropython import PiVersion
 
 
-class Boards:
-    # With MCUs
-    ARDUINO_STM32_FEATHER = 1
-    ARDUINO_ARCH_STM32 = 2
-    ARDUINO_ARCH_STM32F1 = 3
-    STM32F1 = 4
-    ARDUINO_FEATHER52 = 5
-    RP2040 = 6
-    TEENSYDUINO = 7
-    ESP8266 = 8
-    ESP32 = 9
-    #ESP32_C3 = 10
-    # With CPUs
-    RASPI = 50
-    COMPUTER = 51
-    # Architectures
-    AVR = 70
-    ARM = 71
+class _Boards:
+    _BOARD_SPECS = (
+        ('ARDUINO_STM32_FEATHER', (42000000, 21000000)),
+        ('ARDUINO_ARCH_STM32', (16000000,)),
+        ('ARDUINO_ARCH_STM32F1', (18000000,)),
+        ('STM32F1', (0,)),
+        ('ARDUINO_FEATHER52', (0,)),
+        ('TEENSYDUINO', (8000000,)),
+        ('ESP8266', (40000000,)),
+        ('ESP32', (40000000,)),
+        ('RASPI', (31200000,)),
+        ('COMPUTER', (80000000,)),
+        )
 
-    _BOARDS = {
-        ARDUINO_STM32_FEATHER: 'ARDUINO_STM32_Reather',
-        ARDUINO_ARCH_STM32: 'ARDUINO_ARCH_STM32',
-        ARDUINO_ARCH_STM32F1: 'ARDUINO_ARCH_STM32F1',
-        STM32F1: 'STM32F1',
-        ARDUINO_FEATHER52: 'ARDUINO_FEATHER52',
-        TEENSYDUINO: 'TEENSYDUINO',
-        ESP8266: 'ESP8266',
-        ESP32: 'ESP32',
-        RASPI: 'RASPI',
-        COMPUTER: 'COMPUTER',
-        AVR: 'AVR',
-        ARM: 'ARM'
-        }
+    _BOARDS = {idx: (name, freq)
+               for idx, (name, freq) in enumerate(_BOARD_SPECS, start=1)}
+    _BOARD_IDS = {spec[0]: idx for idx, spec in _BOARDS.items()}
 
-    _FREQUENCY = {
-        ARDUINO_ARCH_STM32: 16000000,
-        ARDUINO_ARCH_STM32F1: 18000000,
-        AVR: 8000000,
-        COMPUTER: 80000000,
-        RP2040: 1000000,
-        ESP8266: 40000000,
-        ESP32: 40000000,
-        RASPI: 31200000, # RPi 3?
-        TEENSYDUINO: 8000000,
-        }
+    def __init__(self):
+        [setattr(self, name, idx) for name, idx in self._BOARD_IDS.items()]
 
     @staticmethod
-    def get_frequency(board):
-        return Boards._FREQUENCY.get(board, 24000000)
+    def get_board_name(board_id):
+        board_spec = Boards._BOARDS.get(board_id)
+        return board_spec[0] if board_spec is not None else None
+
+    @staticmethod
+    def get_board_id(board_name):
+        return Boards._BOARD_IDS.get(board_name, 0)
+
+    @staticmethod
+    def get_frequencies(board):
+        board_spec = Boards._BOARDS.get(board)
+        return board_spec[1] if board_spec is not None else ()
+
+Boards = _Boards()
 
 
 class Compatibility(PiVersion):
@@ -94,10 +81,10 @@ class Compatibility(PiVersion):
 
         self.BOARD = None
 
-    def _get_board_name(self, board=None):
-        board = 1000 if board is None and self.BOARD is None else board
-        board = board if board is not None else self.BOARD
-        return Boards._BOARDS.get(board, "Unknown board")
+    def _get_board_name(self, board_id=None):
+        board_id = 1000 if board_id is None and self.BOARD is None else board_id
+        board_id = board_id if board_id is not None else self.BOARD
+        return Boards.get_board_name(board_id)
 
     def get_board(self):
         return self.BOARD
