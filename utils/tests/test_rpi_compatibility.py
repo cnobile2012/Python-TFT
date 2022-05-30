@@ -22,7 +22,7 @@ class TestBoards(unittest.TestCase):
         Test that the correct board name is returned with a board id.
         """
         board_id = 9
-        expect = Boards._BOARDS.get(board_id)
+        expect = Boards._BOARDS.get(board_id)[0]
         found = Boards.get_board_name(board_id)
         msg = f"Expect '{expect}' found '{found}'"
         self.assertEqual(expect, found, msg=msg)
@@ -44,7 +44,7 @@ class TestBoards(unittest.TestCase):
         Test that the correct frequence is returned for the board selected.
         """
         board = Boards.ARDUINO_STM32_FEATHER
-        freq = Boards._BOARDS.get(board)[1:]
+        freq = Boards._BOARDS.get(board)[1]
         freq_found = Boards.get_frequencies(board)
         msg = f"The board freq should be '{freq}', found '{freq_found}'."
         self.assertEqual(freq, freq_found, msg=msg)
@@ -87,7 +87,7 @@ class TestCompatibility(unittest.TestCase):
         """
         Test that the board name matches what was set.
         """
-        board = self._tft._get_board_name(Boards.ARM)
+        board = self._tft._get_board_name(Boards.ARDUINO_STM32_FEATHER)
         tmp_board = Boards._BOARDS.get(self._tft.BOARD)
         msg = f"The board '{board}' matches '{tmp_board}'."
         self.assertNotEqual(board, tmp_board, msg=msg)
