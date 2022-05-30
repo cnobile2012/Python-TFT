@@ -77,7 +77,7 @@ class TestCompatibility(unittest.TestCase):
         """
         Test that the board name matches what was set.
         """
-        expect_board = Boards._BOARDS.get(self._tft.BOARD)
+        expect_board = Boards._BOARDS.get(self._tft.BOARD)[0]
         found_board = self._tft._get_board_name()
         msg = f"Expect '{expect_board}' found '{found_board}'."
         self.assertEqual(expect_board, found_board, msg=msg)
