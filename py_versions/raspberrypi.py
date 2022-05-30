@@ -141,13 +141,19 @@ class PiVersion:
         if self._spi is None:
             from utils import Boards, CompatibilityException
 
+            port, device = self._spi_port_device(
+                self._clk, self._sdi, None, self._cs)
+            freqs = Boards.get_frequencies(self.BOARD)
+
             try:
                 self._spi = SpiDev()
-                port, device = self._spi_port_device(
-                    self._clk, self._sdi, None, self._cs)
                 self._spi.open(port, device)
-                self._spi.max_speed_hz = Boards.get_frequencies(self.BOARD)[0]
+                self._spi.max_speed_hz = freqs[0]
                 self._spi.mode = self._SPI_MODE
+            except IndexError as e: # pragma: no cover
+                msg = ("There were no frequencies defines for the {} board, {}"
+                       ).format(Boards.get_board_name(self.BOARD), e)
+                raise CompatibilityException(msg)
             except Exception as e: # pragma: no cover
                 self.spi_end_transaction()
                 raise CompatibilityException(e)
