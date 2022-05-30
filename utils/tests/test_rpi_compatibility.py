@@ -77,40 +77,41 @@ class TestCompatibility(unittest.TestCase):
         """
         Test that the board name matches what was set.
         """
-        board = self._tft._get_board_name()
-        tmp_board = Boards._BOARDS.get(self._tft.BOARD)
-        msg = f"The board '{board}' does not match '{tmp_board}'."
-        self.assertEqual(board, tmp_board, msg=msg)
+        expect_board = Boards._BOARDS.get(self._tft.BOARD)
+        found_board = self._tft._get_board_name()
+        msg = f"Expect '{expect_board}' found '{found_board}'."
+        self.assertEqual(expect_board, found_board, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_incorrect_get_board_name(self):
         """
         Test that the board name matches what was set.
         """
-        board = self._tft._get_board_name(Boards.ARDUINO_STM32_FEATHER)
-        tmp_board = Boards._BOARDS.get(self._tft.BOARD)
-        msg = f"The board '{board}' matches '{tmp_board}'."
-        self.assertNotEqual(board, tmp_board, msg=msg)
+        expect_board = Boards._BOARDS.get(self._tft.BOARD)[0]
+        found_board = self._tft._get_board_name(Boards.ARDUINO_STM32_FEATHER)
+        msg = f"Expect '{expect_board}' found '{found_board}'."
+        self.assertNotEqual(expect_board, found_board, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_get_board(self):
         """
         Test that the board value matches what was set.
         """
-        board_val = self._tft.get_board()
-        msg = f"The board '{board_val}' does not match '{self._tft.BOARD}'."
-        self.assertEqual(board_val, self._tft.BOARD, msg=msg)
+        expect_board = self._tft.BOARD
+        found_board = self._tft.get_board()
+        msg = f"Expect '{expect_board}' found '{found_board}'."
+        self.assertEqual(expect_board, found_board, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_set_board(self):
         """
-        Test that a board can be set.
+        Test that a board ID can be set.
         """
         try:
             self._tft.set_board(Boards.ESP32)
-            board = self._tft.get_board()
-            msg = f"The board '{board}' does not match '{Boards.ESP32}'."
-            self.assertEqual(board, Boards.ESP32, msg=msg)
+            found_board = self._tft.get_board()
+            msg = f"Expect '{Boards.ESP32}' found '{found_board}'."
+            self.assertEqual(Boards.ESP32, found_board, msg=msg)
         finally:
             self._tft.set_board(Boards.RASPI)
 
