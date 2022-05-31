@@ -45,9 +45,10 @@ class _Boards:
         ('RASPI', (31200000,)),
         ('COMPUTER', (80000000,)),
         )
-
+    # {1: ('ARDUINO_STM32_FEATHER', (42000000, 21000000)), ...}
     _BOARDS = {idx: (name, freq)
                for idx, (name, freq) in enumerate(_BOARD_SPECS, start=1)}
+    # {'ARDUINO_STM32_FEATHER': 1, ...}
     _BOARD_IDS = {spec[0]: idx for idx, spec in _BOARDS.items()}
 
     def __init__(self):

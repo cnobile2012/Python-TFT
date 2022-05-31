@@ -29,14 +29,8 @@ class PiVersion:
 
     # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".
     _SPI_HARDWARE_PINS = {
-        0: {'clock':  11,
-            'mosi':   10,
-            'miso':   9,
-            'select': (8, 7)},
-        1: {'clock':  21,
-            'mosi':   20,
-            'miso':   19,
-            'select': (18, 17, 16)}
+        0: {'select': (8, 7)}, # clock = 11, mosi = 10, and miso = 9
+        1: {'select': (18, 17, 16)} # clock = 21, mosi = 20, and miso = 19
         }
 
     def __init__(self, mode=GPIO.BCM):
@@ -101,17 +95,13 @@ class PiVersion:
         """
         sleep(ms/1000) # Convert to floating point.
 
-    def _spi_port_device(self, clock, mosi, miso, select):
+    def _spi_port_device(self, port, select):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
         and 'select' at a minimum, to a hardware SPI port, device tuple.
 
-        :param clock: The SPI clock pin number.
-        :type clock: int
-        :param mosi: The SPI -- Master Output Slave Input pin number.
-        :type mosi: int
-        :param miso: The SPI -- Master Input Slave Output pin number.
-        :type miso: int
+        :param port: The SPI port number
+        :type port: int
         :param select: The SPI Chip Select pin number.
         :type select: int
         :returns: A tuple of (port, device).
@@ -123,10 +113,7 @@ class PiVersion:
 
         # The port variable is sometimes refered to as the bus.
         for port, pins in self._SPI_HARDWARE_PINS.items():
-            if all((clock == pins['clock'],
-                    mosi in (None, pins['mosi']),
-                    miso in (None, pins['miso']),
-                    select in pins['select'])):
+            if select in pins['select']):
                 device = pins['select'].index(select)
                 return port, device
 
@@ -141,8 +128,7 @@ class PiVersion:
         if self._spi is None:
             from utils import Boards, CompatibilityException
 
-            port, device = self._spi_port_device(
-                self._clk, self._sdi, None, self._cs)
+            port, device = self._spi_port_device(self._spi_port, self._cs)
             freqs = Boards.get_frequencies(self.BOARD)
 
             try:

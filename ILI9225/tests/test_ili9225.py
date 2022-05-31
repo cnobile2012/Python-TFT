@@ -104,9 +104,8 @@ class TestILI9225(unittest.TestCase):
     """
     RST = 17 # RTD
     RS = 27
+    PORT = 0
     CS = 8
-    MOSI = 10
-    CLK = 11
     LED = 22
 
     REGEX_DATA = re.compile(
@@ -123,7 +122,7 @@ class TestILI9225(unittest.TestCase):
         super().__init__(name)
 
     def setUp(self):
-        self._tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
+        self._tft = ILI9225(self.RST, self.RS, self.PORT, self.CS,
                             led=self.LED, board=Boards.RASPI)
         self._tft.begin()
         self._read_spi_buff('dummy') # Clear the previous data.

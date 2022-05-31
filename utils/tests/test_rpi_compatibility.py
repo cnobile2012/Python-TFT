@@ -56,15 +56,14 @@ class TestCompatibility(unittest.TestCase):
     """
     RST = 17 # RTD
     RS = 27
+    PORT = 0
     CS = 8
-    MOSI = 10
-    CLK = 11
 
     def __init__(self, name):
         super().__init__(name)
 
     def setUp(self):
-        self._tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
+        self._tft = ILI9225(self.RST, self.RS, self.PORT, self.CS,
                             board=Boards.RASPI)
         self._tft.begin()
 

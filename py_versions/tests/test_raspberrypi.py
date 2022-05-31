@@ -44,8 +44,6 @@ class TestPiVersion(unittest.TestCase):
     RST = 17 # RTD
     RS = 27
     CS = 8
-    MOSI = 10
-    CLK = 11
     LED = 22
     TEST_PIN = 24 # Not used in TFT code.
     GPIO_PIN_PATH = "/sys/class/gpio"
@@ -70,8 +68,6 @@ class TestPiVersion(unittest.TestCase):
         self._pyv._rst = self.RST
         self._pyv._rs = self.RS
         self._pyv._cs = self.CS
-        self._pyv._sdi = self.MOSI
-        self._pyv._clk = self.CLK
         self.setup_pin(self.TEST_PIN)
 
     def tearDown(self):

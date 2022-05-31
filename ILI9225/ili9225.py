@@ -164,7 +164,7 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, cs, sdi, clk, led=-1, board=None, *,
+    def __init__(self, rst, rs, spi_port, cs, led=-1, board=None, *,
                  brightness=MAX_BRIGHTNESS, rpi_mode=None):
         """
         Initialize the ILI9225 class.
@@ -173,13 +173,10 @@ class ILI9225(Compatibility):
         :type rst: int
         :param rs: The RS (command/data) pin on the display. 0: command, 1: data
         :type rs: int
+        :param spi_port: The SPI port to use on the board.
+        :type spi_port: int
         :param cs: The CS (chip select) pin on the display.
         :type cs: int
-        :param sdi: The SDI (serial data input) pin on the display. Sometimes
-                    marked the SDA pin.
-        :type sdi: int
-        :param clk: The CLK (clock) pin on the display.
-        :type clk: int
         :param led: The LED pin on the display.
         :type led: int
         :param brightness: Set the brightness from 0..255 (default=255).
@@ -194,10 +191,9 @@ class ILI9225(Compatibility):
         super().__init__(mode=rpi_mode)
         self._rst = rst
         self._rs = rs
+        self._spi_port = spi_port
         self._cs = cs
         self._led = led
-        self._sdi = sdi
-        self._clk = clk
         self.__brightness = 0
         self.brightness = brightness # Default it maximum brightness.
         self.__orientation = 0
@@ -235,22 +231,21 @@ class ILI9225(Compatibility):
         self.pin_mode(self._cs, self.OUTPUT)
         self.digital_write(self._cs, self.HIGH)
 
+        # THIS NEEDS TO BE IN THE MicroPython AND CircuitPythin FILES.
         # Setup SPI clock and data inputs.
-        if self.BOARD not in (Boards.RASPI,): # pragma: no cover
-            self.pin_mode(self._sdi, self.OUTPUT)
-            self.digital_write(self._sdi, self.LOW)
-            self.pin_mode(self._clk, self.OUTPUT)
-            self.digital_write(self._clk, self.HIGH)
+        ## if self.BOARD not in (Boards.RASPI,): # pragma: no cover
+        ##     self.pin_mode(self._sdi, self.OUTPUT)
+        ##     self.digital_write(self._sdi, self.LOW)
+        ##     self.pin_mode(self._clk, self.OUTPUT)
+        ##     self.digital_write(self._clk, self.HIGH)
 
-        # Pull the reset pin high to release the ILI9225C from the reset
-        # status.
+        # Pull the reset pin high to release the reset.
         self.digital_write(self._rst, self.HIGH)
         self.delay(1)
         # Pull the reset pin low to reset the ILI9225.
         self.digital_write(self._rst, self.LOW)
         self.delay(10)
-        # Pull the reset pin high to release the ILI9225C from the reset
-        # status.
+        # Pull the reset pin high to release the reset.
         self.digital_write(self._rst, self.HIGH)
         self.delay(50)
 
