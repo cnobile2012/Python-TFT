@@ -95,7 +95,7 @@ class PiVersion:
         """
         sleep(ms/1000) # Convert to floating point.
 
-    def _spi_port_device(self, port, select):
+    def _spi_port_and_cs(self, port, select):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
         and 'select' at a minimum, to a hardware SPI port, device tuple.
@@ -128,7 +128,7 @@ class PiVersion:
         if self._spi is None:
             from utils import Boards, CompatibilityException
 
-            port, device = self._spi_port_device(self._spi_port, self._cs)
+            port, device = self._spi_port_and_cs(self._spi_port, self._cs)
             freqs = Boards.get_frequencies(self.BOARD)
 
             try:
