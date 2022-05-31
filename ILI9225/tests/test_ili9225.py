@@ -282,8 +282,7 @@ class TestILI9225(unittest.TestCase):
         invalid_board = 1000
 
         with self.assertRaises(CompatibilityException) as cm:
-            tft = ILI9225(self.RST, self.RS, self.CS, self.MOSI, self.CLK,
-                          invalid_board)
+            tft = ILI9225(self.RST, self.RS, self.PORT, self.CS, invalid_board)
 
         board_name = self._tft._get_board_name(invalid_board)
         expect_msg = self._tft.ERROR_MSGS['BRD_UNSUP'].format(board_name)

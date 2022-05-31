@@ -113,7 +113,7 @@ class PiVersion:
 
         # The port variable is sometimes refered to as the bus.
         for port, pins in self._SPI_HARDWARE_PINS.items():
-            if select in pins['select']):
+            if select in pins['select']:
                 device = pins['select'].index(select)
                 return port, device
 

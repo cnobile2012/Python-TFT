@@ -66,7 +66,7 @@ class _Boards:
         :rtype: str
         """
         board_spec = Boards._BOARDS.get(board_id)
-        return board_spec[0] if board_spec is not None else None
+        return board_spec[0] if board_spec is not None else 'Undefined Board'
 
     @staticmethod
     def get_board_id(board_name):

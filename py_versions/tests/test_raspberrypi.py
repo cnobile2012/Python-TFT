@@ -43,6 +43,7 @@ class TestPiVersion(unittest.TestCase):
     """
     RST = 17 # RTD
     RS = 27
+    PORT = 0
     CS = 8
     LED = 22
     TEST_PIN = 24 # Not used in TFT code.
@@ -67,6 +68,7 @@ class TestPiVersion(unittest.TestCase):
         self._pyv = PiVersion()
         self._pyv._rst = self.RST
         self._pyv._rs = self.RS
+        self._spi_port = self.PORT
         self._pyv._cs = self.CS
         self.setup_pin(self.TEST_PIN)
 
@@ -168,14 +170,13 @@ class TestPiVersion(unittest.TestCase):
         The above line needs to be added to the `/boot/config.txt` on the RPI.
         """
         # Port 0
-        port, device = self._pyv._spi_port_device(
-            self.CLK, None, None, self.CS)
+        port, device = self._pyv._spi_port_device(self.PORT, self.CS)
         msg = f"The port should be '0', found '{port}'."
         self.assertEqual(0, port, msg=msg)
         msg = f"The device should be '0', found '{device}'."
         self.assertEqual(0, device, msg=msg)
         # Port 1
-        port, device = self._pyv._spi_port_device(21, None, None, 16)
+        port, device = self._pyv._spi_port_device(1, 16)
         msg = f"The port should be '1', found '{port}'."
         self.assertEqual(1, port, msg=msg)
         msg = f"The device should be '2', found '{device}'."
@@ -187,7 +188,7 @@ class TestPiVersion(unittest.TestCase):
         Test that invalid arguments raises the proper exception.
         """
         with self.assertRaises(CompatibilityException) as cm:
-            self._pyv._spi_port_device(100, None, None, 101)
+            self._pyv._spi_port_device(100, 101)
 
         msg = (f"Error message should be '{self._pyv._SPI_PD_ERR_MSG}', "
                f"found '{str(cm.exception)}'.")
