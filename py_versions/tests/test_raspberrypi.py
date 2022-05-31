@@ -68,7 +68,7 @@ class TestPiVersion(unittest.TestCase):
         self._pyv = PiVersion()
         self._pyv._rst = self.RST
         self._pyv._rs = self.RS
-        self._spi_port = self.PORT
+        self._pyv._spi_port = self.PORT
         self._pyv._cs = self.CS
         self.setup_pin(self.TEST_PIN)
 
