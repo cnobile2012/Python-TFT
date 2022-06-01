@@ -249,7 +249,7 @@ class TestPiVersion(unittest.TestCase):
         """
         Test that a PWM pin gets setup properly.
         """
-        freq = PiVersion._PiVersion__FREQ
+        freq = PiVersion._PWM_FREQ
         num_reps = 1000
         brightness = 128.0
         expect_percent = 50.0
@@ -276,7 +276,7 @@ class TestPiVersion(unittest.TestCase):
         """
         Test that a PWM pin gets setup properly.
         """
-        freq = PiVersion._PiVersion__FREQ
+        freq = PiVersion._PWM_FREQ
         num_reps = 1000
         brightness = 128.0
         expect_percent = 50.0

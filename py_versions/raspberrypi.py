@@ -117,7 +117,7 @@ class PiVersion:
         """
         # The port variable is sometimes refered to as the bus.
         for port, data in self._SPI_HARDWARE_PORTS.items():
-            if select in data['cs']:
+            if cs in data['cs']:
                 device = data['cs'].index(cs)
                 freq = data['freq']
                 return port, freq, device
