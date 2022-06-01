@@ -9,6 +9,8 @@ from RPi import GPIO
 from spidev import SpiDev
 from time import sleep
 
+from utils import Boards, CompatibilityException
+
 
 class PiVersion:
     """
@@ -24,13 +26,17 @@ class PiVersion:
     INPUT_PULLDOWN = GPIO.PUD_DOWN
     INPUT_PULLOFF = GPIO.PUD_OFF
     _SPI_MODE = 0
-    __FREQ = 25500
+    _PWM_FREQ = 25500
     _SPI_PD_ERR_MSG = 'Invalid pin selection for hardware SPI.'
 
     # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".
-    _SPI_HARDWARE_PINS = {
-        0: {'select': (8, 7)}, # clock = 11, mosi = 10, and miso = 9
-        1: {'select': (18, 17, 16)} # clock = 21, mosi = 20, and miso = 19
+    _SPI_HARDWARE_PORTS = {
+        # clock = 11, mosi = 10, and miso = 9
+        0: {'cs': (8, 7),
+            'freq': Boards.get_frequencies(self.BOARD)[0]},
+        # clock = 21, mosi = 20, and miso = 19
+        1: {'cs': (18, 17, 16),
+            'freq': Boards.get_frequencies(self.BOARD)[1]}
         }
 
     def __init__(self, mode=GPIO.BCM):
@@ -95,27 +101,26 @@ class PiVersion:
         """
         sleep(ms/1000) # Convert to floating point.
 
-    def _spi_port_and_cs(self, port, select):
+    def _spi_port_freq_device(self, port, cs):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
         and 'select' at a minimum, to a hardware SPI port, device tuple.
 
         :param port: The SPI port number
         :type port: int
-        :param select: The SPI Chip Select pin number.
-        :type select: int
-        :returns: A tuple of (port, device).
+        :param cs: The SPI Chip Select pin number.
+        :type cs: int
+        :returns: A tuple of (port, freq, device).
         :rtype: tuple
         :raises CompatibilityException: If the pins do not represent a valid
                                         hardware SPI device.
         """
-        from utils import CompatibilityException
-
         # The port variable is sometimes refered to as the bus.
-        for port, pins in self._SPI_HARDWARE_PINS.items():
-            if select in pins['select']:
-                device = pins['select'].index(select)
-                return port, device
+        for port, data in self._SPI_HARDWARE_PORTS.items():
+            if select in data['cs']:
+                device = data['cs'].index(cs)
+                freq = data['freq']
+                return port, freq, device
 
         raise CompatibilityException(self._SPI_PD_ERR_MSG)
 
@@ -126,15 +131,13 @@ class PiVersion:
         :raises CompatibilityException: If the spi calls fail.
         """
         if self._spi is None:
-            from utils import Boards, CompatibilityException
-
-            port, device = self._spi_port_and_cs(self._spi_port, self._cs)
-            freqs = Boards.get_frequencies(self.BOARD)
+            port, freq, cs = self._spi_port_freq_device(
+                self._spi_port, self._cs)
 
             try:
                 self._spi = SpiDev()
-                self._spi.open(port, device)
-                self._spi.max_speed_hz = freqs[0]
+                self._spi.open(port, cs)
+                self._spi.max_speed_hz = freq
                 self._spi.mode = self._SPI_MODE
             except IndexError as e: # pragma: no cover
                 msg = ("There were no frequencies defines for the {} board, {}"
@@ -169,8 +172,6 @@ class PiVersion:
         :param values: The values to write.
         :type values: int, list, or tuple
         """
-        from utils import CompatibilityException
-
         if not isinstance(values, (list, tuple)):
             values = [values]
         elif isinstance(values, tuple):
@@ -185,8 +186,6 @@ class PiVersion:
 
         try:
             if self.TESTING:
-                from utils import Boards
-
                 if self.BOARD == Boards.RASPI:
                     result = self._spi.xfer2(items)
             else: # pragma: no cover
@@ -218,7 +217,7 @@ class PiVersion:
         :type brightness: int
         """
         duty_cycle = self.__get_duty_cycle(brightness)
-        self.__pwm_pin_states[pin] = GPIO.PWM(pin, self.__FREQ)
+        self.__pwm_pin_states[pin] = GPIO.PWM(pin, self._PWM_FREQ)
         self.__pwm_pin_states[pin].start(duty_cycle)
 
     def change_duty_cycle(self, pin, brightness):

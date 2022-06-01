@@ -5,6 +5,86 @@ utils/common.py
 Common functionality between various TFT controller chips.
 """
 
+
+class TFTException(Exception):
+    """
+    Raised when an error is found in the main TFT class.
+    """
+    pass
+
+
+class CompatibilityException(Exception):
+    """
+    Raised when there is a compatability error.
+    """
+    pass
+
+
+class _Boards:
+    _BOARD_SPECS = (
+        ('ARDUINO_STM32_FEATHER', (42000000, 21000000)),
+        ('ARDUINO_ARCH_STM32', (16000000,)),
+        ('ARDUINO_ARCH_STM32F1', (18000000,)),
+        ('STM32F1', (0,)),
+        ('ARDUINO_FEATHER52', (0,)),
+        ('TEENSYDUINO', (8000000,)),
+        ('ESP8266', (40000000,)),
+        ('ESP32', (40000000,)),
+        ('RASPI', (31200000, 31200000)),
+        ('COMPUTER', (80000000,)),
+        )
+    # {1: ('ARDUINO_STM32_FEATHER', (42000000, 21000000)), ...}
+    _BOARDS = {idx: (name, freq)
+               for idx, (name, freq) in enumerate(_BOARD_SPECS, start=1)}
+    # {'ARDUINO_STM32_FEATHER': 1, ...}
+    _BOARD_IDS = {spec[0]: idx for idx, spec in _BOARDS.items()}
+
+    def __init__(self):
+        [setattr(self, name, idx) for name, idx in self._BOARD_IDS.items()]
+
+    @staticmethod
+    def get_board_name(board_id):
+        """
+        Get the board name. This is the text identifier used in thsi API
+        for the board.
+
+        :param board_id: The numerical board ID.
+        :type board_id: int
+        :return: The text that identifiee the board.
+        :rtype: str
+        """
+        board_spec = Boards._BOARDS.get(board_id)
+        return board_spec[0] if board_spec is not None else 'Undefined Board'
+
+    @staticmethod
+    def get_board_id(board_name):
+        """
+        Get the board ID. This is a numerical ID.
+
+        :param board_name: The text that identifiee the board.
+        :type board_name: str
+        :return: The numerical board ID.
+        :rtype: int
+        """
+        return Boards._BOARD_IDS.get(board_name, 0)
+
+    @staticmethod
+    def get_frequencies(board_id):
+        """
+        Get a tuple of frequencies where each frequency relates to a
+        spacific port on the board.
+
+        :param board_id: The numerical board ID.
+        :type board_id: int
+        :return: A tuple of frequencies.
+        :rtype: tuple
+        """
+        board_spec = Boards._BOARDS.get(board_id)
+        return board_spec[1] if board_spec is not None else ()
+
+Boards = _Boards()
+
+
 class RGB16BitColor:
     """
     RGB 16-bit color table definition (RGB565)
