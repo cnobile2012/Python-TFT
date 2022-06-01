@@ -33,10 +33,10 @@ class PiVersion:
     _SPI_HARDWARE_PORTS = {
         # clock = 11, mosi = 10, and miso = 9
         0: {'cs': (8, 7),
-            'freq': Boards.get_frequencies(self.BOARD)[0]},
+            'freq': Boards.get_frequencies(Boards.RASPI)[0]},
         # clock = 21, mosi = 20, and miso = 19
         1: {'cs': (18, 17, 16),
-            'freq': Boards.get_frequencies(self.BOARD)[1]}
+            'freq': Boards.get_frequencies(Boards.RASPI)[1]}
         }
 
     def __init__(self, mode=GPIO.BCM):
