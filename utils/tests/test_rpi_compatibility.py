@@ -45,7 +45,7 @@ class TestBoards(unittest.TestCase):
         """
         port = 1
         board = Boards.ARDUINO_STM32_FEATHER
-        freq = Boards._BOARDS.get(board)[port]
+        freq = Boards._BOARDS.get(board)[1][port]
         freq_found = Boards.get_frequency(board, port)
         msg = f"The board freq should be '{freq}', found '{freq_found}'."
         self.assertEqual(freq, freq_found, msg=msg)
