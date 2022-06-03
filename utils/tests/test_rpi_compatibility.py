@@ -43,9 +43,10 @@ class TestBoards(unittest.TestCase):
         """
         Test that the correct frequence is returned for the board selected.
         """
+        port = 1
         board = Boards.ARDUINO_STM32_FEATHER
-        freq = Boards._BOARDS.get(board)[1]
-        freq_found = Boards.get_frequencies(board)
+        freq = Boards._BOARDS.get(board)[port]
+        freq_found = Boards.get_frequency(board, port)
         msg = f"The board freq should be '{freq}', found '{freq_found}'."
         self.assertEqual(freq, freq_found, msg=msg)
 
@@ -128,16 +129,16 @@ class TestCompatibility(unittest.TestCase):
         Test that the getter and setter are both working properly.
         """
         # Store the default frequency
-        default_freq = self._pyv.pwm_frequency
+        default_freq = self._tft.pwm_frequency
         # Test a different frequency
         expect_freq = 100000
-        self._pyv.pwm_frequency = expect_freq
-        found_freq = self._pyv.pwm_frequency
+        self._tft.pwm_frequency = expect_freq
+        found_freq = self._tft.pwm_frequency
         msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
         # Revert to original frequency
-        self._pyv.pwm_frequency = default_freq
-        found_freq = self._pyv.pwm_frequency
+        self._tft.pwm_frequency = default_freq
+        found_freq = self._tft.pwm_frequency
         msg = f"Expect '{default_freq}' found '{found_freq}'"
         self.assertEqual(default_freq, found_freq, msg=msg)
 
@@ -147,15 +148,15 @@ class TestCompatibility(unittest.TestCase):
         Test that the getter and setter are both working properly.
         """
         # Store the default frequency
-        default_freq = self._pyv.spi_frequency
+        default_freq = self._tft.spi_frequency
         # Test a different frequency
         expect_freq = 80000000
-        self._pyv.spi_frequency = expect_freq
-        found_freq = self._pyv.spi_frequency
+        self._tft.spi_frequency = expect_freq
+        found_freq = self._tft.spi_frequency
         msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
         # Revert to original frequency
-        self._pyv.spi_frequency = default_freq
-        found_freq = self._pyv.spi_frequency
+        self._tft.spi_frequency = default_freq
+        found_freq = self._tft.spi_frequency
         msg = f"Expect '{default_freq}' found '{found_freq}'"
         self.assertEqual(default_freq, found_freq, msg=msg)

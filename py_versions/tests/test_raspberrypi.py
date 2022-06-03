@@ -180,16 +180,19 @@ class TestPiVersion(unittest.TestCase):
         self.assertEqual(0, port, msg=msg)
         msg = f"The device should be '0', found '{device}'."
         self.assertEqual(0, device, msg=msg)
-        expect = self._pyv._SPI_HARDWARE_PORTS[0]['freq']
+        expect = self._pyv.spi_frequency
         msg = f"The frequency should be '{expect}', found '{freq}'"
         self.assertEqual(expect, freq, msg=msg)
         # Port 1
+        expected_port = 1
         port, freq, device = self._pyv._spi_port_freq_device(1, 16)
-        msg = f"The port should be '1', found '{port}'."
-        self.assertEqual(1, port, msg=msg)
-        msg = f"The device should be '2', found '{device}'."
-        self.assertEqual(2, device, msg=msg)
-        expect = self._pyv._SPI_HARDWARE_PORTS[1]['freq']
+        msg = f"The port should be '{expected_port}', found '{port}'."
+        self.assertEqual(expected_port, port, msg=msg)
+        expected_port = 2
+        msg = f"The device should be '{expected_port}', found '{device}'."
+        self.assertEqual(expected_port, device, msg=msg)
+        expect = self._pyv.Boards.get_frequency(
+            self._pyv.BOARD, self._pyv._spi_port)
         msg = f"The frequency should be '{expect}', found '{freq}'"
         self.assertEqual(expect, freq, msg=msg)
 
@@ -201,7 +204,8 @@ class TestPiVersion(unittest.TestCase):
         with self.assertRaises(CompatibilityException) as cm:
             self._pyv._spi_port_freq_device(100, 101)
 
-        msg = (f"Error message should be '{self._pyv._SPI_PD_ERR_MSG}', "
+        expected_msg = 'Invalid pin selection for hardware SPI.'
+        msg = (f"Error message should be '{expected_msg}', "
                f"found '{str(cm.exception)}'.")
         self.assertEqual(self._pyv._SPI_PD_ERR_MSG, str(cm.exception), msg=msg)
 
