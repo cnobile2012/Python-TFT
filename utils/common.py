@@ -28,8 +28,8 @@ class _Boards:
         ('STM32F1', (0,)),
         ('ARDUINO_FEATHER52', (0,)),
         ('TEENSYDUINO', (8000000,)),
-        ('ESP8266', (40000000,)),
-        ('ESP32', (40000000,)),
+        ('ESP8266', (40000000, 40000000)),
+        ('ESP32', (40000000, 40000000)),
         ('RASPI', (31200000, 31200000)),
         ('COMPUTER', (80000000,)),
         )
@@ -69,18 +69,19 @@ class _Boards:
         return Boards._BOARD_IDS.get(board_name, 0)
 
     @staticmethod
-    def get_frequencies(board_id):
+    def get_frequency(board_id, port):
         """
-        Get a tuple of frequencies where each frequency relates to a
-        spacific port on the board.
+        Get the SPI frequency based on the board and the SPI port used.
 
         :param board_id: The numerical board ID.
         :type board_id: int
-        :return: A tuple of frequencies.
-        :rtype: tuple
+        :param port: The port ID.
+        :type port: int
+        :return: The SPI frequency.
+        :rtype: int
         """
         board_spec = Boards._BOARDS.get(board_id)
-        return board_spec[1] if board_spec is not None else ()
+        return board_spec[1][port] if board_spec is not None else 0
 
 Boards = _Boards()
 

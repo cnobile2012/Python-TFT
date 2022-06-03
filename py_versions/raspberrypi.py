@@ -26,17 +26,14 @@ class PiVersion:
     INPUT_PULLDOWN = GPIO.PUD_DOWN
     INPUT_PULLOFF = GPIO.PUD_OFF
     _SPI_MODE = 0
-    _PWM_FREQ = 25500
-    _SPI_PD_ERR_MSG = 'Invalid pin selection for hardware SPI.'
+    _DEF_PWM_FREQ = 25500
 
     # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".
     _SPI_HARDWARE_PORTS = {
         # clock = 11, mosi = 10, and miso = 9
-        0: {'cs': (8, 7),
-            'freq': Boards.get_frequencies(Boards.RASPI)[0]},
+        0: (8, 7),
         # clock = 21, mosi = 20, and miso = 19
-        1: {'cs': (18, 17, 16),
-            'freq': Boards.get_frequencies(Boards.RASPI)[1]}
+        1: (18, 17, 16)
         }
 
     def __init__(self, mode=GPIO.BCM):
@@ -50,8 +47,8 @@ class PiVersion:
         mode = mode if mode is not None else GPIO.BCM
         GPIO.setmode(mode)
         GPIO.setwarnings(False)
-        self.__pwm_pin_states = {}
         self._spi = None
+        self.__pwm_pin_states = {}
 
     def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None):
         """
@@ -117,12 +114,11 @@ class PiVersion:
         """
         # The port variable is sometimes refered to as the bus.
         for port, data in self._SPI_HARDWARE_PORTS.items():
-            if cs in data['cs']:
-                device = data['cs'].index(cs)
-                freq = data['freq']
-                return port, freq, device
+            if cs in data:
+                device = data.index(cs)
+                return port, self.spi_frequency, device
 
-        raise CompatibilityException(self._SPI_PD_ERR_MSG)
+        raise CompatibilityException('Invalid pin selection for hardware SPI.')
 
     def spi_start_transaction(self):
         """
@@ -217,7 +213,7 @@ class PiVersion:
         :type brightness: int
         """
         duty_cycle = self.__get_duty_cycle(brightness)
-        self.__pwm_pin_states[pin] = GPIO.PWM(pin, self._PWM_FREQ)
+        self.__pwm_pin_states[pin] = GPIO.PWM(pin, self.pwm_frequency)
         self.__pwm_pin_states[pin].start(duty_cycle)
 
     def change_duty_cycle(self, pin, brightness):

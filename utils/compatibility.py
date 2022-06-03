@@ -5,7 +5,7 @@ utils/compatibility.py
 This class defines a generic compatibility class to normalize between
 different versions of Python. i.e. C standard, MicroPython, and CircuitPython
 
-We need to test for the existance of a few methods and functions then decide
+We need to test for the existence of a few methods and functions then decide
 which to use in this library.
 """
 
@@ -44,6 +44,9 @@ class Compatibility(PiVersion):
         if not None:
             super().__init__(mode)
 
+        # _DEF_PWM_FREQ will be different for all the Python versions.
+        self.__pwm_freq = self._DEF_PWM_FREQ
+        self.__spi_freq = 0
         self.BOARD = None
 
     def _get_board_name(self, board_id=None):
@@ -71,3 +74,58 @@ class Compatibility(PiVersion):
                 self.ERROR_MSGS['BRD_UNSUP'].format(board_name))
 
         self.BOARD = board
+
+    @property
+    def pwm_frequency(self):
+        """
+        Get the current PWM frequency.
+
+        :return: The current PWM frequency.
+        :rtype: int
+        """
+        return self.__pwm_freq
+
+    @pwm_frequency.setter
+    def pwm_frequency(self, freq):
+        """
+        Set the PWM frequency.
+
+        .. notes::
+
+          The PWM frequency if the default needs to be superseded must
+          be set before begin() is called.
+
+        :param freq: The PWM frequency.
+        :type freq: int
+        """
+        self.__pwm_freq = freq
+
+    @property
+    def spi_frequency(self):
+        """
+        Get the current SPI frequency.
+
+        :return: The current SPI frequency.
+        :rtype: int
+        """
+        if self.__spi_freq == 0:
+            freq = Boards.get_frequency(self.BOARD, self._spi_port)
+        else:
+            freq = self.__spi_freq
+
+        return freq
+
+    @spi_frequency.setter
+    def spi_frequency(self, freq):
+        """
+        Set the SPI frequency.
+
+        .. notes::
+
+          The SPI frequency if the default needs to be superseded must
+          be set before begin() is called.
+
+        :param freq: The SPI frequency.
+        :type freq: int
+        """
+        self.__spi_freq = freq

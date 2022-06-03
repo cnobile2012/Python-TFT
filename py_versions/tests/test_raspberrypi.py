@@ -66,11 +66,16 @@ class TestPiVersion(unittest.TestCase):
         PiVersion.BOARD = Boards.RASPI
         PiVersion.MAX_BRIGHTNESS = 255
         self._pyv = PiVersion()
+        self.setup_pin(self.TEST_PIN)
+        # The following values need to be set since they won't be on
+        # the object because the parent object is not there.
         self._pyv._rst = self.RST
         self._pyv._rs = self.RS
         self._pyv._spi_port = self.PORT
         self._pyv._cs = self.CS
-        self.setup_pin(self.TEST_PIN)
+        self._pyv.pwm_frequency = self._pyv._DEF_PWM_FREQ
+        self._pyv.spi_frequency = Boards.get_frequency(
+            self._pyv.BOARD, self._pyv._spi_port)
 
     def tearDown(self):
         self.unset_pin(self.TEST_PIN)
@@ -249,7 +254,7 @@ class TestPiVersion(unittest.TestCase):
         """
         Test that a PWM pin gets setup properly.
         """
-        freq = PiVersion._PWM_FREQ
+        freq = self._pyv.pwm_frequency
         num_reps = 1000
         brightness = 128.0
         expect_percent = 50.0
@@ -276,7 +281,7 @@ class TestPiVersion(unittest.TestCase):
         """
         Test that a PWM pin gets setup properly.
         """
-        freq = PiVersion._PWM_FREQ
+        freq = self._pyv.pwm_frequency
         num_reps = 1000
         brightness = 128.0
         expect_percent = 50.0

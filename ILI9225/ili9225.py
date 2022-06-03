@@ -470,7 +470,7 @@ class ILI9225(Compatibility):
         """
         Get the display max x size (based on orientation).
 
-        .. note::
+        .. notes::
 
           Either 0..176 or 0..220 depending on orientation.
 
@@ -484,7 +484,7 @@ class ILI9225(Compatibility):
         """
         Get the display max y size (based on orientation).
 
-        .. note::
+        .. notes::
 
           Either 0..176 or 0..220 depending on orientation.
 

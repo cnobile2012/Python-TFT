@@ -121,3 +121,41 @@ class TestCompatibility(unittest.TestCase):
         """
         with self.assertRaises(CompatibilityException) as cm:
             self._tft.set_board(1000) # Test with an out-of-range value.
+
+    #@unittest.skip("Temporary")
+    def test_set_get_pwm_frequency(self):
+        """
+        Test that the getter and setter are both working properly.
+        """
+        # Store the default frequency
+        default_freq = self._pyv.pwm_frequency
+        # Test a different frequency
+        expect_freq = 100000
+        self._pyv.pwm_frequency = expect_freq
+        found_freq = self._pyv.pwm_frequency
+        msg = f"Expect '{expect_freq}' found '{found_freq}'"
+        self.assertEqual(expect_freq, found_freq, msg=msg)
+        # Revert to original frequency
+        self._pyv.pwm_frequency = default_freq
+        found_freq = self._pyv.pwm_frequency
+        msg = f"Expect '{default_freq}' found '{found_freq}'"
+        self.assertEqual(default_freq, found_freq, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_set_get_spi_frequency(self):
+        """
+        Test that the getter and setter are both working properly.
+        """
+        # Store the default frequency
+        default_freq = self._pyv.spi_frequency
+        # Test a different frequency
+        expect_freq = 80000000
+        self._pyv.spi_frequency = expect_freq
+        found_freq = self._pyv.spi_frequency
+        msg = f"Expect '{expect_freq}' found '{found_freq}'"
+        self.assertEqual(expect_freq, found_freq, msg=msg)
+        # Revert to original frequency
+        self._pyv.spi_frequency = default_freq
+        found_freq = self._pyv.spi_frequency
+        msg = f"Expect '{default_freq}' found '{found_freq}'"
+        self.assertEqual(default_freq, found_freq, msg=msg)
