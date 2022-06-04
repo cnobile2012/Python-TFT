@@ -65,8 +65,9 @@ class Compatibility(PiVersion):
         :type board: int
         :raise CompatibilityException: If the board is unsupported.
         """
+        board_name = self._get_board_name(board)
+
         if board_name not in [v for v in dir(Boards) if not v.startswith('_')]:
-            board_name = self._get_board_name(board)
             raise CompatibilityException(
                 self.ERROR_MSGS['BRD_UNSUP'].format(board_name))
 
@@ -106,7 +107,7 @@ class Compatibility(PiVersion):
         :rtype: int
         """
         if self.__spi_freq == 0:
-            if self._spi_port in (Boards.ESP8266, Boards.ESP32):
+            if self.BOARD in (Boards.ESP8266, Boards.ESP32):
                 idx = self._spi_port - 1
             else:
                 idx = self._spi_port
@@ -116,7 +117,7 @@ class Compatibility(PiVersion):
             except IndexError as e:
                 board_name = Boards.get_board_name(self.BOARD)
                 raise CompatibilityException(
-                    self.ERROR_MSGS['INV_PORT'].format(board_name)))
+                    self.ERROR_MSGS['INV_PORT'].format(board_name))
         else:
             freq = self.__spi_freq
 

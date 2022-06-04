@@ -67,7 +67,8 @@ class TestCompatibility(unittest.TestCase):
     def setUp(self):
         Compatibility.ERROR_MSGS = ILI9225.ERROR_MSGS
         self._com = Compatibility()
-        self._spi_port = self.PORT
+        self._com._spi_port = self.PORT
+        self._com.BOARD = Boards.RASPI
 
     def tearDown(self):
         self._com.pin_cleanup()
@@ -174,8 +175,8 @@ class TestCompatibility(unittest.TestCase):
         exception is raised.
         """
         with self.assertRaises(CompatibilityException) as cm:
-            self._com._spi_port = 5 # TRhis is an invalid port for the RPI
-            self._com.spi_frequency()
+            self._com._spi_port = 5 # This is an invalid port for the RPI
+            freq = self._com.spi_frequency
 
         board_name = self._com._get_board_name(self._com.BOARD)
         expect_msg = self._com.ERROR_MSGS['INV_PORT'].format(board_name)
@@ -195,5 +196,5 @@ class TestCompatibility(unittest.TestCase):
         self._com._spi_port = 2
         expect_freq = Boards._BOARD_SPECS[7][1]
         found_freq = self._com.spi_frequency
-        msg f"Expect '{expect_freq}' found '{found_freq}'"
+        msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
