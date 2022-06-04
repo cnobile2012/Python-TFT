@@ -189,7 +189,7 @@ class ILI9225(Compatibility):
         :type rpi_mode: int
         :raises CompatibilityException: If the board is unsupported.
         """
-        super().__init__(mode=rpi_mode)
+        super().__init__(rpi_mode=rpi_mode)
         self._rst = rst
         self._rs = rs
         self._spi_port = spi_port
