@@ -191,8 +191,7 @@ class TestPiVersion(unittest.TestCase):
         expected_port = 2
         msg = f"The device should be '{expected_port}', found '{device}'."
         self.assertEqual(expected_port, device, msg=msg)
-        expect = self._pyv.Boards.get_frequency(
-            self._pyv.BOARD, self._pyv._spi_port)
+        expect = Boards.get_frequency(self._pyv.BOARD, self._pyv._spi_port)
         msg = f"The frequency should be '{expect}', found '{freq}'"
         self.assertEqual(expect, freq, msg=msg)
 
@@ -207,7 +206,7 @@ class TestPiVersion(unittest.TestCase):
         expected_msg = 'Invalid pin selection for hardware SPI.'
         msg = (f"Error message should be '{expected_msg}', "
                f"found '{str(cm.exception)}'.")
-        self.assertEqual(self._pyv._SPI_PD_ERR_MSG, str(cm.exception), msg=msg)
+        self.assertEqual(expected_msg, str(cm.exception), msg=msg)
 
     #@unittest.skip("Temporary")
     def test_spi_start_end_is_connected(self):
