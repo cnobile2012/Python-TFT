@@ -231,14 +231,6 @@ class ILI9225(Compatibility):
         self.pin_mode(self._cs, self.OUTPUT)
         self.digital_write(self._cs, self.HIGH)
 
-        # THIS NEEDS TO BE IN THE MicroPython AND CircuitPythin FILES.
-        # Setup SPI clock and data inputs.
-        ## if self.BOARD not in (Boards.RASPI,): # pragma: no cover
-        ##     self.pin_mode(self._sdi, self.OUTPUT)
-        ##     self.digital_write(self._sdi, self.LOW)
-        ##     self.pin_mode(self._clk, self.OUTPUT)
-        ##     self.digital_write(self._clk, self.HIGH)
-
         # Pull the reset pin high to release the reset.
         self.digital_write(self._rst, self.HIGH)
         self.delay(1)

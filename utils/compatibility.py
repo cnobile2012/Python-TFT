@@ -9,7 +9,7 @@ We need to test for the existence of a few methods and functions then decide
 which to use in this library.
 """
 
-from utils import Boards
+from utils import Boards, CompatibilityException
 
 
 try: # MicroPython
@@ -65,8 +65,6 @@ class Compatibility(PiVersion):
         :type board: int
         :raise CompatibilityException: If the board is unsupported.
         """
-        from utils import CompatibilityException
-
         board_name = self._get_board_name(board)
 
         if board_name not in [v for v in dir(Boards) if not v.startswith('_')]:
@@ -109,7 +107,17 @@ class Compatibility(PiVersion):
         :rtype: int
         """
         if self.__spi_freq == 0:
-            freq = Boards.get_frequency(self.BOARD, self._spi_port)
+            if self._spi_port in (Boards.ESP8266, Boards.ESP32):
+                idx = self._spi_port - 1
+            else:
+                idx = self._spi_port
+
+            try:
+                freq = Boards.get_frequency(self.BOARD, idx)
+            expect IndexError as e:
+                board_name = Boards.get_board_name(self.BOARD)
+                msg = "Invalid port for the {} board.".format(board_name)
+                raise CompatibilityException(msg)
         else:
             freq = self.__spi_freq
 
