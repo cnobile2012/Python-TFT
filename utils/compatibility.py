@@ -40,9 +40,9 @@ class Compatibility(PiVersion):
     Checks the compatibility and version of Python.
     """
 
-    def __init__(self, mode=None):
+    def __init__(self, rpi_mode=None):
         if not None:
-            super().__init__(mode)
+            super().__init__(rpi_mode)
 
         # _DEF_PWM_FREQ will be different for all the Python versions.
         self.__pwm_freq = self._DEF_PWM_FREQ
@@ -65,9 +65,8 @@ class Compatibility(PiVersion):
         :type board: int
         :raise CompatibilityException: If the board is unsupported.
         """
-        board_name = self._get_board_name(board)
-
         if board_name not in [v for v in dir(Boards) if not v.startswith('_')]:
+            board_name = self._get_board_name(board)
             raise CompatibilityException(
                 self.ERROR_MSGS['BRD_UNSUP'].format(board_name))
 
@@ -114,10 +113,10 @@ class Compatibility(PiVersion):
 
             try:
                 freq = Boards.get_frequency(self.BOARD, idx)
-            expect IndexError as e:
+            except IndexError as e:
                 board_name = Boards.get_board_name(self.BOARD)
-                msg = "Invalid port for the {} board.".format(board_name)
-                raise CompatibilityException(msg)
+                raise CompatibilityException(
+                    self.ERROR_MSGS['INV_PORT'].format(board_name)))
         else:
             freq = self.__spi_freq
 

@@ -100,7 +100,8 @@ class ILI9225(Compatibility):
     ERROR_MSGS = {
         'STD_FONT': "Please set a standard font before using this method.",
         'GFX_FONT': "Please set a GFX font before using this method.",
-        'BRD_UNSUP': "Error: The {} board is not supported."
+        'BRD_UNSUP': "Error: The {} board is not supported.",
+        'INV_PORT': "Invalid port for the {} board."
         }
 
     LCD_WIDTH                   = 176

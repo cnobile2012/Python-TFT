@@ -5,6 +5,7 @@
 import unittest
 
 from ILI9225 import ILI9225
+from utils.compatibility import Compatibility
 from utils import Boards, CompatibilityException
 
 
@@ -64,21 +65,20 @@ class TestCompatibility(unittest.TestCase):
         super().__init__(name)
 
     def setUp(self):
-        self._tft = ILI9225(self.RST, self.RS, self.PORT, self.CS,
-                            board=Boards.RASPI)
-        self._tft.begin()
+        Compatibility.ERROR_MSGS = ILI9225.ERROR_MSGS
+        self._com = Compatibility()
+        self._spi_port = self.PORT
 
     def tearDown(self):
-        self._tft.clear()
-        self._tft.pin_cleanup()
+        self._com.pin_cleanup()
 
     #@unittest.skip("Temporary")
     def test__get_board_name(self):
         """
         Test that the board name matches what was set.
         """
-        expect_board = Boards._BOARDS.get(self._tft.BOARD)[0]
-        found_board = self._tft._get_board_name()
+        expect_board = Boards._BOARDS.get(self._com.BOARD)[0]
+        found_board = self._com._get_board_name()
         msg = f"Expect '{expect_board}' found '{found_board}'."
         self.assertEqual(expect_board, found_board, msg=msg)
 
@@ -87,8 +87,8 @@ class TestCompatibility(unittest.TestCase):
         """
         Test that the board name matches what was set.
         """
-        expect_board = Boards._BOARDS.get(self._tft.BOARD)[0]
-        found_board = self._tft._get_board_name(Boards.ARDUINO_STM32_FEATHER)
+        expect_board = Boards._BOARDS.get(self._com.BOARD)[0]
+        found_board = self._com._get_board_name(Boards.ARDUINO_STM32_FEATHER)
         msg = f"Expect '{expect_board}' found '{found_board}'."
         self.assertNotEqual(expect_board, found_board, msg=msg)
 
@@ -97,8 +97,8 @@ class TestCompatibility(unittest.TestCase):
         """
         Test that the board value matches what was set.
         """
-        expect_board = self._tft.BOARD
-        found_board = self._tft.get_board()
+        expect_board = self._com.BOARD
+        found_board = self._com.get_board()
         msg = f"Expect '{expect_board}' found '{found_board}'."
         self.assertEqual(expect_board, found_board, msg=msg)
 
@@ -108,12 +108,12 @@ class TestCompatibility(unittest.TestCase):
         Test that a board ID can be set.
         """
         try:
-            self._tft.set_board(Boards.ESP32)
-            found_board = self._tft.get_board()
+            self._com.set_board(Boards.ESP32)
+            found_board = self._com.get_board()
             msg = f"Expect '{Boards.ESP32}' found '{found_board}'."
             self.assertEqual(Boards.ESP32, found_board, msg=msg)
         finally:
-            self._tft.set_board(Boards.RASPI)
+            self._com.set_board(Boards.RASPI)
 
     #@unittest.skip("Temporary")
     def test_unknown_set_board(self):
@@ -121,7 +121,13 @@ class TestCompatibility(unittest.TestCase):
         Test that an invalid board raises the proper exception.
         """
         with self.assertRaises(CompatibilityException) as cm:
-            self._tft.set_board(1000) # Test with an out-of-range value.
+            self._com.set_board(1000) # Test with an out-of-range value.
+
+        board_name = self._com._get_board_name(self._com.BOARD)
+        expect_msg = self._com.ERROR_MSGS['BRD_UNSUP'].format(board_name)
+        found_msg = str(cm.exception)
+        msg = f"Error message expected '{expect_msg}' found '{found_msg}'"
+        self.assertEqual(expect_msg, found_msg, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_set_get_pwm_frequency(self):
@@ -129,16 +135,16 @@ class TestCompatibility(unittest.TestCase):
         Test that the getter and setter are both working properly.
         """
         # Store the default frequency
-        default_freq = self._tft.pwm_frequency
+        default_freq = self._com.pwm_frequency
         # Test a different frequency
         expect_freq = 100000
-        self._tft.pwm_frequency = expect_freq
-        found_freq = self._tft.pwm_frequency
+        self._com.pwm_frequency = expect_freq
+        found_freq = self._com.pwm_frequency
         msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
         # Revert to original frequency
-        self._tft.pwm_frequency = default_freq
-        found_freq = self._tft.pwm_frequency
+        self._com.pwm_frequency = default_freq
+        found_freq = self._com.pwm_frequency
         msg = f"Expect '{default_freq}' found '{found_freq}'"
         self.assertEqual(default_freq, found_freq, msg=msg)
 
@@ -148,15 +154,46 @@ class TestCompatibility(unittest.TestCase):
         Test that the getter and setter are both working properly.
         """
         # Store the default frequency
-        default_freq = self._tft.spi_frequency
+        default_freq = self._com.spi_frequency
         # Test a different frequency
-        expect_freq = 80000000
-        self._tft.spi_frequency = expect_freq
-        found_freq = self._tft.spi_frequency
+        expect_freq = 40000000
+        self._com.spi_frequency = expect_freq
+        found_freq = self._com.spi_frequency
         msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
         # Revert to original frequency
-        self._tft.spi_frequency = default_freq
-        found_freq = self._tft.spi_frequency
+        self._com.spi_frequency = default_freq
+        found_freq = self._com.spi_frequency
         msg = f"Expect '{default_freq}' found '{found_freq}'"
         self.assertEqual(default_freq, found_freq, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_error_set_spi_frequency(self):
+        """
+        Test that when an out-of-range port is provided that an
+        exception is raised.
+        """
+        with self.assertRaises(CompatibilityException) as cm:
+            self._com._spi_port = 5 # TRhis is an invalid port for the RPI
+            self._com.spi_frequency()
+
+        board_name = self._com._get_board_name(self._com.BOARD)
+        expect_msg = self._com.ERROR_MSGS['INV_PORT'].format(board_name)
+        found_msg = str(cm.exception)
+        msg = f"Error message expected '{expect_msg}' found '{found_msg}'"
+        self.assertEqual(expect_msg, found_msg, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_ESP32_get_spi_frequency(self):
+        """
+        Test that an ESP32 can get the correct frequency without
+        raising an exception.
+        """
+        # Test for an ESP32 (We need to fudge a few values on the
+        # Compatibility class object).
+        self._com.BOARD = Boards.ESP32
+        self._com._spi_port = 2
+        expect_freq = Boards._BOARD_SPECS[7][1]
+        found_freq = self._com.spi_frequency
+        msg f"Expect '{expect_freq}' found '{found_freq}'"
+        self.assertEqual(expect_freq, found_freq, msg=msg)
