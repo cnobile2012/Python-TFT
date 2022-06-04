@@ -200,10 +200,14 @@ class TestPiVersion(unittest.TestCase):
         """
         Test that invalid arguments raises the proper exception.
         """
-        with self.assertRaises(CompatibilityException) as cm:
-            self._pyv._spi_port_freq_device(100, 101)
+        port = 100
+        cs = 101
 
-        expected_msg = 'Invalid pin selection for hardware SPI.'
+        with self.assertRaises(CompatibilityException) as cm:
+            self._pyv._spi_port_freq_device(port, cs)
+
+        expected_msg = ("Invalid cs pin '{}' selection for port '{}'."
+                        ).format(cs, port)
         msg = (f"Error message should be '{expected_msg}', "
                f"found '{str(cm.exception)}'.")
         self.assertEqual(expected_msg, str(cm.exception), msg=msg)
