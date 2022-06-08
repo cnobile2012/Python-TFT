@@ -45,7 +45,7 @@ class TestBoards(unittest.TestCase):
         Test that the correct frequence is returned for the board selected.
         """
         port = 1
-        board = Boards.ARDUINO_STM32_FEATHER
+        board = Boards.STM32
         freq = Boards._BOARDS.get(board)[1][port]
         freq_found = Boards.get_frequency(board, port)
         msg = f"The board freq should be '{freq}', found '{freq_found}'."
@@ -69,6 +69,8 @@ class TestCompatibility(unittest.TestCase):
         self._com = Compatibility()
         self._com._spi_port = self.PORT
         self._com.BOARD = Boards.RASPI
+        # Mock the pin_mode() method
+        self.pin_mode = lambda sck, mosi, miso: (sck, mosi, miso)
 
     def tearDown(self):
         self._com.pin_cleanup()
@@ -89,7 +91,7 @@ class TestCompatibility(unittest.TestCase):
         Test that the board name matches what was set.
         """
         expect_board = Boards._BOARDS.get(self._com.BOARD)[0]
-        found_board = self._com._get_board_name(Boards.ARDUINO_STM32_FEATHER)
+        found_board = self._com._get_board_name(Boards.STM32)
         msg = f"Expect '{expect_board}' found '{found_board}'."
         self.assertNotEqual(expect_board, found_board, msg=msg)
 
@@ -200,3 +202,43 @@ class TestCompatibility(unittest.TestCase):
         found_freq = self._com.spi_frequency
         msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_set_spi_pins(self):
+        """
+        Test that setting SPI pins works as expected. This may be difficult
+        to test since it cannot be used on a Raspberry Pi and that's our
+        test environment.
+        """
+        sck = 14
+        mosi = 15
+        miso = 16
+        # Mock the board to a valid MicroPython board that has programmable
+        # GPIO pins.
+        self._com.BOARD = Boards.RP2040
+        out_sck, out_mosi, out_miso = self._com.set_spi_pins(
+            sck, mosi, miso=miso)
+        msg = f"Expect sck {out_sck} found {self._com.sck}"
+        self.assertEqual(out_sck, self._com.sck, msg=msg)
+        msg = f"Expect mosi {out_mosi} found {self._com.mosi}"
+        self.assertEqual(out_mosi, self._com.mosi, msg=msg)
+        msg = f"Expect miso {out_miso} found {self._com.miso}"
+        self.assertEqual(out_miso, self._com.miso, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_error_set_spi_pins(self):
+        """
+        Test that the RASPI board raises an exception.
+        """
+        sck = 14
+        mosi = 15
+        miso = 16
+
+        with self.assertRaises(CompatibilityException) as cm:
+            self._com.set_spi_pins(sck, mosi, miso=miso)
+
+        board_name = self._com._get_board_name(self.BOARD)
+        expect_msg = self._com.ERROR_MSGS['SPI_PINS_INV'].format(board_name)
+        found_msg = str(cm.exception)
+        msg = f"Error message expected '{expect_msg}' found '{found_msg}'"
+        self.assertEqual(expect_msg, found_msg, msg=msg)

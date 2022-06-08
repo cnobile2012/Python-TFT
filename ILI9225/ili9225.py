@@ -43,7 +43,7 @@ class CurrentFont:
                             offset = 3rd byte in full data object
                             numchars = 4th byte in full data object
                             nbrows = 2nd byte / 8 in full data object
-                            mono_sp = boolean indicating if mono spaced
+                            mono_sp = Boolean indicating if mono spaced
 
         :param font: A parsed font object.
         :type font: tuple
@@ -101,7 +101,8 @@ class ILI9225(Compatibility):
         'STD_FONT': "Please set a standard font before using this method.",
         'GFX_FONT': "Please set a GFX font before using this method.",
         'BRD_UNSUP': "Error: The {} board is not supported.",
-        'INV_PORT': "Invalid port for the {} board."
+        'INV_PORT': "Invalid port for the {} board.",
+        'SPI_PINS_INV': "This method cannot be used with a {}."
         }
 
     LCD_WIDTH                   = 176
@@ -780,7 +781,7 @@ class ILI9225(Compatibility):
 
     def get_gfx_text_extent(self, x, y, s, color=Colors.WHITE):
         """
-        Return the width and height of the text in pixals of the
+        Return the width and height of the text in pixels of the
         current GFX font.
 
         :param x: Point coordinate (x-axis).
@@ -1277,17 +1278,17 @@ class ILI9225(Compatibility):
         """
         Set the window that will be drawn using the current orientation.
 
-        :param x0: Start x coordinent.
+        :param x0: Start x coordinate.
         :type x0: int
-        :param y0: Start y coordinent.
+        :param y0: Start y continent.
         :type y0: int
-        :param x1: End x coordinent.
+        :param x1: End x Continent.
         :type x1: int
-        :param y1: End y coordinent.
+        :param y1: End y Continent.
         :type y1: int
         :param mode: The orientation mode.
         :type mode: int
-        :raises TFTException: If the orientation is out of rainge.
+        :raises TFTException: If the orientation is out of range.
         """
         # Clip to TFT-Dimensions
         x0 = min(x0, self._max_x - 1)

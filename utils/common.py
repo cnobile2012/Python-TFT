@@ -22,21 +22,31 @@ class CompatibilityException(Exception):
 
 class _Boards:
     _BOARD_SPECS = (
-        ('ARDUINO_STM32_FEATHER', (42000000, 21000000)),
-        ('ARDUINO_ARCH_STM32', (16000000,)),
-        ('ARDUINO_ARCH_STM32F1', (18000000,)),
-        ('STM32F1', (0,)),
-        ('ARDUINO_FEATHER52', (0,)),
-        ('TEENSYDUINO', (8000000,)),
+        # WiPy
+        ('CC32xx', (20000000,)),
+        #('COMPUTER', (80000000,)),
         ('ESP8266', (80000000)),
         ('ESP32', (80000000, 80000000)),
+        ('NRF52', (32000000, 32000000, 32000000, 32000000,)),
+        # BBC Micro:bit
         ('RASPI', (31200000, 31200000)),
-        ('COMPUTER', (80000000,)),
+        # RPi Pico, Feather 2040, ItsyBitsy 2040, Tiny 2040, etc.
+        ('RP2040', (65200000, 65200000)),
+        ('STM32', (42000000, 21000000)),
+        ('STM32F0', (42000000, 21000000, 21000000)),
+        ('STM32F1', (42000000, 21000000, 21000000)),
+        # Pyboard v1.1
+        ('STM32F4', (42000000, 21000000, 21000000)),
+        # Pyboard D-series
+        ('STM32F72', (50000000, 25000000, 25000000, 50000000, 50000000)),
+        # Pyboard D-series
+        ('STM32F76', (54000000, 25000000, 25000000, 54000000, 54000000,
+                      54000000)),
         )
-    # {1: ('ARDUINO_STM32_FEATHER', (42000000, 21000000)), ...}
+    # {1: ('STM32', (42000000, 21000000)), ...}
     _BOARDS = {idx: (name, freq)
                for idx, (name, freq) in enumerate(_BOARD_SPECS, start=1)}
-    # {'ARDUINO_STM32_FEATHER': 1, ...}
+    # {'STM32': 1, ...}
     _BOARD_IDS = {spec[0]: idx for idx, spec in _BOARDS.items()}
 
     def __init__(self):
