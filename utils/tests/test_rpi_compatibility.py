@@ -70,7 +70,7 @@ class TestCompatibility(unittest.TestCase):
         self._com._spi_port = self.PORT
         self._com.BOARD = Boards.RASPI
         # Mock the pin_mode() method
-        self.pin_mode = lambda sck, mosi, miso: (sck, mosi, miso)
+        self._com.pin_mode = lambda sck, mosi, miso: (sck, mosi, miso)
 
     def tearDown(self):
         self._com.pin_cleanup()
@@ -198,7 +198,7 @@ class TestCompatibility(unittest.TestCase):
         # Compatibility class object).
         self._com.BOARD = Boards.ESP32
         self._com._spi_port = 2
-        expect_freq = Boards._BOARDS[8][1][1]
+        expect_freq = Boards._BOARDS[Boards.ESP32][1][1]
         found_freq = self._com.spi_frequency
         msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
@@ -237,7 +237,7 @@ class TestCompatibility(unittest.TestCase):
         with self.assertRaises(CompatibilityException) as cm:
             self._com.set_spi_pins(sck, mosi, miso=miso)
 
-        board_name = self._com._get_board_name(self.BOARD)
+        board_name = self._com._get_board_name(self._com.BOARD)
         expect_msg = self._com.ERROR_MSGS['SPI_PINS_INV'].format(board_name)
         found_msg = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found_msg}'"
