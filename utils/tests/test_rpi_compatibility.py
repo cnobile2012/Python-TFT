@@ -70,7 +70,7 @@ class TestCompatibility(unittest.TestCase):
         self._com._spi_port = self.PORT
         self._com.BOARD = Boards.RASPI
         # Mock the pin_mode() method
-        self._com.pin_mode = lambda sck, mosi, miso: (sck, mosi, miso)
+        self._com.pin_mode = lambda pin: pin
 
     def tearDown(self):
         self._com.pin_cleanup()
@@ -216,14 +216,13 @@ class TestCompatibility(unittest.TestCase):
         # Mock the board to a valid MicroPython board that has programmable
         # GPIO pins.
         self._com.BOARD = Boards.RP2040
-        out_sck, out_mosi, out_miso = self._com.set_spi_pins(
-            sck, mosi, miso=miso)
-        msg = f"Expect sck {out_sck} found {self._com.sck}"
-        self.assertEqual(out_sck, self._com.sck, msg=msg)
-        msg = f"Expect mosi {out_mosi} found {self._com.mosi}"
-        self.assertEqual(out_mosi, self._com.mosi, msg=msg)
-        msg = f"Expect miso {out_miso} found {self._com.miso}"
-        self.assertEqual(out_miso, self._com.miso, msg=msg)
+        self._com.set_spi_pins(sck, mosi, miso=miso)
+        msg = f"Expect sck {sck} found {self._com.sck}"
+        self.assertEqual(sck, self._com.sck, msg=msg)
+        msg = f"Expect mosi {mosi} found {self._com.mosi}"
+        self.assertEqual(mosi, self._com.mosi, msg=msg)
+        msg = f"Expect miso {miso} found {self._com.miso}"
+        self.assertEqual(miso, self._com.miso, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_error_set_spi_pins(self):
