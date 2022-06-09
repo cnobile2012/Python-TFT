@@ -754,6 +754,11 @@ class ILI9225(Compatibility):
         Return the width, height, and the distance to advance cursor for
         the current GFX font.
 
+        .. notes::
+
+          If the character does not exist return values gw, gh, and xa
+          will be 0 (zero).
+
         :param x: Point coordinate (x-axis).
         :type x: int
         :param y: Point coordinate (y-axis).
@@ -776,6 +781,8 @@ class ILI9225(Compatibility):
             gw = glyph.width
             gh = glyph.height
             xa = glyph.x_advance
+        else:
+            gw = gh = xa = 0
 
         return gw, gh, xa
 

@@ -47,6 +47,7 @@ class TestFonts(unittest.TestCase):
                       if not f.endswith(('__init__.py', 'font_convert.py'))]
         return font_files
 
+    #@unittest.skip("Temporary")
     def test_bitmap_var_in_fonts(self):
         """
         Test that the bitmaps list exists in the fonts and is not
@@ -68,6 +69,7 @@ class TestFonts(unittest.TestCase):
                            "zero length.")
                     self.assertNotEqual(len(bitmaps), 0, msg=msg)
 
+    #@unittest.skip("Temporary")
     def test_glyphs_var_in_fonts(self):
         """
         Test that the glyphs list exists in the fonts and it is not
@@ -99,6 +101,7 @@ class TestFonts(unittest.TestCase):
                         msg = tmp_msg.format(found_size)
                         self.assertEqual(glyph_size, found_size, msg=msg)
 
+    #@unittest.skip("Temporary")
     def test_font_var_in_fonts(self):
         """
         Test that the font list exists in the fonts and it is not
@@ -138,38 +141,50 @@ class TestFonts(unittest.TestCase):
                             msg = tmp_msg.format(num, 'int', idx)
                             self.assertTrue(isinstance(item, int), msg=msg)
 
-    @unittest.skip("This test does not work because the variable cannot "
-                   "be set dynamically.")
+    #@unittest.skip("Temporary")
     def test_extended_var_in_fonts(self):
         """
         Every so often a font has an extended range as in the TomThumb font.
         This needs to be tested also.
+
+        For this test to work the font with extended characters nees to be
+        hand modified in the same way as the TomThumb.py has been.
         """
+        msg = "Expect for variable {} '{}', found'{}'"
+
         for name, module in self._modules.items():
-            list_names = (self.BITMAP_MASK.format(name),
-                          self.GLYPHS_MASK.format(name),
-                          name)
-
-            for any_name in [n for n in dir(module) if not n.startswith("_")]:
-                if any_name not in list_names:
-                    # We don't need to test the last variable in list_names.
-                    for var_name in list_names[:-1]:
-                        font_list = []
-
-                        try:
-                            font_list[:] = getattr(module, var_name)
-                        except AttributeError as e:
-                            msg - (f"Font '{name}' does not have a "
-                                   "'{var_name}' variable")
-                            self.assertTrue(bitmaps, msg=msg)
-                        else:
-                            size_before = len(font_list)
-                            # THIS LINE DOES'T WORK.
-                            setattr(module, name, 1)
-                            font_list[:] = getattr(module, var_name)
-                            size_after  = len(font_list)
-                            msg = (f"Font '{name}': variable '{var_name}', "
-                                   f"unextended size '{size_before}', should "
-                                   "be less than the extended size of "
-                                   f"'{size_after}'")
-                            self.assertTrue(size_before < size_after, msg=msg)
+            if 'use_extended' in [n for n in dir(module)]:
+                list_names = (self.BITMAP_MASK.format(name),
+                              self.GLYPHS_MASK.format(name),
+                              name)
+                orig_name_0_len = len(getattr(module, list_names[0]))
+                orig_name_1_len = len(getattr(module, list_names[1]))
+                orig_last_value = 0x7E
+                # Test that the list get extended.
+                module.use_extended(True)
+                found_name_0_len = len(getattr(module, list_names[0]))
+                found_name_1_len = len(getattr(module, list_names[1]))
+                found_last_value = getattr(module, list_names[2])[3]
+                self.assertTrue(
+                    orig_name_0_len < found_name_0_len,
+                    msg=msg.format(name, orig_name_0_len, found_name_0_len))
+                self.assertTrue(
+                    orig_name_1_len < found_name_1_len,
+                    msg=msg.format(name, orig_name_1_len, found_name_1_len))
+                self.assertTrue(
+                    orig_last_value < found_last_value,
+                    msg=msg.format(name, orig_last_value, found_last_value))
+                module.use_extended(False)
+                # Test that the lists are back to the original values.
+                found_name_0_len = len(getattr(module, list_names[0]))
+                found_name_1_len = len(getattr(module, list_names[1]))
+                found_last_value = getattr(module, list_names[2])[3]
+                self.assertEqual(
+                    orig_name_0_len, found_name_0_len,
+                    msg=msg.format(name, orig_name_0_len, found_name_0_len))
+                self.assertEqual(
+                    orig_name_1_len, found_name_1_len,
+                    msg=msg.format(name, orig_name_1_len, found_name_1_len))
+                self.assertEqual(
+                    orig_last_value, found_last_value,
+                    msg=msg.format(name, orig_last_value, found_last_value))

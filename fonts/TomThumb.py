@@ -45,10 +45,13 @@
 ## Twitter: @skelliam
 ##
 
+"""
+This file was hand modified so that the extended characters could be
+used by the developer using this API. CJN
+"""
 
-TOMTHUMB_USE_EXTENDED = 0
 
-TomThumbBitmaps = [
+TomThumbBitmapsS = [
     0x00,                                # 0x20 space
     0x80, 0x80, 0x80, 0x00, 0x80,        # 0x21 exclam
     0xA0, 0xA0,                          # 0x22 quotedbl
@@ -144,10 +147,10 @@ TomThumbBitmaps = [
     0x80, 0x80, 0x00, 0x80, 0x80,        # 0x7C bar
     0xC0, 0x40, 0x20, 0x40, 0xC0,        # 0x7D braceright
     0x60, 0xC0,                          # 0x7E asciitilde
-]
+    ]
 
-if TOMTHUMB_USE_EXTENDED:
-    TomThumbBitmaps += [
+
+TomThumbBitmapsX = [
     0x80, 0x00, 0x80, 0x80, 0x80,        # 0xA1 exclamdown
     0x40, 0xE0, 0x80, 0xE0, 0x40,        # 0xA2 cent
     0x60, 0x40, 0xE0, 0x40, 0xE0,        # 0xA3 sterling
@@ -257,12 +260,11 @@ if TOMTHUMB_USE_EXTENDED:
     0xA0,                                # 0x2026 ellipsis
     0x60, 0xE0, 0xE0, 0xC0, 0x60,        # 0x20AC Euro
     0xE0, 0xA0, 0xA0, 0xA0, 0xE0,        # 0xFFFD uniFFFD
-# end TOMTHUMB_USE_EXTENDED
-  ]
+    ]
 
 
 # [offset, width, height, advance cursor, x offset, y offset]
-TomThumbGlyphs = [
+TomThumbGlyphsS = [
     [ 0, 8, 1, 2, 0, -5 ],    # 0x20 space
     [ 1, 8, 5, 2, 0, -5 ],    # 0x21 exclam
     [ 6, 8, 2, 4, 0, -5 ],    # 0x22 quotedbl
@@ -358,10 +360,10 @@ TomThumbGlyphs = [
     [ 406, 8, 5, 2, 0, -5 ],  # 0x7C bar
     [ 411, 8, 5, 4, 0, -5 ],  # 0x7D braceright
     [ 416, 8, 2, 4, 0, -5 ],  # 0x7E asciitilde
-]
+    ]
 
-if TOMTHUMB_USE_EXTENDED:
-    TomThumbGlyphs += [
+
+TomThumbGlyphsX = [
     [ 418, 8, 5, 2, 0, -5 ],  # 0xA1 exclamdown
     [ 423, 8, 5, 4, 0, -5 ],  # 0xA2 cent
     [ 428, 8, 5, 4, 0, -5 ],  # 0xA3 sterling
@@ -471,10 +473,32 @@ if TOMTHUMB_USE_EXTENDED:
     [ 893, 8, 1, 4, 0, -1 ],  # 0x2026 ellipsis
     [ 894, 8, 5, 4, 0, -5 ],  # 0x20AC Euro
     [ 899, 8, 5, 4, 0, -5 ],  # 0xFFFD uniFFFD
-# end TOMTHUMB_USE_EXTENDED
-]
+    ]
+
+
+TomThumbBitmaps = []
+TomThumbGlyphs = []
+
 
 TomThumb = [
     TomThumbBitmaps,
     TomThumbGlyphs,
-    0x20, 0x7E, 6 ]
+    0x20, 0x7E, 6
+    ]
+
+
+def use_extended(tf=False):
+    global TomThumb
+    global TomThumbBitmaps, TomThumbBitmapsS, TomThumbBitmapsX
+    global TomThumbGlyphs, TomThumbGlyphsS, TomThumbGlyphsX
+
+    if tf:
+        TomThumbBitmaps += TomThumbBitmapsX
+        TomThumbGlyphs += TomThumbGlyphsX
+        TomThumb[3] = 0xFFFD
+    else:
+        TomThumbBitmaps[:] = TomThumbBitmapsS
+        TomThumbGlyphs[:] = TomThumbGlyphsS
+        TomThumb[3] = 0x7E
+
+use_extended()
