@@ -710,9 +710,18 @@ class TestILI9225(unittest.TestCase):
         found = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found}'"
         self.assertEqual(expect_msg, found, msg=msg)
-
-        ch = 'B'
+        # Test that an invalid character returns all zeros for gw, gh, and xa.
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
+        ch = '\xFF'
+        w, h, xa = self._tft.get_gfx_char_extent(x, y, ch)
+        expect_w = expect_h = expect_xa = 0
+        msg = (f"Expect w={expect_w}, h={expect_h}, xa={expect_xa} "
+               f"found w={w}, h={h}, xa={xa}")
+        self.assertEqual(expect_w, w, msg=msg)
+        self.assertEqual(expect_h, h, msg=msg)
+        self.assertEqual(expect_xa, xa, msg=msg)
+        # Test normal character.
+        ch = 'C'
         w, h, xa = self._tft.get_gfx_char_extent(x, y, ch)
         ch_tmp = ord(ch) - FreeSerifItalic18pt7b[2] # GFXFont.first
         glyph = GFXGlyph(FreeSerifItalic18pt7b[1][ch_tmp]) # GFXFont.glyph

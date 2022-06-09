@@ -693,6 +693,7 @@ class ILI9225(Compatibility):
         :type color: int
         :return: The width of character in display pixels.
         :rtype: int
+        :raises TFTException: If the a GFX font is not set.
         """
         self._is_gfx_font_set()
         ch = ord(ch) - self._gfx_font.first
@@ -736,6 +737,7 @@ class ILI9225(Compatibility):
         :type color: int
         :return: The position of x after the text is displayed.
         :rtype: int
+        :raises TFTException: If the a GFX font is not set.
         """
         currx = x
         self.spi_close_override = True
@@ -771,6 +773,7 @@ class ILI9225(Compatibility):
                  of the character, gh is the height, and xa is the distance
                  to advance cursor on the x axis.
         :rtype: tuple
+        :raises TFTException: If the a GFX font is not set.
         """
         self._is_gfx_font_set()
         ch = ord(ch)
@@ -802,6 +805,7 @@ class ILI9225(Compatibility):
         :return: A tuple (w, h) where w is the width of the string and
                  h is the height.
         :rtype: tuple
+        :raises TFTException: If the a GFX font is not set.
         """
         w = h = 0
 
