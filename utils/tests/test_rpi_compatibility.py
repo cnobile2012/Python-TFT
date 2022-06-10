@@ -45,7 +45,7 @@ class TestBoards(unittest.TestCase):
         Test that the correct frequence is returned for the board selected.
         """
         port = 1
-        board = Boards.STM32
+        board = Boards.STM32F0
         freq = Boards._BOARDS.get(board)[1][port]
         freq_found = Boards.get_frequency(board, port)
         msg = f"The board freq should be '{freq}', found '{freq_found}'."
@@ -91,7 +91,7 @@ class TestCompatibility(unittest.TestCase):
         Test that the board name matches what was set.
         """
         expect_board = Boards._BOARDS.get(self._com.BOARD)[0]
-        found_board = self._com._get_board_name(Boards.STM32)
+        found_board = self._com._get_board_name(Boards.STM32F0)
         msg = f"Expect '{expect_board}' found '{found_board}'."
         self.assertNotEqual(expect_board, found_board, msg=msg)
 
