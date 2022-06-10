@@ -3,6 +3,10 @@
 utils/common.py
 
 Common functionality between various TFT controller chips.
+
+These sites list boards and their MCUs.
+https://techexplorations.com/guides/esp32/micropython-with-the-esp32/4-micropython-compatible-boards/
+https://stm32-base.org/boards/
 """
 
 
@@ -32,10 +36,15 @@ class _Boards:
         ('RASPI', (31200000, 31200000)),
         # RPi Pico, Feather 2040, ItsyBitsy 2040, Tiny 2040, etc.
         ('RP2040', (65200000, 65200000)),
-        ('STM32', (42000000, 21000000)),
-        ('STM32F0', (42000000, 21000000, 21000000)),
-        ('STM32F1', (42000000, 21000000, 21000000)),
-        # Pyboard v1.1
+        # Some Blue Pill boards and many others.
+        ('STM32F0', (18000000, 18000000)),
+        # Black Pill and some Blue Pill boards and others.
+        ('STM32F1', (18000000, 18000000, 18000000)),
+        # WaveShare Core205R
+        ('STM32F2', (30000000, 30000000, 30000000))
+        # RobotDyn Black Pill and others.
+        ('STM32F3', (18000000, 18000000, 18000000))
+        # Pyboard v1.1, WeAct Black Pill and others.
         ('STM32F4', (42000000, 21000000, 21000000)),
         # Pyboard D-series
         ('STM32F72', (50000000, 25000000, 25000000, 50000000, 50000000)),
