@@ -41,9 +41,9 @@ class _Boards:
         # Black Pill and some Blue Pill boards and others.
         ('STM32F1', (18000000, 18000000, 18000000)),
         # WaveShare Core205R
-        ('STM32F2', (30000000, 30000000, 30000000))
+        ('STM32F2', (30000000, 30000000, 30000000)),
         # RobotDyn Black Pill and others.
-        ('STM32F3', (18000000, 18000000, 18000000))
+        ('STM32F3', (18000000, 18000000, 18000000)),
         # Pyboard v1.1, WeAct Black Pill and others.
         ('STM32F4', (42000000, 21000000, 21000000)),
         # Pyboard D-series
