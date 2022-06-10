@@ -11,3 +11,7 @@ wheel
 twine
 #mock
 nose
+
+# MicroPython
+esptool
+adafruit-ampy
