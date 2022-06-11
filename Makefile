@@ -34,7 +34,7 @@ rpi-html:
 
 .PHONY	: sphinx
 sphinx	: clean
-	(cd $(DOCS_DIR); make html)
+	@(cd $(DOCS_DIR); make html)
 
 #----------------------------------------------------------------------
 .PHONY	: doc
