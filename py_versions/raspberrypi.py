@@ -9,7 +9,7 @@ from RPi import GPIO
 from spidev import SpiDev
 from time import sleep
 
-from utils import Boards, CompatibilityException
+from utils.common import Boards, CompatibilityException
 
 
 class PiVersion:

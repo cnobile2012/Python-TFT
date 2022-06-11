@@ -8,6 +8,8 @@ The personal computer compatibility file.
 from RTk import GPIO
 from time import sleep
 
+from utils.common import Boards, CompatibilityException
+
 
 class PiVersion:
     """

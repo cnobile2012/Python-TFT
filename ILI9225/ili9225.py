@@ -8,8 +8,8 @@ Driver for the ILI9225 chip TFT LCD displays.
 import os
 
 from utils.compatibility import Compatibility
-from utils import (Boards, TFTException, CompatibilityException,
-                   RGB16BitColor as Colors)
+from utils.common import (Boards, TFTException, CompatibilityException,
+                          RGB16BitColor as Colors)
 
 
 class AutoIncMode:

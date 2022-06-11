@@ -72,7 +72,7 @@ STM32F76 = port 1=SPI1 (MISO=PA6, MOSI=PA7, SCK=PA5) or
 from machine import Pin, SPI, PWM
 from time import sleep_ms
 
-from utils import Boards, CompatibilityException
+from utils.common import Boards, CompatibilityException
 
 
 class PiVersion:

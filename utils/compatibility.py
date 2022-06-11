@@ -9,7 +9,7 @@ We need to test for the existence of a few methods and functions then decide
 which to use in this library.
 """
 
-from utils import Boards, CompatibilityException
+from .common import Boards, CompatibilityException
 
 
 try: # MicroPython
