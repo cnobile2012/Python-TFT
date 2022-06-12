@@ -83,8 +83,6 @@ class PiVersion:
 
     def spi_start_transaction(self, reuse=False):
         if self._spi is None or not reuse:
-            from utils.compatibility import Boards
-
             freq = Boards.get_frequency(self.get_board())
             print(freq)
 
