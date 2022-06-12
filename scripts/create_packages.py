@@ -49,22 +49,18 @@ class CreatePackages:
         pattern1 = pattern0 + ('__init__.py',)
 
         for src, path in packages.items():
-            copytree(src, path,
-                     ignore=ignore_patterns(*pattern0),
-                     dirs_exist_ok=True)
-            src = 'utils'
-            copytree(src, path,
-                     ignore=ignore_patterns(*pattern1),
-                     dirs_exist_ok=True)
-            src = 'py_versions'
-            copytree(src, path,
-                     ignore=ignore_patterns(*pattern1),
-                     dirs_exist_ok=True)
+            kwargs = {'ignore': ignore_patterns(*pattern0)}
+            if sys.version_info[1] >= 8: kwargs['dirs_exist_ok'] = True
+            copytree(src, path, **kwargs)
             src = 'fonts'
             dst = os.path.join(path, src)
-            copytree(src, dst,
-                     ignore=ignore_patterns(*pattern0),
-                     dirs_exist_ok=True)
+            copytree(src, dst, **kwargs)
+            kwargs = {'ignore': ignore_patterns(*pattern1)}
+            if sys.version_info[1] >= 8: kwargs['dirs_exist_ok'] = True
+            src = 'utils'
+            copytree(src, path, **kwargs)
+            src = 'py_versions'
+            copytree(src, path, **kwargs)
 
     def __fix_imports(self, process_path, fix, change):
         if self._options.debug: sys.stderr.write('\n' + process_path + '\n')
