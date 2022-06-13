@@ -60,4 +60,4 @@ clean	:
 
 .PHONY	: clobber
 clobber	: clean
-	@rm -rf build dist ${PACKAGE_DIR}.egg-info
+	@rm -rf build dist ${PACKAGE_DIR}.egg-info __pycache__

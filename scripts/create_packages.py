@@ -49,14 +49,15 @@ class CreatePackages:
         pattern1 = pattern0 + ('__init__.py',)
 
         for src, path in packages.items():
-            kwargs = {'ignore': ignore_patterns(*pattern0)}
-            if sys.version_info[1] >= 8: kwargs['dirs_exist_ok'] = True
+            kwargs = {
+                'ignore': ignore_patterns(*pattern0),
+                'dirs_exist_ok': True
+                }
             copytree(src, path, **kwargs)
             src = 'fonts'
             dst = os.path.join(path, src)
             copytree(src, dst, **kwargs)
-            kwargs = {'ignore': ignore_patterns(*pattern1)}
-            if sys.version_info[1] >= 8: kwargs['dirs_exist_ok'] = True
+            kwargs['ignore'] = ignore_patterns(*pattern1)
             src = 'utils'
             copytree(src, path, **kwargs)
             src = 'py_versions'
