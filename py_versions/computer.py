@@ -24,6 +24,8 @@ class PiVersion:
     INPUT_PULLUP = GPIO.PUD_UP
     INPUT_PULLDOWN = GPIO.PUD_DOWN
     INPUT_PULLOFF = GPIO.PUD_OFF
+    _SPI_MODE = 0
+    _DEF_PWM_FREQ = 25500
 
     def __init__(self, mode=GPIO.BCM):
         """

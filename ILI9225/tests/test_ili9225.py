@@ -6,10 +6,9 @@ import os
 import re
 import unittest
 
-from ILI9225 import ILI9225
+from ILI9225 import (ILI9225, Boards, TFTException, CompatibilityException,
+                     Terminal12x16, BGR16BitColor, RGB16BitColor as Colors)
 from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont, GFXGlyph
-from utils import (Boards, TFTException, CompatibilityException,
-                   Terminal12x16, BGR16BitColor, RGB16BitColor as Colors)
 from fonts.FreeSerifItalic18pt7b import FreeSerifItalic18pt7b
 
 
