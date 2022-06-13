@@ -25,12 +25,21 @@ PI. At the time of this writing I installed version 3.10.4.
 
 .. code-block:: console
 
-    sudo apt update && apt upgrade
-    sudo apt install libssl-dev libffi-dev cargo
+  sudo apt update && apt upgrade
+  sudo apt install libssl-dev cargo libsqlite3-dev
 
 I usually create a directory named `src` in my user directory assuming you also
-do that cd into that directory.
+do the same cd into that directory. With the `altinstall` target on the
+Makefile Python will be installed in the `/usr/local` path. As of this writing
+Python-3.10.4 does not work with nosetests.
 
+.. code-block:: console
+
+   wget https://www.python.org/ftp/python/3.9.13/Python-3.9.13.tar.xz
+   tar -xJvf Python-3.9.13.tar.xz
+   cd Python-3.9.13/
+   ./configure --enable-optimizations --enable-loadable-sqlite-extensions=yes
+   sudo make altinstall
 
 
 

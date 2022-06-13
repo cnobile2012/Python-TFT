@@ -1366,9 +1366,10 @@ class ILI9225(Compatibility):
             self._end_write(reuse=False)
             raise e
         else:
-            result = ','.join(str(v) for v in result)
-            result = 'Command: {}\n'.format(result) if self.TESTING else ""
-            return self.__write_spi_test_buff(result)
+            if result is not None:
+                result = ','.join(str(v) for v in result)
+                result = 'Command: {}\n'.format(result) if self.TESTING else ""
+                return self.__write_spi_test_buff(result)
 
     def _write_data(self, data):
         try:
@@ -1380,9 +1381,10 @@ class ILI9225(Compatibility):
             self._end_write(reuse=False)
             raise e
         else:
-            result = ','.join(str(v) for v in result)
-            result = '   Data: {}\n'.format(result) if self.TESTING else ""
-            return self.__write_spi_test_buff(result)
+            if result is not None:
+                result = ','.join(str(v) for v in result)
+                result = '   Data: {}\n'.format(result) if self.TESTING else ""
+                return self.__write_spi_test_buff(result)
 
     def __write_spi_test_buff(self, data):
         if data is not None:
