@@ -37,7 +37,7 @@ class PiVersion:
         """
         Set a pin, direction, pull, mode, and default.
 
-        .. notes::
+        .. note::
 
           See the CircuitPython documentation on https://bit.ly/36yPHPl
 

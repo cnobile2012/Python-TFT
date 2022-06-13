@@ -88,7 +88,7 @@ class Compatibility(PiVersion):
         """
         Set the PWM frequency.
 
-        .. notes::
+        .. note::
 
           The PWM frequency if the default needs to be superseded must
           be set before begin() is called.
@@ -128,7 +128,7 @@ class Compatibility(PiVersion):
         """
         Set the SPI frequency.
 
-        .. notes::
+        .. note::
 
           The SPI frequency if the default needs to be superseded must
           be set before begin() is called.

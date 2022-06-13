@@ -35,7 +35,7 @@ class CurrentFont:
         """
         Set a standard font.
 
-        .. notes::
+        .. note::
 
           Tuple definition: font = Full data object
                             width = 1st byte in full data object
@@ -464,7 +464,7 @@ class ILI9225(Compatibility):
         """
         Get the display max x size (based on orientation).
 
-        .. notes::
+        .. note::
 
           Either 0..176 or 0..220 depending on orientation.
 
@@ -478,7 +478,7 @@ class ILI9225(Compatibility):
         """
         Get the display max y size (based on orientation).
 
-        .. notes::
+        .. note::
 
           Either 0..176 or 0..220 depending on orientation.
 
@@ -756,7 +756,7 @@ class ILI9225(Compatibility):
         Return the width, height, and the distance to advance cursor for
         the current GFX font.
 
-        .. notes::
+        .. note::
 
           If the character does not exist return values gw, gh, and xa
           will be 0 (zero).

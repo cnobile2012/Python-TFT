@@ -75,7 +75,7 @@ class TestFonts(unittest.TestCase):
         Test that the glyphs list exists in the fonts and it is not
         zero length. Also test that the length of each glyph is correct.
 
-        .. notes::
+        .. note::
 
             The glyphs variable has the following fields.
             [offset, width, height, advance cursor, x offset, y offset]
@@ -107,7 +107,7 @@ class TestFonts(unittest.TestCase):
         Test that the font list exists in the fonts and it is not
         zero length.
 
-        .. notes::
+        .. note::
 
             The font variable is a combination of the other two variables
             plus three other values. The following fields should exist.

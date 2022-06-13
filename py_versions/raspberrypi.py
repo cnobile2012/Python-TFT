@@ -204,7 +204,7 @@ class PiVersion:
         """
         Setup a PWM for controlling the back light LEDs brightness.
 
-        .. notes::
+        .. note::
 
           The duty_cycle is derived by multiplying the brightness by 100
           then dividing by the maximum number of brightness values.
