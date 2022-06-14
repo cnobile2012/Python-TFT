@@ -84,13 +84,7 @@ class CreatePackages:
         change = "from ."
         self.__fix_imports(process_path, fix, change)
 
-    def _strip_ili9225(self, process_path):
-        pass
-
     def _fix_ili9341(self, process_path):
-        pass
-
-    def _strip_ili9341(self, process_path):
         pass
 
     def _fix_init(self, process_path):
@@ -98,78 +92,90 @@ class CreatePackages:
         change = "from ."
         self.__fix_imports(process_path, fix, change)
 
-    def _strip_init(self, process_path):
-        pass
-
     def _fix_compatibility(self, process_path):
         fix = "from py_versions."
         change = "from ."
         self.__fix_imports(process_path, fix, change)
-
-    def _strip_compatibility(self, process_path):
-        pass
-
-    def _strip_common(self, process_path):
-        pass
 
     def _fix_circuitpython(self, process_path):
         fix = "from utils."
         change = "from ."
         self.__fix_imports(process_path, fix, change)
 
-    def _strip_circuitpython(self, process_path):
-        pass
-
     def _fix_computer(self, process_path):
         fix = "from utils."
         change = "from ."
         self.__fix_imports(process_path, fix, change)
-
-    def _strip_computer(self, process_path):
-        pass
-
-    def _strip_default_fonts(self, process_path):
-        pass
 
     def _fix_micropython(self, process_path):
         fix = "from utils."
         change = "from ."
         self.__fix_imports(process_path, fix, change)
 
-    def _strip_micropython(self, process_path):
-        pass
-
     def _fix_raspberrypi(self, process_path):
         fix = "from utils."
         change = "from ."
         self.__fix_imports(process_path, fix, change)
 
-    def _strip_raspberrypi(self, process_path):
+    def _strip_doc_strings(self, process_path):
+        class_or_def = 0
+
+        with StringIO() as buff:
+            with open(process_path, 'r') as f:
+                for idx, line in enumerate(f):
+                    if not class_or_def and ('class' in line or 'def' in line):
+                        class_or_def = idx
+                    elif ((class_or_def + 1) == idx
+                          and ('"""' in line or "'''" in line)):
+                        if self._options.debug: sys.stderr.write(line)
+                        continue
+                    elif class_or_def:
+                        if self._options.debug: sys.stderr.write(line)
+                        continue
+                    elif class_or_def and ('"""' in line or "'''" in line):
+                        class_or_def = 0
+                        if self._options.debug: sys.stderr.write(line)
+                        continue
+
+                    buff.write(line)
+
+            if not self._options.noop:
+                with open(process_path, 'w') as f:
+                    f.write(buff.getvalue())
+
+    def _strip_comments(self, process_path):
         pass
 
+
     FIX_FILES = (
-        ('{}/{}/ili9225.py', _fix_ili9225, _strip_ili9225),
-        ('{}/{}/ili9341.py', _fix_ili9341, _strip_ili9341),
-        ('{}/{}/__init__.py', _fix_init, _strip_init),
-        ('{}/{}/compatibility.py', _fix_compatibility, _strip_compatibility),
-        ('{}/{}/common.py', None, _strip_common),
-        ('{}/{}/circuitpython.py', _fix_circuitpython, _strip_circuitpython),
-        ('{}/{}/computer.py', _fix_computer, _strip_computer),
-        ('{}/{}/default_fonts.py', None, _strip_default_fonts),
-        ('{}/{}/micropython.py', _fix_micropython, _strip_micropython),
-        ('{}/{}/raspberrypi.py', _fix_raspberrypi, _strip_raspberrypi),
+        ('{}/{}/ili9225.py', _fix_ili9225),
+        ('{}/{}/ili9341.py', _fix_ili9341),
+        ('{}/{}/__init__.py', _fix_init),
+        ('{}/{}/compatibility.py', _fix_compatibility),
+        ('{}/{}/common.py', None),
+        ('{}/{}/circuitpython.py', _fix_circuitpython),
+        ('{}/{}/computer.py', _fix_computer),
+        ('{}/{}/default_fonts.py', None),
+        ('{}/{}/micropython.py', _fix_micropython),
+        ('{}/{}/raspberrypi.py', _fix_raspberrypi),
         )
 
     def _fix_files(self, packages):
         for src, path in packages.items():
-            for pyfile, fix, strip in self.FIX_FILES:
+            for pyfile, fix in self.FIX_FILES:
                 if self.ILI9225 == src:
                     process_path = pyfile.format(self.BUILD_PATH, self.ILI9225)
                 elif self.ILI9341 == src:
                     process_path = pyfile.format(self.BUILD_PATH, self.ILI9341)
 
-                if fix is not None: fix(self, process_path)
-                if self._options.strip: strip(self, process_path)
+                if fix is not None:
+                    fix(self, process_path)
+
+                if (self._options.force or (
+                    self._options.strip and (self._options.circuitpython
+                                             or self._options.micropython))):
+                    self._strip_doc_strings(process_path)
+                    self._strip_comments(process_path)
 
     def _create_circuitpython(self, path):
         c_path = os.path.join(path, 'circuitpython')
@@ -228,12 +234,17 @@ if __name__ == '__main__':
         )
     parser.add_argument(
         '-s', '--strip', action='store_true', default=False,
-        dest='strip', help="Strip comments and non-code white space."
+        dest='strip', help=("Strip comments and non-code white space no "
+                            "the MicroPython and CircuitPython packages.")
         )
     parser.add_argument(
         '-f', '--force-strip', action='store_true', default=False,
         dest='force', help=("Force striping on all packages including "
                             "the Raspberry Pi and Computer packages.")
+        )
+    parser.add_argument(
+        '-F', '--fonts', action='store_true', default=False, dest='fonts',
+        help="Choose which fonts to put in the final packages."
         )
     parser.add_argument(
         '-D', '--debug', action='store_true', default=False, dest='debug',
