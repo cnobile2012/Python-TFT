@@ -6,15 +6,18 @@
 #
 
 import os
+import re
 import sys
 from io import StringIO
-from shutil import copytree, ignore_patterns
+from shutil import copytree, copy2, ignore_patterns
 
 
 class CreatePackages:
     """
     Creates packages.
     """
+    RX_CLASS_DEF = re.compile(r"^ *(class)|(def).*$", re.MULTILINE)
+    RX_QUOTES = re.compile(r'^ +(""")|(\'\'\').*$', re.MULTILINE)
     ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     BUILD_PATH = 'build'
     ILI9225 = 'ILI9225'
@@ -26,25 +29,53 @@ class CreatePackages:
     def start(self):
         build_path = os.path.join(self.ROOT_PATH, self.BUILD_PATH)
         if not os.path.lexists(build_path): os.mkdir(build_path)
-        packages = {}
-
-        if self._options.ili9225:
-            path_package = os.path.join(build_path, self.ILI9225)
-            packages[self.ILI9225] = path_package
-            if not os.path.lexists(path_package): os.mkdir(path_package)
-
-        if self._options.ili9341:
-            path_package = os.path.join(build_path, self.ILI9341)
-            packages[self.ILI9341] = path_package
-            if not os.path.lexists(path_package): os.mkdir(path_package)
-
-        self._copy_code(packages)
-        self._fix_files(packages)
+        if self._options.computer: self._create_computer(build_path)
         if self._options.circuitpython: self._create_circuitpython(build_path)
         if self._options.micropython: self._create_micropython(build_path)
         if self._options.raspi: self._create_raspi(build_path)
 
-    def _copy_code(self, packages):
+    def _create_circuitpython(self, build_path):
+        platform = 'circuitpython'
+        packages = self._create_paths(build_path, platform)
+        self._copy_code(packages, platform)
+        self._fix_files(packages)
+
+    def _create_computer(self, build_path):
+        platform = 'computer'
+        packages = self._create_paths(build_path, platform)
+        self._copy_code(packages, platform)
+        self._fix_files(packages)
+
+    def _create_micropython(self, build_path):
+        platform = 'micropython'
+        packages = self._create_paths(build_path, platform)
+        self._copy_code(packages, platform)
+        self._fix_files(packages)
+
+    def _create_raspi(self, build_path):
+        platform = 'raspberrypi'
+        packages = self._create_paths(build_path, platform)
+        self._copy_code(packages, platform)
+        self._fix_files(packages)
+
+    def _create_paths(self, build_path, platform):
+        packages = {}
+        path = os.path.join(build_path, platform)
+        if not os.path.lexists(path): os.mkdir(path)
+
+        if self._options.ili9225:
+            path_package = os.path.join(build_path, path, self.ILI9225)
+            packages[self.ILI9225] = path_package
+            if not os.path.lexists(path_package): os.mkdir(path_package)
+
+        if self._options.ili9341:
+            path_package = os.path.join(build_path, path, self.ILI9341)
+            packages[self.ILI9341] = path_package
+            if not os.path.lexists(path_package): os.mkdir(path_package)
+
+        return packages
+
+    def _copy_code(self, packages, platform):
         pattern0 = ('__pycache__', 'tests')
         pattern1 = pattern0 + ('__init__.py',)
 
@@ -60,24 +91,8 @@ class CreatePackages:
             kwargs['ignore'] = ignore_patterns(*pattern1)
             src = 'utils'
             copytree(src, path, **kwargs)
-            src = 'py_versions'
-            copytree(src, path, **kwargs)
-
-    def __fix_imports(self, process_path, fix, change):
-        if self._options.debug: sys.stderr.write('\n' + process_path + '\n')
-
-        with StringIO() as buff:
-            with open(process_path, 'r') as f:
-                for line in f:
-                    if fix in line:
-                        line = line.replace(fix, change)
-                        if self._options.debug: sys.stderr.write(line)
-
-                    buff.write(line)
-
-            if not self._options.noop:
-                with open(process_path, 'w') as f:
-                    f.write(buff.getvalue())
+            src = f'py_versions/{platform}.py'
+            copy2(src, path)
 
     def _fix_ili9225(self, process_path):
         fix = "from utils."
@@ -117,25 +132,47 @@ class CreatePackages:
         change = "from ."
         self.__fix_imports(process_path, fix, change)
 
-    def _strip_doc_strings(self, process_path):
-        class_or_def = 0
+    def __fix_imports(self, process_path, fix, change):
+        if self._options.debug: sys.stderr.write('\n' + process_path + '\n')
 
         with StringIO() as buff:
             with open(process_path, 'r') as f:
-                for idx, line in enumerate(f):
-                    if not class_or_def and ('class' in line or 'def' in line):
-                        class_or_def = idx
-                    elif ((class_or_def + 1) == idx
-                          and ('"""' in line or "'''" in line)):
+                for line in f:
+                    if fix in line:
+                        line = line.replace(fix, change)
                         if self._options.debug: sys.stderr.write(line)
-                        continue
-                    elif class_or_def:
-                        if self._options.debug: sys.stderr.write(line)
-                        continue
-                    elif class_or_def and ('"""' in line or "'''" in line):
-                        class_or_def = 0
-                        if self._options.debug: sys.stderr.write(line)
-                        continue
+
+                    buff.write(line)
+
+            if not self._options.noop:
+                with open(process_path, 'w') as f:
+                    f.write(buff.getvalue())
+
+    def _strip_doc_strings(self, process_path):
+        with StringIO() as buff:
+            with open(process_path, 'r') as f:
+                save_lines = ""
+
+                for idx, line in enumerate(f, start=1):
+                    sre = self.RX_CLASS_DEF.search(line)
+                    print(save_lines)
+
+                    if sre:
+                        save_lines = line
+                        print('class or def', idx)
+                    else:
+                        save_lines += line
+                        quotes = self.RX_QUOTES.findall(save_lines)
+
+                        if quotes or len(save_lines) > 0:
+                            if self._options.debug: sys.stderr.write(line)
+#                            print('first or between', idx)
+                            continue
+                        elif quotes and len(quotes) > 1:
+                            save_lines = ""
+                            if self._options.debug: sys.stderr.write(line)
+#                            print('last', idx)
+                            continue
 
                     buff.write(line)
 
@@ -148,25 +185,26 @@ class CreatePackages:
 
 
     FIX_FILES = (
-        ('{}/{}/ili9225.py', _fix_ili9225),
-        ('{}/{}/ili9341.py', _fix_ili9341),
-        ('{}/{}/__init__.py', _fix_init),
-        ('{}/{}/compatibility.py', _fix_compatibility),
-        ('{}/{}/common.py', None),
-        ('{}/{}/circuitpython.py', _fix_circuitpython),
-        ('{}/{}/computer.py', _fix_computer),
-        ('{}/{}/default_fonts.py', None),
-        ('{}/{}/micropython.py', _fix_micropython),
-        ('{}/{}/raspberrypi.py', _fix_raspberrypi),
+        ('ili9225.py', _fix_ili9225, ILI9225),
+        ('ili9341.py', _fix_ili9341, ILI9341),
+        ('__init__.py', _fix_init, None),
+        ('compatibility.py', _fix_compatibility, None),
+        ('common.py', None, None),
+        ('circuitpython.py', _fix_circuitpython, None),
+        ('computer.py', _fix_computer, None),
+        ('default_fonts.py', None, None),
+        ('micropython.py', _fix_micropython, None),
+        ('raspberrypi.py', _fix_raspberrypi, None),
         )
 
     def _fix_files(self, packages):
         for src, path in packages.items():
-            for pyfile, fix in self.FIX_FILES:
-                if self.ILI9225 == src:
-                    process_path = pyfile.format(self.BUILD_PATH, self.ILI9225)
-                elif self.ILI9341 == src:
-                    process_path = pyfile.format(self.BUILD_PATH, self.ILI9341)
+            for pyfile, fix, mcu in self.FIX_FILES:
+                if (src == self.ILI9225 in (mcu, None)
+                    or src == self.ILI9341 in (mcu, None)):
+                    process_path = os.path.join(path, pyfile)
+                else:
+                    continue
 
                 if fix is not None:
                     fix(self, process_path)
@@ -175,27 +213,7 @@ class CreatePackages:
                     self._options.strip and (self._options.circuitpython
                                              or self._options.micropython))):
                     self._strip_doc_strings(process_path)
-                    self._strip_comments(process_path)
-
-    def _create_circuitpython(self, path):
-        c_path = os.path.join(path, 'circuitpython')
-        if not os.path.lexists(c_path): os.mkdir(c_path)
-
-
-    def _create_micropython(self, path):
-        m_path = os.path.join(path, 'micropython')
-        if not os.path.lexists(m_path): os.mkdir(m_path)
-
-
-    def _create_raspi(self, path):
-        r_path = os.path.join(path, 'raspi')
-        if not os.path.lexists(r_path): os.mkdir(r_path)
-
-
-
-
-
-
+                    #self._strip_comments(process_path)
 
 if __name__ == '__main__':
     import traceback
@@ -209,12 +227,12 @@ if __name__ == '__main__':
         dest='all', help="Create all packages."
         )
     parser.add_argument(
-        '-p', '--computer', action='store_true', default=False,
-        dest='computer', help="Create a Computer package."
-        )
-    parser.add_argument(
         '-c', '--circuitpython', action='store_true', default=False,
         dest='circuitpython', help="Create a CircuitPython package."
+        )
+    parser.add_argument(
+        '-p', '--computer', action='store_true', default=False,
+        dest='computer', help="Create a Computer package."
         )
     parser.add_argument(
         '-m', '--micropython', action='store_true', default=False,
