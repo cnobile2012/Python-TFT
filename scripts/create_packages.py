@@ -16,8 +16,10 @@ class CreatePackages:
     """
     Creates packages.
     """
-    RX_CLASS_DEF = re.compile(r"^ *(class)|(def).*$", re.MULTILINE)
-    RX_QUOTES = re.compile(r'^ +(""")|(\'\'\').*$', re.MULTILINE)
+    RX_CLASS_DEF = re.compile(r"^(class) +| +(def) +.*$")
+    RX_QUOTES = re.compile(r'^(.+)(?:(""")|(\'\'\').*)$', re.MULTILINE)
+    RX_ALL_QUOTES = re.compile(r'^(.+)(?:(""")|(\'\'\')|(")|(\'))(.*)$')
+    RX_HASH = re.compile(r"(.*)(#+).*")
     ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     BUILD_PATH = 'build'
     ILI9225 = 'ILI9225'
@@ -133,56 +135,20 @@ class CreatePackages:
         self.__fix_imports(process_path, fix, change)
 
     def __fix_imports(self, process_path, fix, change):
-        if self._options.debug: sys.stderr.write('\n' + process_path + '\n')
+        if self._options.debug: sys.stdout.write('\n' + process_path + '\n')
 
         with StringIO() as buff:
             with open(process_path, 'r') as f:
                 for line in f:
                     if fix in line:
                         line = line.replace(fix, change)
-                        if self._options.debug: sys.stderr.write(line)
+                        if self._options.debug: sys.stdout.write(line)
 
                     buff.write(line)
 
             if not self._options.noop:
                 with open(process_path, 'w') as f:
                     f.write(buff.getvalue())
-
-    def _strip_doc_strings(self, process_path):
-        with StringIO() as buff:
-            with open(process_path, 'r') as f:
-                save_lines = ""
-
-                for idx, line in enumerate(f, start=1):
-                    sre = self.RX_CLASS_DEF.search(line)
-                    print(save_lines)
-
-                    if sre:
-                        save_lines = line
-                        print('class or def', idx)
-                    else:
-                        save_lines += line
-                        quotes = self.RX_QUOTES.findall(save_lines)
-
-                        if quotes or len(save_lines) > 0:
-                            if self._options.debug: sys.stderr.write(line)
-#                            print('first or between', idx)
-                            continue
-                        elif quotes and len(quotes) > 1:
-                            save_lines = ""
-                            if self._options.debug: sys.stderr.write(line)
-#                            print('last', idx)
-                            continue
-
-                    buff.write(line)
-
-            if not self._options.noop:
-                with open(process_path, 'w') as f:
-                    f.write(buff.getvalue())
-
-    def _strip_comments(self, process_path):
-        pass
-
 
     FIX_FILES = (
         ('ili9225.py', _fix_ili9225, ILI9225),
@@ -201,8 +167,14 @@ class CreatePackages:
         for src, path in packages.items():
             for pyfile, fix, mcu in self.FIX_FILES:
                 if (src == self.ILI9225 in (mcu, None)
-                    or src == self.ILI9341 in (mcu, None)):
+                    or src == self.ILI9341 in (mcu, None)
+                    or mcu == None):
                     process_path = os.path.join(path, pyfile)
+
+                    # Check that the file exists in cases of
+                    # non platform specific files.
+                    if not os.path.exists(process_path):
+                        continue
                 else:
                     continue
 
@@ -213,7 +185,119 @@ class CreatePackages:
                     self._options.strip and (self._options.circuitpython
                                              or self._options.micropython))):
                     self._strip_doc_strings(process_path)
-                    #self._strip_comments(process_path)
+                    self._strip_comments(process_path)
+
+    def _strip_doc_strings(self, process_path):
+        if self._options.debug: sys.stdout.write(f"{process_path}")
+
+        with StringIO() as buff:
+            with open(process_path, 'r') as f:
+                save_lines = ""
+                def_flag = False
+                line_flag = False
+                pre_flag = False
+
+                for idx, line in enumerate(f, start=1):
+                    sre = self.RX_CLASS_DEF.search(line)
+
+                    if sre:
+                        def_flag = True
+                    else:
+                        save_lines += line
+                        quotes = self.RX_QUOTES.findall(save_lines)
+
+                        if quotes and any([True for c in quotes[0][0]
+                                           if c != ' ']):
+                            pre_flag = True
+
+                        if (not pre_flag and def_flag
+                            and quotes and len(quotes) == 1):
+                            line_flag = True
+
+                            if self._options.debug:
+                                sys.stdout.write(f"{idx:>4d} {line}")
+
+                            continue
+                        elif (not pre_flag and def_flag and line_flag
+                              and quotes and len(quotes) == 2):
+                            save_lines = ""
+                            def_flag = line_flag = False
+
+                            if self._options.debug:
+                                sys.stdout.write(f"{idx:>4d} {line}")
+
+                            continue
+                        elif pre_flag and quotes and len(quotes) == 2:
+                            pre_flag = False
+                            save_lines = ""
+
+                    buff.write(line)
+
+            if not self._options.noop:
+                with open(process_path, 'w') as f:
+                    f.write(buff.getvalue().lstrip())
+
+    def _strip_comments(self, process_path):
+        if self._options.debug: sys.stdout.write(f"{process_path}")
+
+        with StringIO() as buff:
+            with open(process_path, 'r') as f:
+                save_lines = ""
+                quote_flag = False
+                code_flag = False
+                hash_flag = False
+                mult_hash_flag = False
+
+                for idx, line in enumerate(f, start=1):
+                    quote = self.RX_ALL_QUOTES.search(line)
+
+                    if quote:
+                        save_lines += line
+                        quote_flag = True
+
+                    hash_data = self.RX_HASH.search(line)
+
+                    if hash_data:
+                        groups = hash_data.groups()
+                        code_flag = any([True for c in groups[0] if c != ' '])
+                        hash_flag = '#' in groups[1]
+                        mult_hash_flag = [True for group in groups
+                                          if '#' in group].count(True) > 1
+
+                        if (hash_flag and mult_hash_flag
+                            and any([True for c in groups[0] if c != ' '])):
+                            hash_flag = False
+                            mult_hash_flag = False
+
+                            if self._options.debug:
+                                sys.stdout.write(f"{idx:>4d} {line}")
+
+                            continue
+                        elif not quote_flag and hash_flag and code_flag:
+                            line = line[:line.index('#')].rstrip() + '\n'
+                            hash_flag = False
+                            code_flag = False
+
+                            if self._options.debug:
+                                sys.stdout.write(f"{idx:>4d} {line}")
+                        elif not (quote_flag and code_flag) and hash_flag:
+                            if self._options.debug:
+                                sys.stdout.write(f"{idx:>4d} {line}")
+
+                            continue
+                        elif quote_flag:
+                            quote_count = (save_lines.count('"""')
+                                           or save_lines.count("'''"))
+
+                            if quote_count == 2:
+                                quote_flag = False
+
+                    buff.write(line)
+
+            if not self._options.noop:
+                with open(process_path, 'w') as f:
+                    f.write(buff.getvalue().lstrip())
+
 
 if __name__ == '__main__':
     import traceback
@@ -276,7 +360,7 @@ if __name__ == '__main__':
     exit_val = 0
 
     if options.debug:
-        sys.stderr.write(f"DEBUG--options: {options}\n")
+        sys.stdout.write(f"DEBUG--options: {options}\n")
 
     if options.all:
         options.computer = True
@@ -293,12 +377,12 @@ if __name__ == '__main__':
         except Exception as e:
             tb = sys.exc_info()[2]
             traceback.print_tb(tb)
-            sys.stderr.write(f"{sys.exc_info()[0]}: {sys.exc_info()[1]}\n")
+            sys.stdout.write(f"{sys.exc_info()[0]}: {sys.exc_info()[1]}\n")
             exit_val = 1
     else:
         exit_val = 2
         parser.print_help()
-        sys.stderr.write("At least one or both ILI9225 or ILI9341 "
+        sys.stdout.write("At least one or both ILI9225 or ILI9341 "
                          "must be chosen.\n")
 
     sys.exit(exit_val)
