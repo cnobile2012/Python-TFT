@@ -210,10 +210,24 @@ class ILI9225(Compatibility):
 
     @property
     def spi_close_override(self):
+        """
+        Returns the override state of the SPI interface.
+
+        :return: If the override is active the result is True,
+                 if not active it is False.
+        :rtype: bool
+        """
         return self.__spi_close_override
 
     @spi_close_override.setter
     def spi_close_override(self, value):
+        """
+        Sets the override state of the SPI interface.
+
+        :param value: If True the SPI interface close is overridden
+                      else if False it is not overridden.
+        :type value: bool
+        """
         self.__spi_close_override = value
 
     def begin(self):
