@@ -525,7 +525,7 @@ class TestILI9225(unittest.TestCase):
             height = full_font[1]
             offset = full_font[2]
             numchars = full_font[3]
-            rnd_height = round(height / 8)
+            rnd_height = height // 8
             nbrows = rnd_height + 1 if height % 8 else rnd_height
             mono_sp = mono
             cfont = self._tft.get_font()

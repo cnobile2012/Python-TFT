@@ -245,7 +245,7 @@ class PiVersion:
         if brightness == self.MAX_BRIGHTNESS:
             duty_cycle = 1023
         elif brightness > 0:
-            duty_cycle = round(brightness * 1024 / (self.MAX_BRIGHTNESS + 1))
+            duty_cycle = brightness * 1024 // (self.MAX_BRIGHTNESS + 1)
 
         return duty_cycle
 

@@ -231,5 +231,5 @@ class PiVersion:
         self.__pwm_pin_states[pin].ChangeDutyCycle(duty_cycle)
 
     def __get_duty_cycle(self, brightness):
-        return (round(brightness * 100 / (self.MAX_BRIGHTNESS + 1))
+        return (brightness * 100 // (self.MAX_BRIGHTNESS + 1)
                 if brightness != 0 else 0)
