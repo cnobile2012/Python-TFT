@@ -3,3 +3,4 @@
 
 RPi.GPIO
 gpiozero
+spidev
