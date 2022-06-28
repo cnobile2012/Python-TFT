@@ -216,17 +216,16 @@ class CreatePackages:
     def _strip_doc_strings(self, process_path):
         if self._options.debug: sys.stdout.write(f"{process_path}")
 
-        with StringIO() as buff:
-            if os.path.isdir(process_path): # Font files
-                for f in self._fonts:
+        if os.path.isdir(process_path): # Font files
+            for f in self._fonts:
+                with StringIO() as buff:
                     path = os.path.join(process_path, f)
                     self.__strip_doc_strings(buff, path)
                     self._write_file(buff, path)
-                    #buff.truncate(0)
-            else:
+        else:
+            with StringIO() as buff:
                 self.__strip_doc_strings(buff, process_path)
                 self._write_file(buff, process_path)
-                #buff.truncate(0)
 
     def __strip_doc_strings(self, buff, process_path):
         with open(process_path, 'r') as f:
@@ -274,17 +273,16 @@ class CreatePackages:
     def _strip_comments(self, process_path):
         if self._options.debug: sys.stdout.write(f"{process_path}")
 
-        with StringIO() as buff:
-            if os.path.isdir(process_path): # Font files
-                for f in self._fonts:
+        if os.path.isdir(process_path): # Font files
+            for f in self._fonts:
+                with StringIO() as buff:
                     path = os.path.join(process_path, f)
                     self.__strip_comments(buff, path)
                     self._write_file(buff, path)
-                    #buff.truncate(0)
-            else:
+        else:
+            with StringIO() as buff:
                 self.__strip_comments(buff, process_path)
                 self._write_file(buff, process_path)
-                #buff.truncate(0)
 
     def __strip_comments(self, buff, process_path):
         with open(process_path, 'r') as f:
