@@ -23,6 +23,7 @@ class CreatePackages:
     RX_QUOTES = re.compile(r'^(.+)(?:(""")|(\'\'\').*)$', re.MULTILINE)
     RX_ALL_QUOTES = re.compile(r'^(.+)(?:(""")|(\'\'\')|(")|(\'))(.*)$')
     RX_HASH = re.compile(r"(.*)(#+).*")
+    RX_LF = re.compile(r'^\n$', re.DOTALL)
     ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     BUILD_PATH = 'build'
     FONT_PATH = 'fonts'
@@ -212,9 +213,11 @@ class CreatePackages:
                                              or self._options.micropython))):
                     self._strip_doc_strings(process_path)
                     self._strip_comments(process_path)
+                    self._strip_linefeeds(process_path)
 
     def _strip_doc_strings(self, process_path):
-        if self._options.debug: sys.stdout.write(f"{process_path}")
+        if self._options.debug: sys.stdout.write(
+            f"_strip_doc_strings: {process_path}\n")
 
         if os.path.isdir(process_path): # Font files
             for f in self._fonts:
@@ -252,7 +255,7 @@ class CreatePackages:
                         line_flag = True
 
                         if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}")
+                            sys.stdout.write(f"{idx:>4d} {line}\n")
 
                         continue
                     elif (not pre_flag and def_flag and line_flag
@@ -261,7 +264,7 @@ class CreatePackages:
                         def_flag = line_flag = False
 
                         if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}")
+                            sys.stdout.write(f"{idx:>4d} {line}\n")
 
                         continue
                     elif pre_flag and quotes and len(quotes) == 2:
@@ -271,7 +274,8 @@ class CreatePackages:
                 buff.write(line)
 
     def _strip_comments(self, process_path):
-        if self._options.debug: sys.stdout.write(f"{process_path}")
+        if self._options.debug: sys.stdout.write(
+            f"_strip_comments: {process_path}\n")
 
         if os.path.isdir(process_path): # Font files
             for f in self._fonts:
@@ -314,7 +318,7 @@ class CreatePackages:
                         mult_hash_flag = False
 
                         if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}")
+                            sys.stdout.write(f"{idx:>4d} {line}\n")
 
                         continue
                     elif not quote_flag and hash_flag and code_flag:
@@ -323,10 +327,10 @@ class CreatePackages:
                         code_flag = False
 
                         if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}")
+                            sys.stdout.write(f"{idx:>4d} {line}\n")
                     elif not (quote_flag and code_flag) and hash_flag:
                         if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}")
+                            sys.stdout.write(f"{idx:>4d} {line}\n")
 
                         continue
                     elif quote_flag:
@@ -342,6 +346,38 @@ class CreatePackages:
         if not self._options.noop:
             with open(process_path, 'w') as f:
                 f.write(buff.getvalue().lstrip())
+
+    def _strip_linefeeds(self, process_path):
+        if self._options.debug: sys.stdout.write(
+            f"_strip_linefeeds: {process_path}\n")
+
+        if os.path.isdir(process_path): # Font files
+            for f in self._fonts:
+                with StringIO() as buff:
+                    path = os.path.join(process_path, f)
+                    self.__strip_linefeeds(buff, path)
+                    self._write_file(buff, path)
+        else:
+            with StringIO() as buff:
+                self.__strip_linefeeds(buff, process_path)
+                self._write_file(buff, process_path)
+
+    def __strip_linefeeds(self, buff, process_path):
+        with open(process_path, 'r') as f:
+            num_lf = 0
+
+            for idx, line in enumerate(f, start=1):
+                sre = self.RX_LF.search(line)
+
+                if sre:
+                    num_lf += 1
+
+                    if num_lf > 1:
+                        continue
+                else:
+                    num_lf = 0
+
+                buff.write(line)
 
 
 if __name__ == '__main__':

@@ -33,7 +33,8 @@ First update and install a few system packages.
 .. code-block:: console
 
   $ sudo apt update && apt upgrade
-  $ sudo apt install libssl-dev cargo libsqlite3-dev
+  $ sudo apt install libssl-dev cargo libsqlite3-dev ncurses-bin \
+                     ncurses-base libncurses5-dev
 
 I usually create a directory named *src* in my user directory assuming you also
 do the same cd into that directory then execute the commands below.
