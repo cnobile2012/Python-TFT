@@ -8,8 +8,11 @@
 import os
 import re
 import sys
+import curses
 from io import StringIO
 from shutil import copytree, copy2, ignore_patterns
+
+from curses_file_chooser import FileChooser, ExitData
 
 
 class CreatePackages:
@@ -22,19 +25,32 @@ class CreatePackages:
     RX_HASH = re.compile(r"(.*)(#+).*")
     ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     BUILD_PATH = 'build'
+    FONT_PATH = 'fonts'
     ILI9225 = 'ILI9225'
     ILI9341 = 'ILI9341'
 
     def __init__(self, options):
         self._options = options
+        self._fonts = []
 
     def start(self):
         build_path = os.path.join(self.ROOT_PATH, self.BUILD_PATH)
         if not os.path.lexists(build_path): os.mkdir(build_path)
-        if self._options.computer: self._create_computer(build_path)
-        if self._options.circuitpython: self._create_circuitpython(build_path)
-        if self._options.micropython: self._create_micropython(build_path)
-        if self._options.raspi: self._create_raspi(build_path)
+        ret = False
+
+        if self._options.fonts:
+            ed = ExitData()
+            path = os.path.join(self.ROOT_PATH, self.FONT_PATH)
+            curses.wrapper(FileChooser, path=path, exit_data=ed)
+            self._fonts[:] = ed.files
+            ret = ed.status
+
+        if not ret:
+            if self._options.computer: self._create_computer(build_path)
+            if self._options.circuitpython: self._create_circuitpython(
+                build_path)
+            if self._options.micropython: self._create_micropython(build_path)
+            if self._options.raspi: self._create_raspi(build_path)
 
     def _create_circuitpython(self, build_path):
         platform = 'circuitpython'
@@ -81,18 +97,27 @@ class CreatePackages:
         pattern0 = ('__pycache__', 'tests')
         pattern1 = pattern0 + ('__init__.py',)
 
-        for src, path in packages.items():
+        for chip, path in packages.items():
             kwargs = {
                 'ignore': ignore_patterns(*pattern0),
                 'dirs_exist_ok': True
                 }
+            # Copy chip path
+            src = os.path.join(self.ROOT_PATH, chip)
             copytree(src, path, **kwargs)
-            src = 'fonts'
-            dst = os.path.join(path, src)
-            copytree(src, dst, **kwargs)
+
+            # Copy font files
+            for f in self._fonts:
+                src = os.path.join(self.ROOT_PATH, self.FONT_PATH, f)
+                dst = os.path.join(path, self.FONT_PATH)
+                if not os.path.lexists(dst): os.mkdir(dst)
+                copy2(src, dst)
+
+            # Copy utils path
             kwargs['ignore'] = ignore_patterns(*pattern1)
-            src = 'utils'
+            src = os.path.join(self.ROOT_PATH, 'utils')
             copytree(src, path, **kwargs)
+            # Copy platform file
             src = f'py_versions/{platform}.py'
             copy2(src, path)
 
@@ -161,6 +186,7 @@ class CreatePackages:
         ('default_fonts.py', None, None),
         ('micropython.py', _fix_micropython, None),
         ('raspberrypi.py', _fix_raspberrypi, None),
+        ('fonts', None, None),
         )
 
     def _fix_files(self, packages):
@@ -191,112 +217,133 @@ class CreatePackages:
         if self._options.debug: sys.stdout.write(f"{process_path}")
 
         with StringIO() as buff:
-            with open(process_path, 'r') as f:
-                save_lines = ""
-                def_flag = False
-                line_flag = False
-                pre_flag = False
+            if os.path.isdir(process_path): # Font files
+                for f in self._fonts:
+                    path = os.path.join(process_path, f)
+                    self.__strip_doc_strings(buff, path)
+                    self._write_file(buff, path)
+                    #buff.truncate(0)
+            else:
+                self.__strip_doc_strings(buff, process_path)
+                self._write_file(buff, process_path)
+                #buff.truncate(0)
 
-                for idx, line in enumerate(f, start=1):
-                    sre = self.RX_CLASS_DEF.search(line)
+    def __strip_doc_strings(self, buff, process_path):
+        with open(process_path, 'r') as f:
+            save_lines = ""
+            def_flag = False
+            line_flag = False
+            pre_flag = False
 
-                    if sre:
-                        def_flag = True
-                    else:
-                        save_lines += line
-                        quotes = self.RX_QUOTES.findall(save_lines)
+            for idx, line in enumerate(f, start=1):
+                sre = self.RX_CLASS_DEF.search(line)
 
-                        if quotes and any([True for c in quotes[0][0]
-                                           if c != ' ']):
-                            pre_flag = True
+                if sre:
+                    def_flag = True
+                else:
+                    save_lines += line
+                    quotes = self.RX_QUOTES.findall(save_lines)
 
-                        if (not pre_flag and def_flag
-                            and quotes and len(quotes) == 1):
-                            line_flag = True
+                    if quotes and any([True for c in quotes[0][0]
+                                       if c != ' ']):
+                        pre_flag = True
 
-                            if self._options.debug:
-                                sys.stdout.write(f"{idx:>4d} {line}")
+                    if (not pre_flag and def_flag
+                        and quotes and len(quotes) == 1):
+                        line_flag = True
 
-                            continue
-                        elif (not pre_flag and def_flag and line_flag
-                              and quotes and len(quotes) == 2):
-                            save_lines = ""
-                            def_flag = line_flag = False
+                        if self._options.debug:
+                            sys.stdout.write(f"{idx:>4d} {line}")
 
-                            if self._options.debug:
-                                sys.stdout.write(f"{idx:>4d} {line}")
+                        continue
+                    elif (not pre_flag and def_flag and line_flag
+                          and quotes and len(quotes) == 2):
+                        save_lines = ""
+                        def_flag = line_flag = False
 
-                            continue
-                        elif pre_flag and quotes and len(quotes) == 2:
-                            pre_flag = False
-                            save_lines = ""
+                        if self._options.debug:
+                            sys.stdout.write(f"{idx:>4d} {line}")
 
-                    buff.write(line)
+                        continue
+                    elif pre_flag and quotes and len(quotes) == 2:
+                        pre_flag = False
+                        save_lines = ""
 
-            if not self._options.noop:
-                with open(process_path, 'w') as f:
-                    f.write(buff.getvalue().lstrip())
+                buff.write(line)
 
     def _strip_comments(self, process_path):
         if self._options.debug: sys.stdout.write(f"{process_path}")
 
         with StringIO() as buff:
-            with open(process_path, 'r') as f:
-                save_lines = ""
-                quote_flag = False
-                code_flag = False
-                hash_flag = False
-                mult_hash_flag = False
+            if os.path.isdir(process_path): # Font files
+                for f in self._fonts:
+                    path = os.path.join(process_path, f)
+                    self.__strip_comments(buff, path)
+                    self._write_file(buff, path)
+                    #buff.truncate(0)
+            else:
+                self.__strip_comments(buff, process_path)
+                self._write_file(buff, process_path)
+                #buff.truncate(0)
 
-                for idx, line in enumerate(f, start=1):
-                    quote = self.RX_ALL_QUOTES.search(line)
+    def __strip_comments(self, buff, process_path):
+        with open(process_path, 'r') as f:
+            save_lines = ""
+            quote_flag = False
+            code_flag = False
+            hash_flag = False
+            mult_hash_flag = False
 
-                    if quote:
-                        save_lines += line
-                        quote_flag = True
+            for idx, line in enumerate(f, start=1):
+                quote = self.RX_ALL_QUOTES.search(line)
 
-                    hash_data = self.RX_HASH.search(line)
+                if quote:
+                    save_lines += line
+                    quote_flag = True
 
-                    if hash_data:
-                        groups = hash_data.groups()
-                        code_flag = any([True for c in groups[0] if c != ' '])
-                        hash_flag = '#' in groups[1]
-                        mult_hash_flag = [True for group in groups
-                                          if '#' in group].count(True) > 1
+                hash_data = self.RX_HASH.search(line)
 
-                        if (hash_flag and mult_hash_flag
-                            and any([True for c in groups[0] if c != ' '])):
-                            hash_flag = False
-                            mult_hash_flag = False
+                if hash_data:
+                    groups = hash_data.groups()
+                    code_flag = any([True for c in groups[0] if c != ' '])
+                    hash_flag = '#' in groups[1]
+                    mult_hash_flag = [True for group in groups
+                                      if '#' in group].count(True) > 1
 
-                            if self._options.debug:
-                                sys.stdout.write(f"{idx:>4d} {line}")
+                    if (hash_flag and mult_hash_flag
+                        and any([True for c in groups[0] if c != ' '])):
+                        hash_flag = False
+                        mult_hash_flag = False
 
-                            continue
-                        elif not quote_flag and hash_flag and code_flag:
-                            line = line[:line.index('#')].rstrip() + '\n'
-                            hash_flag = False
-                            code_flag = False
+                        if self._options.debug:
+                            sys.stdout.write(f"{idx:>4d} {line}")
 
-                            if self._options.debug:
-                                sys.stdout.write(f"{idx:>4d} {line}")
-                        elif not (quote_flag and code_flag) and hash_flag:
-                            if self._options.debug:
-                                sys.stdout.write(f"{idx:>4d} {line}")
+                        continue
+                    elif not quote_flag and hash_flag and code_flag:
+                        line = line[:line.index('#')].rstrip() + '\n'
+                        hash_flag = False
+                        code_flag = False
 
-                            continue
-                        elif quote_flag:
-                            quote_count = (save_lines.count('"""')
-                                           or save_lines.count("'''"))
+                        if self._options.debug:
+                            sys.stdout.write(f"{idx:>4d} {line}")
+                    elif not (quote_flag and code_flag) and hash_flag:
+                        if self._options.debug:
+                            sys.stdout.write(f"{idx:>4d} {line}")
 
-                            if quote_count == 2:
-                                quote_flag = False
+                        continue
+                    elif quote_flag:
+                        quote_count = (save_lines.count('"""')
+                                       or save_lines.count("'''"))
 
-                    buff.write(line)
+                        if quote_count == 2:
+                            quote_flag = False
 
-            if not self._options.noop:
-                with open(process_path, 'w') as f:
-                    f.write(buff.getvalue().lstrip())
+                buff.write(line)
+
+    def _write_file(self, buff, process_path):
+        if not self._options.noop:
+            with open(process_path, 'w') as f:
+                f.write(buff.getvalue().lstrip())
 
 
 if __name__ == '__main__':
