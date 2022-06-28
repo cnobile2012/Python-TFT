@@ -25,8 +25,10 @@ class CreatePackages:
     RX_HASH = re.compile(r"(.*)(#+).*")
     RX_LF = re.compile(r'^\n$', re.DOTALL)
     ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    BUILD_PATH = 'build'
-    FONT_PATH = 'fonts'
+    BUILD_PATH = os.path.join(ROOT_PATH, 'build')
+    FONT_DIR = 'fonts'
+    UTILS_DIR = 'utils'
+    PY_VER_DIR = 'py_versions'
     ILI9225 = 'ILI9225'
     ILI9341 = 'ILI9341'
 
@@ -35,23 +37,23 @@ class CreatePackages:
         self._fonts = []
 
     def start(self):
-        build_path = os.path.join(self.ROOT_PATH, self.BUILD_PATH)
-        if not os.path.lexists(build_path): os.mkdir(build_path)
         ret = False
 
         if self._options.fonts:
             ed = ExitData()
-            path = os.path.join(self.ROOT_PATH, self.FONT_PATH)
+            path = os.path.join(self.ROOT_PATH, self.FONT_DIR)
             curses.wrapper(FileChooser, path=path, exit_data=ed)
             self._fonts[:] = ed.files
             ret = ed.status
 
         if not ret:
-            if self._options.computer: self._create_computer(build_path)
+            if not os.path.lexists(self.BUILD_PATH): os.mkdir(self.BUILD_PATH)
+            if self._options.computer: self._create_computer(self.BUILD_PATH)
             if self._options.circuitpython: self._create_circuitpython(
-                build_path)
-            if self._options.micropython: self._create_micropython(build_path)
-            if self._options.raspi: self._create_raspi(build_path)
+                self.BUILD_PATH)
+            if self._options.micropython: self._create_micropython(
+                self.BUILD_PATH)
+            if self._options.raspi: self._create_raspi(self.BUILD_PATH)
 
     def _create_circuitpython(self, build_path):
         platform = 'circuitpython'
@@ -109,17 +111,17 @@ class CreatePackages:
 
             # Copy font files
             for f in self._fonts:
-                src = os.path.join(self.ROOT_PATH, self.FONT_PATH, f)
-                dst = os.path.join(path, self.FONT_PATH)
+                src = os.path.join(self.ROOT_PATH, self.FONT_DIR, f)
+                dst = os.path.join(path, self.FONT_DIR)
                 if not os.path.lexists(dst): os.mkdir(dst)
                 copy2(src, dst)
 
             # Copy utils path
             kwargs['ignore'] = ignore_patterns(*pattern1)
-            src = os.path.join(self.ROOT_PATH, 'utils')
+            src = os.path.join(self.ROOT_PATH, self.UTILS_DIR)
             copytree(src, path, **kwargs)
             # Copy platform file
-            src = f'py_versions/{platform}.py'
+            src = os.path.join(self.PY_VER_DIR, f'{platform}.py')
             copy2(src, path)
 
     def _fix_ili9225(self, process_path):
@@ -366,7 +368,7 @@ class CreatePackages:
         with open(process_path, 'r') as f:
             num_lf = 0
 
-            for idx, line in enumerate(f, start=1):
+            for line in f:
                 sre = self.RX_LF.search(line)
 
                 if sre:

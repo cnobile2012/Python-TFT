@@ -1,5 +1,5 @@
 #
-# File_chooser.py
+# curses_file_chooser.py
 #
 # This curses app provides code to choose a group of files that can
 # be processed later in an appilication.
@@ -197,6 +197,7 @@ class FileChooser(Menu):
 
         files = [f for f in os.listdir(path)
                  if f.endswith('.py') and not f.startswith('__')]
+        files.sort()
         return [[num, f, curses.A_NORMAL]
                 for num, f in enumerate(files, start=1)]
 
@@ -366,7 +367,10 @@ class FileChooser(Menu):
         return True
 
     def _continue(self):
-        self.exit_data.files = [item[1] for item in self._files_right]
+        files = [item[1] for item in self._files_right]
+        files.sort()
+        self.exit_data.files = files
+        self.exit_data.status = False
         return False
 
     def _cancel(self):
@@ -378,6 +382,7 @@ class FileChooser(Menu):
         return True
 
     def _exit(self):
+        self.exit_data.status = True
         return False
 
 
