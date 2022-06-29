@@ -419,18 +419,18 @@ if __name__ == '__main__':
         dest='ili9341', help="Create a ILI9341 package."
         )
     parser.add_argument(
+        '-f', '--fonts', action='store_true', default=False, dest='fonts',
+        help="Choose which fonts to put in the final packages."
+        )
+    parser.add_argument(
         '-s', '--strip', action='store_true', default=False,
-        dest='strip', help=("Strip comments and non-code white space no "
+        dest='strip', help=("Strip comments and non-code white space on "
                             "the MicroPython and CircuitPython packages.")
         )
     parser.add_argument(
-        '-f', '--force-strip', action='store_true', default=False,
+        '-F', '--force-strip', action='store_true', default=False,
         dest='force', help=("Force striping on all packages including "
                             "the Raspberry Pi and Computer packages.")
-        )
-    parser.add_argument(
-        '-F', '--fonts', action='store_true', default=False, dest='fonts',
-        help="Choose which fonts to put in the final packages."
         )
     parser.add_argument(
         '-D', '--debug', action='store_true', default=False, dest='debug',
@@ -451,8 +451,6 @@ if __name__ == '__main__':
         options.circuitpython = True
         options.micropython = True
         options.raspi = True
-        options.ili9225 = True
-        options.ili9341 = True
 
     if options.ili9225 or options.ili9341:
         try:
