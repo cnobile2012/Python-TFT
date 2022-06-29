@@ -31,6 +31,7 @@ class CreatePackages:
     PY_VER_DIR = 'py_versions'
     ILI9225 = 'ILI9225'
     ILI9341 = 'ILI9341'
+    STRIP_PLATFORMS = ('circuitpython', 'micropython')
 
     def __init__(self, options):
         self._options = options
@@ -53,31 +54,31 @@ class CreatePackages:
                 self.BUILD_PATH)
             if self._options.micropython: self._create_micropython(
                 self.BUILD_PATH)
-            if self._options.raspi: self._create_raspi(self.BUILD_PATH)
+            if self._options.raspberrypi: self._create_raspi(self.BUILD_PATH)
 
     def _create_circuitpython(self, build_path):
         platform = 'circuitpython'
         packages = self._create_paths(build_path, platform)
         self._copy_code(packages, platform)
-        self._fix_files(packages)
+        self._fix_files(packages, platform)
 
     def _create_computer(self, build_path):
         platform = 'computer'
         packages = self._create_paths(build_path, platform)
         self._copy_code(packages, platform)
-        self._fix_files(packages)
+        self._fix_files(packages, platform)
 
     def _create_micropython(self, build_path):
         platform = 'micropython'
         packages = self._create_paths(build_path, platform)
         self._copy_code(packages, platform)
-        self._fix_files(packages)
+        self._fix_files(packages, platform)
 
     def _create_raspi(self, build_path):
         platform = 'raspberrypi'
         packages = self._create_paths(build_path, platform)
         self._copy_code(packages, platform)
-        self._fix_files(packages)
+        self._fix_files(packages, platform)
 
     def _create_paths(self, build_path, platform):
         packages = {}
@@ -193,9 +194,9 @@ class CreatePackages:
         ('fonts', None, None),
         )
 
-    def _fix_files(self, packages):
+    def _fix_files(self, packages, platform):
         for src, path in packages.items():
-            for pyfile, fix, mcu in self.FIX_FILES:
+            for pyfile, fix_imports, mcu in self.FIX_FILES:
                 if (src == self.ILI9225 in (mcu, None)
                     or src == self.ILI9341 in (mcu, None)
                     or mcu == None):
@@ -208,12 +209,11 @@ class CreatePackages:
                 else:
                     continue
 
-                if fix is not None:
-                    fix(self, process_path)
+                if fix_imports is not None:
+                    fix_imports(self, process_path)
 
-                if (self._options.force or (
-                    self._options.strip and (self._options.circuitpython
-                                             or self._options.micropython))):
+                if (self._options.strip and platform in self.STRIP_PLATFORMS
+                    or self._options.force):
                     self._strip_doc_strings(process_path)
                     self._strip_comments(process_path)
                     self._strip_linefeeds(process_path)
@@ -408,7 +408,7 @@ if __name__ == '__main__':
         )
     parser.add_argument(
         '-r', '--raspi', action='store_true', default=False,
-        dest='raspi', help="Create a Raspberry Pi package."
+        dest='raspberrypi', help="Create a Raspberry Pi package."
         )
     parser.add_argument(
         '-2', '--ili9225', action='store_true', default=False,
@@ -450,7 +450,7 @@ if __name__ == '__main__':
         options.computer = True
         options.circuitpython = True
         options.micropython = True
-        options.raspi = True
+        options.raspberrypi = True
 
     if options.ili9225 or options.ili9341:
         try:
@@ -464,7 +464,7 @@ if __name__ == '__main__':
     else:
         exit_val = 2
         parser.print_help()
-        sys.stdout.write("At least one or both ILI9225 or ILI9341 "
+        sys.stdout.write("\nAt least one or both ILI9225 or ILI9341 "
                          "must be chosen.\n")
 
     sys.exit(exit_val)
