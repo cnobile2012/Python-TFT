@@ -121,7 +121,8 @@ class CreatePackages:
             src = os.path.join(self.ROOT_PATH, self.UTILS_DIR)
             copytree(src, path, **kwargs)
             # Copy platform file
-            src = os.path.join(self.PY_VER_DIR, f'{platform}.py')
+            src = os.path.join(self.ROOT_PATH, self.PY_VER_DIR,
+                               f'{platform}.py')
             copy2(src, path)
 
     def _fix_ili9225(self, process_path):
