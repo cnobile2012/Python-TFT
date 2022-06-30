@@ -91,11 +91,11 @@ You will be confronted by a curses terminal screen. The mouse will work in
 the terminal. The screen will look like the following.
 
 .. image:: images/TFT-curses.png
-   : height: 100px
-   : width: 400px
-   : scale: 100%
-   : alt: File chooser curses screen
-   : align: center
+   :height: 100px
+   :width: 400px
+   :scale: 100%
+   :alt: File chooser curses screen.
+   :align: center
 
 
 Uploading Packages
