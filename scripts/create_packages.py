@@ -44,7 +44,7 @@ class CreatePackages:
             ed = ExitData()
             path = os.path.join(self.ROOT_PATH, self.FONT_DIR)
             curses.wrapper(FileChooser, path=path, exit_data=ed)
-            self._fonts[:] = ed.files
+            self._fonts[:] = ed.files + ['__init__.py']
             ret = ed.status
 
         if not ret:

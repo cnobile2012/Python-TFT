@@ -90,7 +90,7 @@ class PiVersion:
     INPUT_PULLOFF = None
     _DEF_PWM_FREQ = 102400
 
-    def __init__(self):
+    def __init__(self, mode=None):
         self._spi = None
         self.__pin_state = {}
         self.__pwm_pin_states = {}
@@ -118,7 +118,7 @@ class PiVersion:
     def digital_write(self, pin, high_low):
         """
         Set the given pin either high or low.
-;
+
         :param pin: The pin to set.
         :type pin: int
         :param high_low: Set HIGH (True) or LOW (False).
