@@ -5,7 +5,7 @@ Python-TFT
 Use Python to Connect TFT LCD Displays.
 
 The Python-TFT API will work with versions of python 3.5 and higher MicroPython
-and CircuitPython are based on the 3.5 C standard vesion of Python.
+and CircuitPython are based on the 3.5 C standard version of Python.
 
 Building Packages
 =================
@@ -20,7 +20,7 @@ Installing Python 3.9
 First off, though the API itself will work with versions of Python 3.5 and
 higher the tests and the build script will only run with versions of Python 3.8
 and 3.9, lower and higher version do not work properly. This is mostly due to
-thirdparty packages not Python-TFT itself. So you may need to install another
+third-party packages not Python-TFT itself. So you may need to install another
 version before you go further. This will most likely be necessary if you are
 building on a Raspberry PI. Follow the instructions below to install version
 3.9.13 of Python.
@@ -51,9 +51,30 @@ With the *altinstall* target in the Makefile Python will be installed in the
 Build Platform Packages
 -----------------------
 
-Building packages for a Raspberry Pi is not absolutly necessary since the
+Building packages for a Raspberry Pi is not absolutely necessary since the
 size of the whole git repository is not very much for a RPi. You can build it
-if you want which can get you a smaller package.
+if you want which can get you a smaller package. Keep in mind that building
+packages on any platform will flatten the file structure under the chip type
+that you are using. All packages will look more or less the same. Note that the
+directory tree below is for a MicroPython package and the font files are just
+examples.
+
+.. code-block:: console
+
+   .
+   └── ILI9225
+       ├── common.py
+       ├── compatibility.py
+       ├── default_fonts.py
+       ├── fonts
+       │   ├── BebasNeue_Bold10pt7b.py
+       │   ├── FreeMonoBoldOblique12pt7b.py
+       │   ├── __init__.py
+       │   ├── Org_01.py
+       │   └── TomThumb.py
+       ├── ili9225.py
+       ├── __init__.py
+       └── micropython.py
 
 Below is the basic usage.
 
@@ -88,7 +109,23 @@ So building a package for MicroPython would look like this.
    $ ./scripts/create_packages.py -m2fs
 
 You will be confronted by a curses terminal screen. The mouse will work in
-the terminal. The screen will look like the following.
+the terminal.
+
+ 1. Click the left mouse button or press the Enter key on the *Choose Font(s)*
+    button. This will let the mouse work in the left window. The mouse wheel
+    can be used to scroll up and down the font files if there are more than
+    what can fit on the screen.
+ 2. The left mouse button is used to choose the fonts you want in your package.
+ 3. Clicking twice on the *Continue* button will continue with building your
+    package.
+ 4. If you have chosen the wrong packages and want to start over click twice
+    on the *Cancel* button and start over again.
+ 5. If you want to just exit the whole process click twice on the *Exit*
+    button.
+
+The "click twice" mentioned above is needed as the first click gets you out of
+the left window. Note that the left and right keys also can be used to navigate
+the main menu.
 
 .. image:: images/TFT-curses.png
    :height: 100px
@@ -97,14 +134,15 @@ the terminal. The screen will look like the following.
    :alt: File chooser curses screen.
    :align: center
 
-
 Uploading Packages
 ==================
 
 Raspberry Pi
 ------------
+
 On a Raspberry PI you can either build a custom package or just checkout
 this repository to your RPi.
 
 MicroPython
 -----------
+
