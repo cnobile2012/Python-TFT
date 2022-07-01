@@ -104,7 +104,7 @@ Below is the basic usage of the package creation script.
 
 Building a package for MicroPython would look similar to the following. The
 package will build for the *ILI9225* chip the curses screen will appear for
-choosing fonts and all doc strings, comments, and extra linefeeds will be
+choosing fonts and all doc strings, comments, and extra line-feeds will be
 removed to save space on the MCU.
 
 .. code-block:: console
@@ -154,7 +154,7 @@ virtual environment because it can be copied directly into the VE much easier.
 MicroPython
 -----------
 
-Create you package as desribe above.
+Create you package as describe above.
 
 .. code-block:: bash
 
