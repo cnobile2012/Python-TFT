@@ -53,11 +53,11 @@ Build Platform Packages
 
 Building packages for a Raspberry Pi is not absolutely necessary since the
 size of the whole git repository is not very much for a RPi. You can build it
-if you want which can get you a smaller package. Keep in mind that building
-packages on any platform will flatten the file structure under the chip type
-that you are using. All packages will look more or less the same. Note that the
-directory tree below is for a MicroPython package and the font files are just
-examples.
+if you want which can get you a much smaller package. Keep in mind that
+building packages on any platform will flatten the file structure under the
+chip type that you are using. All packages will look more or less the same.
+Note that the directory tree below is for a MicroPython package and the font
+files are just examples.
 
 .. code-block:: console
 
@@ -76,7 +76,7 @@ examples.
        ├── __init__.py
        └── micropython.py
 
-Below is the basic usage.
+Below is the basic usage of the package creation script.
 
 .. code-block:: console
 
@@ -102,14 +102,18 @@ Below is the basic usage.
      -D, --debug          Run in debug mode.
      -N, --noop           Run as if creating, but do nothing.
 
-So building a package for MicroPython would look like this.
+Building a package for MicroPython would look similar to the following. The
+package will build for the *ILI9225* chip the curses screen will appear for
+choosing fonts and all doc strings, comments, and extra linefeeds will be
+removed to save space on the MCU.
 
 .. code-block:: console
 
    $ ./scripts/create_packages.py -m2fs
 
-You will be confronted by a curses terminal screen. The mouse will work in
-the terminal.
+You will be confronted by a curses terminal screen if you use the *-f* option.
+The mouse will work in the terminal. Without the *-f* option no fonts will be
+included in your package.
 
  1. Click the left mouse button or press the Enter key on the *Choose Font(s)*
     button. This will let the mouse work in the left window. The mouse wheel
@@ -137,12 +141,25 @@ the main menu.
 Uploading Packages
 ==================
 
+Be sure you are in the root directory of the git repository of this API
+that you have cloned to your machine.
+
 Raspberry Pi
 ------------
 
 On a Raspberry PI you can either build a custom package or just checkout
-this repository to your RPi.
+this repository to your RPi. A built package will work better in a python
+virtual environment because it can be copied directly into the VE much easier.
 
 MicroPython
 -----------
 
+Create you package as desribe above.
+
+.. code-block:: bash
+
+   $ cd build/micropython/
+   $ ampy -p /dev/ttyUSB0 put ILI9225
+
+Your device may be different than the one I used. If you type *ampy* with no
+arguments you will get a list of the commands available.
