@@ -222,21 +222,3 @@ class TestCompatibility(unittest.TestCase):
         self.assertEqual(mosi, self._com.mosi, msg=msg)
         msg = f"Expect miso {miso} found {self._com.miso}"
         self.assertEqual(miso, self._com.miso, msg=msg)
-
-    #@unittest.skip("Temporary")
-    def test_error_set_spi_pins(self):
-        """
-        Test that the RASPI board raises an exception.
-        """
-        sck = 14
-        mosi = 15
-        miso = 16
-
-        with self.assertRaises(CompatibilityException) as cm:
-            self._com.set_spi_pins(sck, mosi, miso=miso)
-
-        board_name = self._com._get_board_name(self._com.BOARD)
-        expect_msg = self._com.ERROR_MSGS['SPI_PINS_INV'].format(board_name)
-        found_msg = str(cm.exception)
-        msg = f"Error message expected '{expect_msg}' found '{found_msg}'"
-        self.assertEqual(expect_msg, found_msg, msg=msg)

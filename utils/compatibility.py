@@ -138,7 +138,7 @@ class Compatibility(PiVersion):
         """
         self.__spi_freq = freq
 
-    def set_spi_pins(self, sck, mosi, *, miso=None):
+    def set_spi_pins(self, sck, mosi, miso=None):
         """
         Set SPI pins. This method is only needed when an MCU has a
         programmable peripheral interface such as the RP2040 and NRF52 MCUs.
@@ -149,18 +149,8 @@ class Compatibility(PiVersion):
         :type mosi: int
         :param miso: SPI Master In Slave Out
         :type miso: int
-        :raises CompatibilityException: If both the MOSI and SCK pins are
-                                        not set.
         """
-        if self.BOARD in (Boards.NRF52, Boards.RP2040, Boards.STM32F0,
-                          Boards.STM32F1, Boards.STM32F2, Boards.STM32F4,
-                          Boards.STM32F72, Boards.STM32F76):
-            self.sck = sck
-            self.mosi = mosi
-            self.miso = miso
-            [self.pin_mode(pin) for pin in (sck, mosi, miso)
-             if pin is not None]
-        else:
-            msg = self.ERROR_MSGS['SPI_PINS_INV'].format(
-                self._get_board_name(self.BOARD))
-            raise CompatibilityException(msg)
+        self.sck = sck
+        self.mosi = mosi
+        self.miso = miso
+        [self.pin_mode(pin) for pin in (sck, mosi, miso) if pin is not None]
