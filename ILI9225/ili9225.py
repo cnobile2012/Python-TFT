@@ -102,7 +102,7 @@ class ILI9225(Compatibility):
         'GFX_FONT': "Please set a GFX font before using this method.",
         'BRD_UNSUP': "Error: The {} board is not supported.",
         'INV_PORT': "Invalid port for the {} board.",
-        'SPI_PINS_INV': "This method cannot be used with a {}."
+        'SPI_PINS_INV': "The sck amd mosi pins must be set."
         }
 
     LCD_WIDTH                   = 176
@@ -166,8 +166,8 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, spi_port, cs, led=-1, board=None, *,
-                 brightness=MAX_BRIGHTNESS, rpi_mode=None):
+    def __init__(self, rst, rs, spi_port, cs, mosi=-1, sck=-1, led=-1,
+                 board=None, *, brightness=MAX_BRIGHTNESS, rpi_mode=None):
         """
         Initialize the ILI9225 class.
 
@@ -188,7 +188,9 @@ class ILI9225(Compatibility):
         :param rpi_mode: Only applies to the Raspberry Pi and Computer boards.
                          Default GPIO.BCM
         :type rpi_mode: int
-        :raises CompatibilityException: If the board is unsupported.
+        :raises CompatibilityException: If the board is unsupported or the
+                                        moso or sck pins are not set on some
+                                        boards.
         """
         super().__init__(rpi_mode=rpi_mode)
         self._rst = rst
@@ -207,6 +209,7 @@ class ILI9225(Compatibility):
         self._cfont = CurrentFont()
         self._gfx_font = None
         self.set_board(board)
+        self.set_spi_pins(sck, mosi)
 
     @property
     def spi_close_override(self):
