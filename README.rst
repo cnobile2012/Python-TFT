@@ -107,7 +107,7 @@ package will build for the *ILI9225* chip the curses screen will appear for
 choosing fonts and all doc strings, comments, and extra line-feeds will be
 removed to save space on the MCU.
 
-.. code-block:: console
+.. code-block:: bash
 
    $ ./scripts/create_packages.py -m2fs
 
@@ -162,4 +162,4 @@ Create you package as describe above.
    $ ampy -p /dev/ttyUSB0 put ILI9225
 
 Your device may be different than the one I used. If you type *ampy* with no
-arguments you will get a list of the commands available.
+arguments you will get a list of the commands *ampy* provides.
