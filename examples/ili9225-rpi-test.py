@@ -24,6 +24,7 @@ except:
 
 #          rst, rs, port, cs
 tft = ILI9225(17, 27, 0, 8, board=Boards.RASPI)
+tft.spi_frequency = 100000000
 tft.begin()
 tft.draw_rectangle(44, 55, 132, 165, Color.LIGHTGREEN)
 tft.fill_triangle(88, 165, 132, 55, 44, 55, Color.YELLOW)
@@ -39,6 +40,7 @@ try:
     y = tft.display_max_y / 2
     tft.draw_gfx_text(x, y, 'ABC')
     time.sleep(5)
+    tft.clear()
 except:
     pass
 
