@@ -153,6 +153,9 @@ class PiVersion:
         if self._spi is None:
             kwargs = {}
             kwargs['baudrate'] = self.spi_frequency
+            kwargs['polarity'] = 0
+            kwargs['phase'] = 0
+            kwargs['bits'] = 8
 
             if 'mosi' in dir(self):
                 kwargs['sck'] = self.__pin_state[self.sck]
@@ -199,6 +202,11 @@ class PiVersion:
         :param value: The value to write to the SPI port.
         :type value: str
         """
+        if isinstance(value, bytes):
+            value = bytearray(value)
+        else:
+            value = bytearray([value])
+
         self.__pin_state[self._rs].off()
 
         try:
