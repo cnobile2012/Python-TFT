@@ -102,13 +102,24 @@ class CreatePackages:
         pattern1 = pattern0 + ('__init__.py',)
 
         for chip, path in packages.items():
+            # Both MicroPython and CircuitPython do not handle
+            # __init__.py file properly.
+            if platform in self.STRIP_PLATFORMS:
+                pattern = pattern1
+            else:
+                pattern = pattern0
+
             kwargs = {
-                'ignore': ignore_patterns(*pattern0),
+                'ignore': ignore_patterns(*pattern),
                 'dirs_exist_ok': True
                 }
             # Copy chip path
             src = os.path.join(self.ROOT_PATH, chip)
             copytree(src, path, **kwargs)
+
+            if platform in self.STRIP_PLATFORMS:
+                with open(os.path.join(path, '__init__.py'), 'w') as f:
+                    pass
 
             # Copy font files
             for f in self._fonts:
