@@ -16,16 +16,20 @@ try:
     from ILI9225.fonts.Roboto_Mono_Bold_12 import Roboto_Mono_Bold_12
     from ILI9225.fonts.Roboto_Mono_Bold_14 import Roboto_Mono_Bold_14
 except:
-    pass
+    try:
+        from fonts.Roboto_Mono_Bold_12 import Roboto_Mono_Bold_12
+        from fonts.Roboto_Mono_Bold_14 import Roboto_Mono_Bold_14
+    except:
+        pass
 
 #          rst, rs, port, cs
-tft = ILI9225(17, 27, 0, 8, led=22, board=Boards.RASPI)
+tft = ILI9225(17, 27, 0, 8, board=Boards.RASPI)
 tft.begin()
 tft.draw_rectangle(44, 55, 132, 165, Color.LIGHTGREEN)
 tft.fill_triangle(88, 165, 132, 55, 44, 55, Color.YELLOW)
 time.sleep(5)
 tft.clear()
-tft.fill_circle(88, 110, 80, color=Colors.LIGHTGREEN)
+tft.fill_circle(88, 110, 80, color=Color.LIGHTGREEN)
 time.sleep(5)
 tft.clear()
 
