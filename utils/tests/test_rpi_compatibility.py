@@ -227,9 +227,10 @@ class TestCompatibility(unittest.TestCase):
         """
         Test that the RASPI board raises an exception.
         """
-        sck = 14
-        mosi = 15
-        miso = 16
+        sck = -1
+        mosi = -1
+        miso = None
+        self._com.BOARD = Boards.RP2040
 
         with self.assertRaises(CompatibilityException) as cm:
             self._com.set_spi_pins(sck, mosi, miso=miso)
