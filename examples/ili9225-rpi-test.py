@@ -1,8 +1,14 @@
+#!/usr/bin/env python3
 #
 # Basic functionality test on a Raspberry Pi
 #
 
+import os
+import sys
 import time
+
+ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(ROOT_PATH)
 
 from ILI9225 import ILI9225, Boards, RGB16BitColor as Color
 
