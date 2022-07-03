@@ -883,7 +883,7 @@ class ILI9225(Compatibility):
         self._set_window(x0, y0, x1, y1)
 
         # Count backwards from (y1 - y0 + 1) * (x1 - x0 + 1)) + 1 ending at 1.
-        for t in range(1, round((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)[::-1]:
+        for t in reversed(range(1, round((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)):
             self._write_data(color)
 
         self._reset_window()

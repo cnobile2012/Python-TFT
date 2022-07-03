@@ -69,7 +69,7 @@ STM32F76 = port 1=SPI1 (MISO=PA6, MOSI=PA7, SCK=PA5) or
                        (MISO=PB4, MOSI=PB5, SCK=PB3)
 """
 
-from machine import Pin, SPI, PWM
+from machine import Pin, SPI, PWM, reset
 from time import sleep_ms
 
 from utils.common import Boards, CompatibilityException
@@ -133,7 +133,7 @@ class PiVersion:
         for obj in self.__pwm_pin_states.values():
             obj.deinit()
 
-        Pin.reset()
+        reset()
 
     def delay(self, ms):
         """
@@ -156,6 +156,7 @@ class PiVersion:
             kwargs['polarity'] = 0
             kwargs['phase'] = 0
             kwargs['bits'] = 8
+            kwargs['firstbit'] = SPI.MSB
 
             if 'mosi' in dir(self):
                 kwargs['sck'] = self.__pin_state[self.sck]
