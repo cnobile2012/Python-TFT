@@ -643,7 +643,7 @@ class ILI9225(Compatibility):
 
     def get_text_width(self, s):
         """
-        Width of a standard font strint in pixels.
+        Width of a standard font string in pixels.
 
         :param s: Text to get the width for.
         :type s: str
