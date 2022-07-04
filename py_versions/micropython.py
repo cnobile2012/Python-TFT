@@ -112,8 +112,14 @@ class PiVersion:
         :type pull: int
         :param default: Set a default value of the pin.
         :type default: int
+        :raises CompatibilityException: If the pin cannot be set.
         """
-        self.__pin_state[pin] = Pin(pin, direction, pull, value=default)
+        try:
+            self.__pin_state[pin] = Pin(pin, direction, pull, value=default)
+        except Exception as e:
+            msg = "Pin {}--direction={}, pull={}, value={}, {}".format(
+                pin, direction, pull, default, e)
+            raise CompatibilityException(msg)
 
     def digital_write(self, pin, high_low):
         """
@@ -189,7 +195,7 @@ class PiVersion:
         """
         return True if self._spi is not None else False
 
-    def spi_write(self, value):
+    def spi_write(self, values):
         """
         Write data to the SPI port. First set the rs pin to command mode
         then the cs (chip select) pin to low (selected) then write the data
@@ -203,18 +209,22 @@ class PiVersion:
         :param value: The value to write to the SPI port.
         :type value: str
         """
-        if isinstance(value, bytes):
-            value = bytearray(value)
-        else:
-            value = bytearray([value])
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+        elif isinstance(values, tuple):
+            values = list(values)
 
-        self.__pin_state[self._rs].off()
+        items = bytearray()
+
+        for value in values:
+            value = round(value)
+            items.append(value >> 8)
+            items.append(value & 0xFF)
 
         try:
-            self.__pin_state[self._cs].off()
-            self._spi.write(value)
-        finally:
-            self.__pin_state[self._cs].on()
+            self._spi.write(items)
+        except Exception as e:
+            raise CompatibilityException("Error writing: {}".format(str(e)))
 
     def setup_pwm(self, pin, brightness):
         """
