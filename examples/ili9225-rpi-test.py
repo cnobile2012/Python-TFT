@@ -10,8 +10,7 @@ import time
 ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(ROOT_PATH)
 
-from ILI9225 import ILI9225, Boards, RGB16BitColor as Color
-from ILI9225.default_fonts import Terminal11x16
+from ILI9225 import ILI9225, Boards, Terminal11x16, RGB16BitColor as Color
 
 try:
     from ILI9225.fonts.Roboto_Mono_Bold_12 import Roboto_Mono_Bold_12
