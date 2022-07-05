@@ -13,10 +13,10 @@ sys.path.append(ROOT_PATH)
 from ILI9225 import ILI9225, Boards, Terminal6x8, RGB16BitColor as Color
 
 try:
-    from ILI9225.fonts.FreeMono12pt7b import FreeMono12pt7b
+    from ILI9225.fonts.SansSerif_plain_10 import SansSerif_plain_10
 except:
     try:
-        from fonts.FreeMono12pt7b import FreeMono12pt7b
+        from fonts.SansSerif_plain_10 import SansSerif_plain_10
     except:
         pass
 
@@ -37,7 +37,7 @@ tft.clear()
 try:
     tft.orientation = 1
     tft.set_font(Terminal6x8)
-    msg = "Std Font (Terminal6x8)"
+    msg = "Standard Font (Terminal6x8)"
     print("Text width:", tft.get_text_width(msg))
     x = 0
     y = tft.display_max_y / 2
@@ -49,8 +49,8 @@ except Exception as e:
 
 try:
     tft.orientation = 1
-    tft.set_gfx_font(FreeMono12pt7b)
-    msg = "GFX Font (FreeMono12pt7b)"
+    tft.set_gfx_font(SansSerif_plain_10)
+    msg = "GFX Font (SansSerif_plain_10)"
     x = 0
     y = tft.display_max_y / 2
     print("Font extent:", tft.get_gfx_text_extent(x, y, msg))
