@@ -3,21 +3,15 @@
 #
 
 import time
-#import gc
-#import micropython
 
 from ILI9225.ili9225 import ILI9225
 from ILI9225.common import Boards, RGB16BitColor as Color
-#from ILI9225.default_fonts import Terminal12x16
+from ILI9225.default_fonts import Terminal11x16
 
 try:
     from ILI9225.fonts.Roboto_Mono_Bold_12 import Roboto_Mono_Bold_12
 except:
     pass
-
-#micropython.mem_info()
-#gc.mem_free()
-#gc.collect()
 
 #          rst, rs, port, cs, mosi, sck
 #tft = ILI9225(32, 33, 2, 15, 23, 18, board=Boards.ESP32) # ID=2
@@ -39,7 +33,7 @@ tft.clear()
 
 try:
     tft.orientation = 1
-    tft.set_font(Terminal12x16)
+    tft.set_font(Terminal11x16)
     msg = "Std Font (Terminal12x16)"
     print("Text width:", tft.get_text_width(msg))
     x = 0
