@@ -657,18 +657,19 @@ class TestILI9225(unittest.TestCase):
         with self.assertRaises(TFTException) as cm:
             self._tft.draw_gfx_char(x, y, 'A')
 
-        expect_msg = self._tft.ERROR_MSGS.get('GFX_FONT')
+        expect_msg = self._tft.ERROR_MSGS['GFX_FONT']
         found = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found}'"
         self.assertEqual(expect_msg, found, msg=msg)
 
         # Test that a character is not found in the current font.
         self._tft.set_gfx_font(FreeSansBold10pt7b)
+        ch = 'A'
 
         with self.assertRaises(TFTException) as cm:
-            self._tft.draw_gfx_char(x, y, 'A')
+            self._tft.draw_gfx_char(x, y, ch)
 
-        expect_msg = self._tft.ERROR_MSGS.get('GFX_BAD_CH')
+        expect_msg = self._tft.ERROR_MSGS['GFX_BAD_CH'].format(ch)
         found = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found}'"
         self.assertEqual(expect_msg, found, msg=msg)
