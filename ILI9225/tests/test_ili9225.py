@@ -10,6 +10,7 @@ from ILI9225 import (ILI9225, Boards, TFTException, CompatibilityException,
                      Terminal12x16, BGR16BitColor, RGB16BitColor as Colors)
 from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont, GFXGlyph
 from fonts.FreeSerifItalic18pt7b import FreeSerifItalic18pt7b
+from fonts.FreeSansBold10pt7b import FreeSansBold10pt7b
 
 
 class TestAutoIncMode(unittest.TestCase):
@@ -657,6 +658,17 @@ class TestILI9225(unittest.TestCase):
             self._tft.draw_gfx_char(x, y, 'A')
 
         expect_msg = self._tft.ERROR_MSGS.get('GFX_FONT')
+        found = str(cm.exception)
+        msg = f"Error message expected '{expect_msg}' found '{found}'"
+        self.assertEqual(expect_msg, found, msg=msg)
+
+        # Test that a character is not found in the current font.
+        self._tft.set_gfx_font(FreeSansBold10pt7b)
+
+        with self.assertRaises(TFTException) as cm:
+            self._tft.draw_gfx_char(x, y, 'A')
+
+        expect_msg = self._tft.ERROR_MSGS.get('GFX_BAD_CH')
         found = str(cm.exception)
         msg = f"Error message expected '{expect_msg}' found '{found}'"
         self.assertEqual(expect_msg, found, msg=msg)

@@ -100,6 +100,7 @@ class ILI9225(Compatibility):
     ERROR_MSGS = {
         'STD_FONT': "Please set a standard font before using this method.",
         'GFX_FONT': "Please set a GFX font before using this method.",
+        'GFX_BAD_CH': "The character '{}' is not in the current font, {}",
         'BRD_UNSUP': "Error: The {} board is not supported.",
         'INV_PORT': "Invalid port for the {} board.",
         'SPI_PINS_INV': "The sck amd mosi pins must be set."
@@ -710,11 +711,17 @@ class ILI9225(Compatibility):
         :type color: int
         :return: The width of character in display pixels.
         :rtype: int
-        :raises TFTException: If the a GFX font is not set.
+        :raises TFTException: If the a GFX font is not set or a character
+                              is not found in the current font.
         """
         self._is_gfx_font_set()
         ch = ord(ch) - self._gfx_font.first
-        glyph = GFXGlyph(self._gfx_font.glyph[ch])
+
+        try:
+            glyph = GFXGlyph(self._gfx_font.glyph[ch])
+        except IndexError as e:
+            raise TFTException(self.ERROR_MSGS['GFX_BAD_CH'].format(ch. e))
+
         bitmap = self._gfx_font.bitmap
         bo = glyph.bitmap_offset
         w = glyph.width
@@ -768,7 +775,7 @@ class ILI9225(Compatibility):
         self._end_write(reuse=False)
         return currx
 
-    def get_gfx_char_extent(self, x, y, ch, color=Colors.WHITE):
+    def get_gfx_char_extent(self, x, y, ch):
         """
         Return the width, height, and the distance to advance cursor for
         the current GFX font.
@@ -784,8 +791,6 @@ class ILI9225(Compatibility):
         :type y: int
         :param ch: The character to draw on the display.
         :type ch: str
-        :param color: A 16-bit RGB color (default=white).
-        :type color: int
         :return: A tuple (gw, gh, xa) where gw is the width in pixels
                  of the character, gh is the height, and xa is the distance
                  to advance cursor on the x axis.
@@ -806,10 +811,16 @@ class ILI9225(Compatibility):
 
         return gw, gh, xa
 
-    def get_gfx_text_extent(self, x, y, s, color=Colors.WHITE):
+    def get_gfx_text_extent(self, x, y, s):
         """
         Return the width and height of the text in pixels of the
         current GFX font.
+
+        .. note::
+
+          If any of the chararcters in the provided string are not found
+          in the font the results for that character will be 0 (zero) for
+          both the w and h causing an invalid total for w and h.
 
         :param x: Point coordinate (x-axis).
         :type x: int
@@ -817,8 +828,6 @@ class ILI9225(Compatibility):
         :type y: int
         :param s: The character to draw on the display.
         :type s: str
-        :param color: A 16-bit RGB color (default=white).
-        :type color: int
         :return: A tuple (w, h) where w is the width of the string and
                  h is the height.
         :rtype: tuple
@@ -827,7 +836,7 @@ class ILI9225(Compatibility):
         w = h = 0
 
         for ch in s:
-            gw, gh, xa = self.get_gfx_char_extent(x, y, ch, color)
+            gw, gh, xa = self.get_gfx_char_extent(x, y, ch)
             if gh > h: h = gh
             w += xa
 
