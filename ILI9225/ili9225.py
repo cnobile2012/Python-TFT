@@ -720,7 +720,9 @@ class ILI9225(Compatibility):
         try:
             glyph = GFXGlyph(self._gfx_font.glyph[ch])
         except IndexError as e:
-            raise TFTException(self.ERROR_MSGS['GFX_BAD_CH'].format(ch))
+            ch += self._gfx_font.first
+            msg = self.ERROR_MSGS['GFX_BAD_CH'].format(chr(ch))
+            raise TFTException(msg)
 
         bitmap = self._gfx_font.bitmap
         bo = glyph.bitmap_offset
