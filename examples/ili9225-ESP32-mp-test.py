@@ -6,7 +6,7 @@ import time
 
 from ILI9225.ili9225 import ILI9225
 from ILI9225.common import Boards, RGB16BitColor as Color
-from ILI9225.default_fonts import Terminal11x16
+from ILI9225.default_fonts import Terminal6x8
 
 try:
     from ILI9225.fonts.Roboto_Mono_Bold_12 import Roboto_Mono_Bold_12
@@ -33,8 +33,8 @@ tft.clear()
 
 try:
     tft.orientation = 1
-    tft.set_font(Terminal11x16)
-    msg = "Std Font (Terminal12x16)"
+    tft.set_font(Terminal6x8)
+    msg = "Std Font (Terminal6x8)"
     print("Text width:", tft.get_text_width(msg))
     x = 0
     y = tft.display_max_y / 2

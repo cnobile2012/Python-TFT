@@ -10,13 +10,13 @@ import time
 ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(ROOT_PATH)
 
-from ILI9225 import ILI9225, Boards, Terminal11x16, RGB16BitColor as Color
+from ILI9225 import ILI9225, Boards, Terminal6x8, RGB16BitColor as Color
 
 try:
-    from ILI9225.fonts.Roboto_Mono_Bold_12 import Roboto_Mono_Bold_12
+    from ILI9225.fonts.FreeMono12pt7b import FreeMono12pt7b
 except:
     try:
-        from fonts.Roboto_Mono_Bold_12 import Roboto_Mono_Bold_12
+        from fonts.FreeMono12pt7b import FreeMono12pt7b
     except:
         pass
 
@@ -36,8 +36,8 @@ tft.clear()
 
 try:
     tft.orientation = 1
-    tft.set_font(Terminal11x16)
-    msg = "Std Font (Terminal12x16)"
+    tft.set_font(Terminal6x8)
+    msg = "Std Font (Terminal6x8)"
     print("Text width:", tft.get_text_width(msg))
     x = 0
     y = tft.display_max_y / 2
@@ -49,8 +49,8 @@ except Exception as e:
 
 try:
     tft.orientation = 1
-    tft.set_gfx_font(Roboto_Mono_Bold_12)
-    msg = "GFX Font (Roboto Mono Bold 12)"
+    tft.set_gfx_font(FreeMono12pt7b)
+    msg = "GFX Font (FreeMono12pt7b)"
     x = 0
     y = tft.display_max_y / 2
     print("Font extent:", tft.get_gfx_text_extent(x, y, msg))
