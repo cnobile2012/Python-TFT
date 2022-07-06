@@ -32,29 +32,56 @@ class CreatePackages:
     ILI9225 = 'ILI9225'
     ILI9341 = 'ILI9341'
     STRIP_PLATFORMS = ('circuitpython', 'micropython')
+    M_COMPRESS = [
+        ('x86', "32 bit"),
+        ('x64', "64 bit x86"),
+        ('armv6', "ARM Thumb, eg Cortex"),
+        ('armv6m', "ARM Thumb, eg Cortex-M0"),
+        ('armv7m', "ARM Thumb 2, eg Cortex-M3"),
+        ('armv7em', ""),
+        ('armv7emsp',
+         "ARM Thumb 2, single precision float, eg Cortex-M4F, Cortex-M7"),
+        ('armv7emdp', "ARM Thumb 2, double precision float, eg Cortex-M7"),
+        ('xtensa', "non-windowed, eg ESP8266"),
+        ('xtensawin', "windowed with window size 8, eg ESP32")
+        ]
+    M_COMPRESS.sort()
+    M_COMPRESS.insert(0, ('no arch', "Compress with no architecture assigned"))
+    M_COMPRESS.insert(0, ('none', "No compression"))
 
     def __init__(self, options):
         self._options = options
         self._fonts = []
 
     def start(self):
-        ret = False
+        if self._options.compress_list:
+            [sys.stdout.write(f"{idx: >2}. {arch: <10} {desc}\n")
+             for idx, (arch, desc) in enumerate(self.M_COMPRESS, start=-1)]
+        else:
+            ret = False
 
-        if self._options.fonts:
-            ed = ExitData()
-            path = os.path.join(self.ROOT_PATH, self.FONT_DIR)
-            curses.wrapper(FileChooser, path=path, exit_data=ed)
-            self._fonts[:] = ed.files + ['__init__.py']
-            ret = ed.status
+            if self._options.fonts:
+                ed = ExitData()
+                path = os.path.join(self.ROOT_PATH, self.FONT_DIR)
+                curses.wrapper(FileChooser, path=path, exit_data=ed)
+                self._fonts[:] = ed.files + ['__init__.py']
+                ret = ed.status
 
-        if not ret:
-            if not os.path.lexists(self.BUILD_PATH): os.mkdir(self.BUILD_PATH)
-            if self._options.computer: self._create_computer(self.BUILD_PATH)
-            if self._options.circuitpython: self._create_circuitpython(
-                self.BUILD_PATH)
-            if self._options.micropython: self._create_micropython(
-                self.BUILD_PATH)
-            if self._options.raspberrypi: self._create_raspi(self.BUILD_PATH)
+            if not ret:
+                if not os.path.lexists(self.BUILD_PATH):
+                    os.mkdir(self.BUILD_PATH)
+
+                if self._options.computer:
+                    self._create_computer(self.BUILD_PATH)
+
+                if self._options.circuitpython:
+                    self._create_circuitpython(self.BUILD_PATH)
+
+                if self._options.micropython:
+                    self._create_micropython(self.BUILD_PATH)
+
+                if self._options.raspberrypi:
+                    self._create_raspi(self.BUILD_PATH)
 
     def _create_circuitpython(self, build_path):
         platform = 'circuitpython'
@@ -228,6 +255,35 @@ class CreatePackages:
                     self._strip_doc_strings(process_path)
                     self._strip_comments(process_path)
                     self._strip_linefeeds(process_path)
+
+                if platform in self.STRIP_PLATFORMS:
+                    if os.path.isdir(process_path):
+                        if process_path.endswith(self.FONT_DIR):
+                            for f in self._fonts:
+                                font_path = os.path.join(process_path, f)
+                                self._cross_compile(font_path)
+                        else:
+                            raise OSError(f"Unknown directory: {process_path}")
+                    else:
+                        self._cross_compile(process_path)
+
+    def _cross_compile(self, process_path):
+        arch_num = self._options.compress
+
+        if arch_num != -1:
+            mpy_cross_path = os.path.join(
+                os.getenv('VIRTUAL_ENV'), 'bin', 'mpy-cross')
+
+            if arch_num > 0:
+                arch_type = self.M_COMPRESS[arch_num+1][0]
+                arch = f"-march={arch_type} -X emit=bytecode "
+            else:
+                arch = ""
+
+            opt = f"-O{self._options.opt_level} "
+            cmd = f"{mpy_cross_path} {opt}{arch}{process_path}"
+            os.system(cmd)
+            os.remove(process_path)
 
     def _strip_doc_strings(self, process_path):
         if self._options.debug: sys.stdout.write(
@@ -444,6 +500,20 @@ if __name__ == '__main__':
                             "the Raspberry Pi and Computer packages.")
         )
     parser.add_argument(
+        '-L', '--list-compress', action='store_true', default=False,
+        dest='compress_list', help=("List cross compile architecture types.")
+        )
+    parser.add_argument(
+        '-C', '--compress', type=int, metavar='arch-type', default=-1,
+        dest='compress', help=("Enter the number of the cross compile "
+                               "architecture type.")
+        )
+    parser.add_argument(
+        '-O', '--opt-level', type=int, metavar='opt-level', default=0,
+        dest='opt_level', help=("Enter the optimization level for the "
+                                "cross compiler.")
+        )
+    parser.add_argument(
         '-D', '--debug', action='store_true', default=False, dest='debug',
         help="Run in debug mode."
         )
@@ -463,7 +533,7 @@ if __name__ == '__main__':
         options.micropython = True
         options.raspberrypi = True
 
-    if options.ili9225 or options.ili9341:
+    if options.ili9225 or options.ili9341 or options.compress_list:
         try:
             cp = CreatePackages(options)
             cp.start()
