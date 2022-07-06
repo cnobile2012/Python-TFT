@@ -652,10 +652,11 @@ class TestILI9225(unittest.TestCase):
         """
         x = self._tft.display_max_x / 2
         y = self._tft.display_max_y / 2
+        ch = 'A'
 
         # Test that an exception is raised when a font is not set first.
         with self.assertRaises(TFTException) as cm:
-            self._tft.draw_gfx_char(x, y, 'A')
+            self._tft.draw_gfx_char(x, y, ch)
 
         expect_msg = self._tft.ERROR_MSGS['GFX_FONT']
         found = str(cm.exception)
@@ -664,7 +665,6 @@ class TestILI9225(unittest.TestCase):
 
         # Test that a character is not found in the current font.
         self._tft.set_gfx_font(FreeSansBold10pt7b)
-        ch = 'A'
 
         with self.assertRaises(TFTException) as cm:
             self._tft.draw_gfx_char(x, y, ch)
@@ -676,7 +676,6 @@ class TestILI9225(unittest.TestCase):
 
         # Test that a character is drawn at the provided coordinates.
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
-        ch = 'A'
         char_width = self._tft.draw_gfx_char(x, y, ch)
         expect = self._read_data_file('draw_gfx_char.txt')
         self._run_spi_test(expect, 'test_draw_gfx_char')
