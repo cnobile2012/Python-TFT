@@ -7,7 +7,13 @@ import os
 import sys
 import time
 
-ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if len(sys.argv) > 1:
+    build = sys.argv[1]
+else:
+    build = ''
+
+ROOT_PATH = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', build))
 sys.path.append(ROOT_PATH)
 
 from ILI9225 import ILI9225, Boards, Terminal6x8, RGB16BitColor as Color
