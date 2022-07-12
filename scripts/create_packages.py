@@ -19,10 +19,12 @@ class CreatePackages:
     """
     Creates packages.
     """
-    RX_CLASS_DEF = re.compile(r"^(class) +| +(def) +.*$")
-    RX_QUOTES = re.compile(r'^(.+)(?:(""")|(\'\'\').*)$', re.MULTILINE)
-    RX_ALL_QUOTES = re.compile(r'^(.+)(?:(""")|(\'\'\')|(")|(\'))(.*)$')
-    RX_HASH = re.compile(r"(.*)(#+).*")
+    # Removing quotes and # comments
+    RX_QUOTES = re.compile(r'^ *(#*)(.*)("{3}|\'{3}).*$')
+    RX_1ST_HASH = re.compile(r'^ *(#+)?.*$')
+    RX_HASH_CODE = re.compile(r'^(?:.+= +|.+,+)("|\')?[^#]*(#*)?'
+                              r'[^"|\']+("|\'")?.*$')
+    # Pathing
     RX_LF = re.compile(r'^\n$', re.DOTALL)
     ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     BUILD_PATH = os.path.join(ROOT_PATH, 'build')
@@ -31,6 +33,7 @@ class CreatePackages:
     PY_VER_DIR = 'py_versions'
     ILI9225 = 'ILI9225'
     ILI9341 = 'ILI9341'
+    # Misc
     STRIP_PLATFORMS = ('circuitpython', 'micropython')
     M_COMPRESS = [
         ('x86', "32 bit"),
@@ -250,7 +253,7 @@ class CreatePackages:
                 if fix_imports is not None:
                     fix_imports(self, process_path)
 
-                if (self._options.strip and platform in self.STRIP_PLATFORMS
+                if ((self._options.strip and platform in self.STRIP_PLATFORMS)
                     or self._options.force):
                     self._strip_doc_strings(process_path)
                     self._strip_comments(process_path)
@@ -301,45 +304,62 @@ class CreatePackages:
                 self._write_file(buff, process_path)
 
     def __strip_doc_strings(self, buff, process_path):
+        """
+        Truth Table
+
+        +----------------------------------------------------+
+        | nm |  lb   | code  | quote | lb    | quote | code  |
+        |    |       |       |       | _code | _flag | _flag |
+        |====|=======|=======|=======|=======|=======|=======|
+        | 1  | True  | X     | X     | False | X     | X     |
+        | 2  | False | X     | X     | True  | X     | X     |
+        | 3  | False | True  | X     |       | X     | False |
+        | 4  | False | True  | True  |       | X     | True  |
+        | 5  | False | False | True  |       | True  | X     |
+        | 6  | False | False | True  |       | False | False |
+        | 7  | X     | X     | X     |       | True  | X     |
+        +----------------------------------------------------+
+
+        .. note::
+
+           1. If lb exists pass through
+           2. If lb_code exists pass through
+           3. Pass through, Set code_flag
+           4. Pass through, Unset code_flag
+           5. Continue, Unset quote_flag
+           6. Continue, Set quote_flag
+           7. Continue
+           False: Must not be set or exist in RX.
+           True : Must be set or exist in RX.
+           X    : Does not matter
+        """
         with open(process_path, 'r') as f:
-            save_lines = ""
-            def_flag = False
-            line_flag = False
-            pre_flag = False
+            quote_flag = False
+            code_flag = False
 
             for idx, line in enumerate(f, start=1):
-                sre = self.RX_CLASS_DEF.search(line)
+                sre = self.RX_QUOTES.search(line)
 
                 if sre:
-                    def_flag = True
-                else:
-                    save_lines += line
-                    quotes = self.RX_QUOTES.findall(save_lines)
+                    lb, code, quote = sre.groups()
+                    lb = '#' in lb
+                    code = len(code) > 0
+                    quote = '"""' == quote.replace("'''", '"""')
+                    lb_code = '#' in sre.groups()[1]
 
-                    if quotes and any([True for c in quotes[0][0]
-                                       if c != ' ']):
-                        pre_flag = True
+                    if not lb and not lb_code:                     # 1 & 2
+                        if code and not code_flag: code_flag = True # 3
 
-                    if (not pre_flag and def_flag
-                        and quotes and len(quotes) == 1):
-                        line_flag = True
-
-                        if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}\n")
-
-                        continue
-                    elif (not pre_flag and def_flag and line_flag
-                          and quotes and len(quotes) == 2):
-                        save_lines = ""
-                        def_flag = line_flag = False
-
-                        if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}\n")
-
-                        continue
-                    elif pre_flag and quotes and len(quotes) == 2:
-                        pre_flag = False
-                        save_lines = ""
+                        if not code and quote and code_flag:        # 4
+                            code_flag = False
+                        elif not code and quote and quote_flag:     # 5
+                            quote_flag = False
+                            continue
+                        elif not code and quote and not code_flag:  # 6
+                            quote_flag = True
+                            continue
+                elif quote_flag:                                    # 7
+                    continue
 
                 buff.write(line)
 
@@ -360,55 +380,52 @@ class CreatePackages:
 
     def __strip_comments(self, buff, process_path):
         with open(process_path, 'r') as f:
-            save_lines = ""
             quote_flag = False
             code_flag = False
-            hash_flag = False
-            mult_hash_flag = False
 
             for idx, line in enumerate(f, start=1):
-                quote = self.RX_ALL_QUOTES.search(line)
+                sre = self.RX_QUOTES.search(line)
 
-                if quote:
-                    save_lines += line
-                    quote_flag = True
+                if sre:
+                    lb, code, quote = sre.groups()
+                    lb = '#' in lb
+                    code = len(code) > 0
+                    lb_code = '#' in sre.groups()[1]
+                    quote = '"""' == quote.replace("'''", '"""')
 
-                hash_data = self.RX_HASH.search(line)
+                    if not lb and code and not lb_code and not code_flag:
+                        code_flag = True
 
-                if hash_data:
-                    groups = hash_data.groups()
-                    code_flag = any([True for c in groups[0] if c != ' '])
-                    hash_flag = '#' in groups[1]
-                    mult_hash_flag = [True for group in groups
-                                      if '#' in group].count(True) > 1
-
-                    if (hash_flag and mult_hash_flag
-                        and any([True for c in groups[0] if c != ' '])):
-                        hash_flag = False
-                        mult_hash_flag = False
-
-                        if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}\n")
-
-                        continue
-                    elif not quote_flag and hash_flag and code_flag:
-                        line = line[:line.index('#')].rstrip() + '\n'
-                        hash_flag = False
+                    if not code and quote and code_flag:
                         code_flag = False
+                    elif not lb and not code and quote:
+                        quote_flag = True
+                    elif not lb and not code and quote_flag:
+                        quote_flag = False
+                elif quote_flag: # Do not process further
+                    pass
 
-                        if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}\n")
-                    elif not (quote_flag and code_flag) and hash_flag:
-                        if self._options.debug:
-                            sys.stdout.write(f"{idx:>4d} {line}\n")
+                # Handle line where 1st non-space character is a #
+                sre = self.RX_1ST_HASH.search(line)
 
-                        continue
-                    elif quote_flag:
-                        quote_count = (save_lines.count('"""')
-                                       or save_lines.count("'''"))
+                if sre:
+                    lb1st = sre.groups()[0]
+                    lb1st = lb1st is not None and '#' in lb1st
+                    if lb1st and not quote_flag and not code_flag: continue
 
-                        if quote_count == 2:
-                            quote_flag = False
+                # Handle line where there is code followed by a #
+                sre = self.RX_HASH_CODE.search(line)
+
+                if sre:
+                    lsdq, hlb, rsdq = sre.groups()
+                    lsdq = (False if lsdq is None
+                            else '"' == lsdq.replace("'", '"'))
+                    hlb = '#' in hlb
+                    rsdq = (False if rsdq is None
+                            else '"' == rsdq.replace("'", '"'))
+
+                    if hlb and (not lsdq or not rsdq):
+                        line = line[:line.index('#')].rstrip() + '\n'
 
                 buff.write(line)
 

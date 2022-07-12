@@ -1,4 +1,26 @@
+# -*- coding: utf-8 -*-
 # Test file
+
+"""
+Discription text, but should not be in the resultant file.
+"""
+
+
+SansSerif_plain_10Bitmaps = [
+        # Bitmap Data:
+        0x00, # ' '
+        0xAA,0x88, # '!'
+        0xAA,0xA0, # '"'
+        0x24,0x24,0x7E,0x28,0xFC,0x48,0x48, # '#'
+        0x21,0xEA,0x38,0x38,0xAF,0x08, # '$'
+        0xE4,0x52,0x2A,0x1F,0xE1,0x51,0x28,0x9C, # '%'
+        0x30,0x48,0x40,0xB2,0x8A,0xCC,0x72, # '&'
+        0xA8, # '''
+        0x52,0x49,0x24,0x40, # '('
+        0x91,0x24,0x94,0x80, # ')'
+        0xA9,0xC7,0x2A, # '#'
+]
+
 
 class ILI9225:
     """
@@ -6,12 +28,15 @@ class ILI9225:
     """
     CMD_GAMMA_CTRL10            = 0x59  # Gamma Control 10
 
-    SOME_LIST = [
-        0x06, 0x00, 0x24, 0x7E, 0x24, 0x7E, 0x24,  # Code for char #
-    ]
-
     # 1: pixel width of 1 font character, 2: pixel height
     _CFONT_HEADER_SIZE = 4
+
+    _MODE_TAB = (
+        (AutoIncMode.L2R_TOP_DOWN, AutoIncMode.TOP_DOWN_L2R,
+         AutoIncMode.R2L_BOTTOM_UP, AutoIncMode.BOTTOM_UP_R2L), # 180°
+        (AutoIncMode.TOP_DOWN_R2L, AutoIncMode.R2L_TOP_DOWN,
+         AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
+        )
 
     def __init__(self, rst, rs, spi_port, cs, led=-1, board=None, *,
                  brightness=MAX_BRIGHTNESS, rpi_mode=None):
@@ -85,3 +110,30 @@ class ILI9225:
     ##     byte_width = (w + 7) / 8
     ##     byte = 0
     ##     mask_bit = 0x01 if x_bit else 0x80
+
+   def draw_triangle(self, x0, y0, x1, y1, x2, y2, color):
+        """
+        Draw a triangle using triangular coordinates.
+
+        :param x0: Corner 1 coordinate (x-axis).
+        :type x0: int
+        :param y0: Corner 1 coordinate (y-axis).
+        :type y0: int
+        :param x1: Corner 2 coordinate (x-axis).
+        :type x1: int
+        :param y1: Corner 2 coordinate (y-axis).
+        :type y1: int
+        :param x2: Corner 3 coordinate (x-axis).
+        :type x2: int
+        :param y2: Corner 3 coordinate (y-axis).
+        :type y2: int
+        :param color: A 16-bit RGB color.
+        :type color: int
+        """
+        self.spi_close_override = True
+        self._start_write()
+        self.draw_line(x0, y0, x1, y1, color)
+        self.draw_line(x1, y1, x2, y2, color)
+        self.draw_line(x2, y2, x0, y0, color)
+        self.spi_close_override = False
+        self._end_write(reuse=False)
