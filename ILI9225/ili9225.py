@@ -355,11 +355,14 @@ class ILI9225(Compatibility):
         if self.DEBUG: # pragma: no cover
             print("begin: Finished initialize background color.")
 
-    def clear(self):
+    def clear(self, x0=None, y0=None, x1=None, y1=None, color=Colors.BLACK):
         """
         Overwrites the entire display with the color black.
         """
-        self.set_display_background(Colors.BLACK)
+        if any([True for v in (x0, y0, x1, y1) if v is None]):
+            self.set_display_background(color)
+        else:
+            self.fill_rectangle(x0, y0, x1, y1, color)
 
     def set_display_background(self, color):
         """
@@ -628,35 +631,48 @@ class ILI9225(Compatibility):
         self._end_write(reuse=False)
         return currx
 
-    def get_char_width(self, ch):
+    def get_char_extent(self, ch):
         """
-        Width of a standard font character in pixels.
+        Gets the width and height of a standard font character in pixels.
+
+        .. note:
+
+          The height of a standard character is the same for all characters.
 
         :param ch: The ASCII character.
         :type ch: str
-        :return: Character width.
-        :rtype: int
+        :return: A tuple consisting of (width, height).
+        :rtype: tuple
         :raises TFTException: If the a standard font is not set.
         """
         self._is_font_set()
         char_offset = self.__get_offset(ch)
-        return self._cfont.font[char_offset] # Get font width from 1st byte.
+        # Get font width from 1st byte
+        return self._cfont.font[char_offset], self._cfont.height
 
-    def get_text_width(self, s):
+    def get_text_extent(self, s):
         """
-        Width of a standard font string in pixels.
+        Gets the width and height of a standard font string in pixels.
+
+        .. note:
+
+          The height of a standard character is the same for all characters.
 
         :param s: Text to get the width for.
         :type s: str
-        :return: The width of the s argument.
-        :rtype: int
+        :return: A tuple consisting of (width, height).
+        :rtype: tuple
+        :raises TFTException: If the a standard font is not set.
         """
         width = 0
+        height = 0
 
         for k in range(len(s)):
-            width += self.get_char_width(s[k])
+            w, h = self.get_char_extent(s[k])
+            width += w + 1
+            height = h
 
-        return width
+        return round(width), height
 
     def __get_offset(self, ch):
         # Bytes used by each character.
@@ -736,11 +752,11 @@ class ILI9225(Compatibility):
         # Add character clipping here one day.
         for yy in range(h):
             for xx in range(w):
-                bit += 1
-
-                if not ((bit - 1) & 7):
+                if not (bit & 7):
                     bits = bitmap[bo]
                     bo += 1
+
+                bit += 1
 
                 if bits & 0x80:
                     self.draw_pixel(x + xo + xx, y + yo + yy, color)
@@ -777,7 +793,7 @@ class ILI9225(Compatibility):
         self._end_write(reuse=False)
         return currx
 
-    def get_gfx_char_extent(self, x, y, ch):
+    def get_gfx_char_extent(self, ch):
         """
         Return the width, height, and the distance to advance cursor for
         the current GFX font.
@@ -787,10 +803,6 @@ class ILI9225(Compatibility):
           If the character does not exist return values gw, gh, and xa
           will be 0 (zero).
 
-        :param x: Point coordinate (x-axis).
-        :type x: int
-        :param y: Point coordinate (y-axis).
-        :type y: int
         :param ch: The character to draw on the display.
         :type ch: str
         :return: A tuple (gw, gh, xa) where gw is the width in pixels
@@ -813,7 +825,7 @@ class ILI9225(Compatibility):
 
         return gw, gh, xa
 
-    def get_gfx_text_extent(self, x, y, s):
+    def get_gfx_text_extent(self, s):
         """
         Return the width and height of the text in pixels of the
         current GFX font.
@@ -824,10 +836,6 @@ class ILI9225(Compatibility):
           in the font the results for that character will be 0 (zero) for
           both the w and h causing an invalid total for w and h.
 
-        :param x: Point coordinate (x-axis).
-        :type x: int
-        :param y: Point coordinate (y-axis).
-        :type y: int
         :param s: The character to draw on the display.
         :type s: str
         :return: A tuple (w, h) where w is the width of the string and
@@ -838,7 +846,7 @@ class ILI9225(Compatibility):
         w = h = 0
 
         for ch in s:
-            gw, gh, xa = self.get_gfx_char_extent(x, y, ch)
+            gw, gh, xa = self.get_gfx_char_extent(ch)
             if gh > h: h = gh
             w += xa
 
