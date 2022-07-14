@@ -787,7 +787,7 @@ class ILI9225(Compatibility):
 
         # Draw every character in the string.
         for ch in s:
-            currx += self.draw_gfx_char(currx, y, ch, color) + 1
+            currx += self.draw_gfx_char(currx, y, ch, color) #+ 1
 
         self.spi_close_override = False
         self._end_write(reuse=False)
@@ -848,7 +848,7 @@ class ILI9225(Compatibility):
         for ch in s:
             gw, gh, xa = self.get_gfx_char_extent(ch)
             if gh > h: h = gh
-            w += xa + 1
+            w += xa #+ 1
 
         return w, h
 
