@@ -20,10 +20,11 @@ from ILI9225 import ILI9225, Boards, Terminal6x8, RGB16BitColor as Color
 
 try:
     from ILI9225.fonts.SansSerif_plain_10 import SansSerif_plain_10
+    from ILI9225.fonts.FreeMonoBoldOblique12pt7b import FreeMonoBoldOblique12pt7b
 except:
     try:
         from fonts.SansSerif_plain_10 import SansSerif_plain_10
-    except:
+        from ILI9225.fonts.FreeMonoBoldOblique12pt7b import FreeMonoBoldOblique12pt7b    except:
         pass
 
 #          rst, rs, port, cs
@@ -35,34 +36,60 @@ tft.begin()
 tft.draw_rectangle(44, 55, 132, 165, Color.LIGHTGREEN)
 tft.fill_triangle(88, 165, 132, 55, 44, 55, Color.YELLOW)
 time.sleep(5)
-tft.clear()
+tft.clear(x0=44, y0=55, x1=132, y1=165)
 tft.fill_circle(88, 110, 80, color=Color.LIGHTGREEN)
 time.sleep(5)
-tft.clear()
+x0 = 88 - 80
+y0 = 110 - 80
+x1 = 88 + 80
+y1 = 110 + 80
+tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
 
 try:
     tft.orientation = 1
     tft.set_font(Terminal6x8)
     msg = "Standard Font (Terminal6x8)"
-    print("Text width:", tft.get_text_width(msg))
-    x = 0
-    y = tft.display_max_y / 2
-    tft.draw_text(x, y, msg, color=Color.MAGENTA, bg_color=Color.YELLOW)
+    width, height = tft.get_text_extent(msg)
+    print("Text width:", width, "Text height:", height,
+          "Max screen width:", tft.display_max_x)
+    x0 = 0
+    y0 = tft.display_max_y / 2
+    tft.draw_text(x0, y0, msg, color=Color.MAGENTA, bg_color=Color.YELLOW)
     time.sleep(5)
-    tft.clear()
+    x1 = x0 + width
+    y1 = y0 + height
+    print("x0:", x0, "y0:", y0, "x1:", x1, "y1:", y1)
+    tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
 except Exception as e:
     print(e)
 
 try:
     tft.orientation = 1
-    tft.set_gfx_font(SansSerif_plain_10)
     msg = "GFX Font (SansSerif_plain_10)"
-    x = 0
-    y = tft.display_max_y / 2
-    print("Font extent:", tft.get_gfx_text_extent(x, y, msg))
-    tft.draw_gfx_text(x, y, msg)
+    tft.set_gfx_font(SansSerif_plain_10)
+    width, height = tft.get_gfx_text_extent(msg)
+    print("GFX font width:", width, "Text height:", height,
+          "Max screen width:", tft.display_max_x)
+    x0 = 0
+    y0 = tft.display_max_y / 2
+    tft.draw_gfx_text(x0, y0, msg)
     time.sleep(5)
-    tft.clear()
+    x1 = x0 + width
+    y1 = y0 + height
+    tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
+
+    msg = "GFX Font BIGGER"
+    tft.set_gfx_font(FreeMonoBoldOblique12pt7b)
+    width, height = tft.get_gfx_text_extent(msg)
+    print("GFX font width:", width, "Text height:", height,
+          "Max screen width:", tft.display_max_x)
+    x0 = 0
+    y0 = tft.display_max_y / 2 - 15
+    tft.draw_gfx_text(x0, y0, msg)
+    time.sleep(5)
+    x1 = x0 + width
+    y1 = y0 + height
+    tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
 except Exception as e:
     print(e)
 
