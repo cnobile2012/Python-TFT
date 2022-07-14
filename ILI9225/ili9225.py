@@ -765,7 +765,7 @@ class ILI9225(Compatibility):
 
         return xa
 
-    def draw_gfx_text(self, x, y, s, color=Colors.WHITE):
+    def draw_gfx_text(self, x, y, s, color=Colors.WHITE, *, add_pixels=0):
         """
         Draw a string in the GFX font.
 
@@ -777,6 +777,9 @@ class ILI9225(Compatibility):
         :type s: str
         :param color: A 16-bit RGB color (default=white).
         :type color: int
+        :param add_pixels: Number of pixels to add between characters
+                           (Default = 0).
+        :type add_pixels: int
         :return: The position of x after the text is displayed.
         :rtype: int
         :raises TFTException: If the a GFX font is not set.
@@ -787,7 +790,7 @@ class ILI9225(Compatibility):
 
         # Draw every character in the string.
         for ch in s:
-            currx += self.draw_gfx_char(currx, y, ch, color) #+ 1
+            currx += self.draw_gfx_char(currx, y, ch, color) + add_pixels
 
         self.spi_close_override = False
         self._end_write(reuse=False)
@@ -825,7 +828,7 @@ class ILI9225(Compatibility):
 
         return gw, gh, xa
 
-    def get_gfx_text_extent(self, s):
+    def get_gfx_text_extent(self, s, *, add_pixels=0):
         """
         Return the width and height of the string in pixels for the
         current GFX font.
@@ -838,6 +841,9 @@ class ILI9225(Compatibility):
 
         :param s: The character to draw on the display.
         :type s: str
+        :param add_pixels: Number of pixels to add between characters
+                           (Default = 0).
+        :type add_pixels: int
         :return: A tuple (w, h) where w is the width of the string and
                  h is the height.
         :rtype: tuple
@@ -848,7 +854,7 @@ class ILI9225(Compatibility):
         for ch in s:
             gw, gh, xa = self.get_gfx_char_extent(ch)
             if gh > h: h = gh
-            w += xa #+ 1
+            w += xa + add_pixels
 
         return w, h
 
