@@ -827,7 +827,7 @@ class ILI9225(Compatibility):
 
     def get_gfx_text_extent(self, s):
         """
-        Return the width and height of the text in pixels of the
+        Return the width and height of the string in pixels for the
         current GFX font.
 
         .. note::
@@ -848,7 +848,7 @@ class ILI9225(Compatibility):
         for ch in s:
             gw, gh, xa = self.get_gfx_char_extent(ch)
             if gh > h: h = gh
-            w += xa
+            w += xa + 1
 
         return w, h
 

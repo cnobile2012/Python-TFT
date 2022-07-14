@@ -20,17 +20,19 @@ from ILI9225 import ILI9225, Boards, Terminal6x8, RGB16BitColor as Color
 
 try:
     from ILI9225.fonts.SansSerif_plain_10 import SansSerif_plain_10
-    from ILI9225.fonts.FreeMonoBoldOblique12pt7b import FreeMonoBoldOblique12pt7b
+    from ILI9225.fonts.FreeMonoBoldOblique12pt7b import (
+        FreeMonoBoldOblique12pt7b,)
 except:
     try:
         from fonts.SansSerif_plain_10 import SansSerif_plain_10
-        from ILI9225.fonts.FreeMonoBoldOblique12pt7b import FreeMonoBoldOblique12pt7b    except:
+        from fonts.FreeMonoBoldOblique12pt7b import FreeMonoBoldOblique12pt7b
+    except:
         pass
 
 #          rst, rs, port, cs
 tft = ILI9225(17, 27, 0, 8, board=Boards.RASPI)
 
-tft.spi_frequency = 100000000
+#tft.spi_frequency = 100000000
 
 tft.begin()
 tft.draw_rectangle(44, 55, 132, 165, Color.LIGHTGREEN)
@@ -76,7 +78,7 @@ try:
     time.sleep(5)
     x1 = x0 + width
     y1 = y0 + height
-    tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
+    tft.clear(x0=x0, y0=y0-8, x1=x1, y1=y1-8)
 
     msg = "GFX Font BIGGER"
     tft.set_gfx_font(FreeMonoBoldOblique12pt7b)
@@ -89,7 +91,7 @@ try:
     time.sleep(5)
     x1 = x0 + width
     y1 = y0 + height
-    tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
+    tft.clear(x0=x0, y0=y0-13, x1=x1, y1=y1-13)
 except Exception as e:
     print(e)
 

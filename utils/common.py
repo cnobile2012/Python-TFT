@@ -34,7 +34,7 @@ class _Boards:
         # BBC Micro:bit
         ('NRF52', (32000000, 32000000, 32000000, 32000000,)),
         # Raspberry Pi
-        ('RASPI', (31200000, 31200000)),
+        ('RASPI', (80000000, 80000000)),
         # RPi Pico, Feather 2040, ItsyBitsy 2040, Tiny 2040, etc.
         ('RP2040', (65200000, 65200000)),
         # Some Blue Pill boards and many others.
