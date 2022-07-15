@@ -317,10 +317,11 @@ class TestILI9225(unittest.TestCase):
         """
         Test that the screen clears to black.
         """
-        x0 = 88 - 80
-        y0 = 110 - 80
-        x1 = 88 + 80
-        y1 = 110 + 80
+        self.orientation = 1
+        x0 = 8
+        y0 = 30
+        x1 = 168
+        y1 = 190
         self.clear(x0=x0, y0=y0, x1=x1, y1=y1)
         expect = (
             (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
