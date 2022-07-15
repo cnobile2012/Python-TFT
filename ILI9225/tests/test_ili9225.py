@@ -706,7 +706,7 @@ class TestILI9225(unittest.TestCase):
             glyph = GFXGlyph(FreeSerifItalic18pt7b[1][c]) # GFXFont.glyph
             xa.append(glyph.x_advance)
 
-        expect_currx = x + xa[0] + xa[1] + xa[2] + len(st)
+        expect_currx = x + xa[0] + xa[1] + xa[2]
         currx = self._tft.draw_gfx_text(x, y, st)
         msg = f"Expected cursor x '{expect_currx}' found '{currx}'"
         self.assertEqual(expect_currx, currx, msg=msg)
@@ -716,12 +716,9 @@ class TestILI9225(unittest.TestCase):
         """
         Test that the proper character extent is returned.
         """
-        x = self._tft.display_max_x / 2
-        y = self._tft.display_max_y / 2
-
         # Test that an exception is raised when a font is not set first.
         with self.assertRaises(TFTException) as cm:
-            self._tft.get_gfx_char_extent(x, y, 'A')
+            self._tft.get_gfx_char_extent('A')
 
         expect_msg = self._tft.ERROR_MSGS.get('GFX_FONT')
         found = str(cm.exception)
@@ -730,7 +727,7 @@ class TestILI9225(unittest.TestCase):
         # Test that an invalid character returns all zeros for gw, gh, and xa.
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
         ch = '\xFF'
-        w, h, xa = self._tft.get_gfx_char_extent(x, y, ch)
+        w, h, xa = self._tft.get_gfx_char_extent(ch)
         expect_w = expect_h = expect_xa = 0
         msg = (f"Expect w={expect_w}, h={expect_h}, xa={expect_xa} "
                f"found w={w}, h={h}, xa={xa}")
@@ -739,7 +736,7 @@ class TestILI9225(unittest.TestCase):
         self.assertEqual(expect_xa, xa, msg=msg)
         # Test normal character.
         ch = 'C'
-        w, h, xa = self._tft.get_gfx_char_extent(x, y, ch)
+        w, h, xa = self._tft.get_gfx_char_extent(ch)
         ch_tmp = ord(ch) - FreeSerifItalic18pt7b[2] # GFXFont.first
         glyph = GFXGlyph(FreeSerifItalic18pt7b[1][ch_tmp]) # GFXFont.glyph
         expect_w = glyph.width
@@ -756,11 +753,9 @@ class TestILI9225(unittest.TestCase):
         """
         Test that the proper text string extent is returned.
         """
-        x = self._tft.display_max_x / 2
-        y = self._tft.display_max_y / 2
         st = 'ABC'
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
-        w, h = self._tft.get_gfx_text_extent(x, y, st)
+        w, h = self._tft.get_gfx_text_extent(st)
         glyphs = []
 
         for ch in st:
