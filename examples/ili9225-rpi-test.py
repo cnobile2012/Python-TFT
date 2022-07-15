@@ -41,10 +41,10 @@ time.sleep(5)
 tft.clear(x0=44, y0=55, x1=132, y1=165)
 tft.fill_circle(88, 110, 80, color=Color.LIGHTGREEN)
 time.sleep(5)
-x0 = 88 - 80
-y0 = 110 - 80
-x1 = 88 + 80
-y1 = 110 + 80
+x0 = 8
+y0 = 30
+x1 = 168
+y1 = 190
 tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
 
 try:

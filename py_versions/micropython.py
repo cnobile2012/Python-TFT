@@ -134,7 +134,7 @@ class PiVersion:
 
     def pin_cleanup(self):
         """
-        To be run after this API is no longer to be used.
+        To be run after this API is no longer used.
         """
         for obj in self.__pwm_pin_states.values():
             obj.deinit()
