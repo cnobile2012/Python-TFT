@@ -358,6 +358,22 @@ class ILI9225(Compatibility):
     def clear(self, x0=None, y0=None, x1=None, y1=None, color=Colors.BLACK):
         """
         Overwrites the entire display with the color black.
+
+        .. note::
+
+          This method can be used to clear, to the previously set
+          background color, a rectilinear area to clear a previous object
+          on the display. Circles can be cleared however the area must be
+          rectilinear. Any intersecting lines or objects will also be cleared.
+
+        :param x0: Start x coordinate.
+        :type x0: int
+        :param y0, Start y coordinate.
+        :type y0: int
+        :param x1: End x coordinate.
+        :type x1: int
+        :param y1, End y coordinate.
+        :type y1: int
         """
         if any([True for v in (x0, y0, x1, y1) if v is None]):
             self.set_display_background(color)
@@ -371,7 +387,7 @@ class ILI9225(Compatibility):
         :param color: The RGB color for the display, default is black.
         :type color: int
         """
-        old_orientation = self.__orientation
+        old_orientation = self.orientation
         self.orientation = 0
         self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1, color)
         self.orientation = old_orientation

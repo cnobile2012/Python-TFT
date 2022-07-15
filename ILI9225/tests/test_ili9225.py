@@ -313,6 +313,32 @@ class TestILI9225(unittest.TestCase):
         self._run_spi_test(expect, 'test_set_display')
 
     #@unittest.skip("Temporary")
+    def test_in_window_clear(self):
+        """
+        Test that the screen clears to black.
+        """
+        x0 = 88 - 80
+        y0 = 110 - 80
+        x1 = 88 + 80
+        y1 = 110 + 80
+        self.clear(x0=x0, y0=y0, x1=x1, y1=y1)
+        expect = (
+            (self._tft.CMD_ENTRY_MODE, 1, 0x1038),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_RAM_ADDR_SET1, 1, 0x00),
+            (self._tft.CMD_RAM_ADDR_SET2, 1, 0x00),
+            (self._tft.CMD_GRAM_DATA_REG, 38720 , 0x00),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR1, 1, 0xaf),
+            (self._tft.CMD_HORIZONTAL_WINDOW_ADDR2, 1, 0x00),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
+            (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
+            )
+        self._run_spi_test(expect, 'test_set_display in window')
+
+    #@unittest.skip("Temporary")
     def test_set_display_background(self):
         """
         Test that the background can be changed to a different color
