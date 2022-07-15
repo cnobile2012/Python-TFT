@@ -78,7 +78,7 @@ try:
     time.sleep(5)
     x1 = x0 + width
     y1 = y0 + height
-    tft.clear(x0=x0, y0=y0-8, x1=x1, y1=y1-8)
+    tft.clear(x0=x0, y0=y0-height+1, x1=x1, y1=y1-height+1)
 
     msg = "GFX Font BIGGER"
     tft.set_gfx_font(FreeMonoBoldOblique12pt7b)
@@ -86,13 +86,20 @@ try:
     print("GFX font width:", width, "Text height:", height,
           "Max screen width:", tft.display_max_x)
     x0 = 0
-    y0 = tft.display_max_y / 2 - 15
+    y0 = tft.display_max_y / 2
     tft.draw_gfx_text(x0, y0, msg)
     time.sleep(5)
     x1 = x0 + width
     y1 = y0 + height
-    tft.clear(x0=x0, y0=y0-13, x1=x1, y1=y1-13)
+    tft.clear(x0=x0, y0=y0-height+1, x1=x1, y1=y1-height+1)
 except Exception as e:
     print(e)
 
 tft.pin_cleanup()
+
+"""
+Text width: 173 Text height: 8 Max screen width: 220
+x0: 0 y0: 88.0 x1: 173 y1: 96.0
+GFX font width: 176 Text height: 9 Max screen width: 220
+GFX font width: 210 Text height: 14 Max screen width: 220
+"""
