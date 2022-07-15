@@ -62,6 +62,7 @@ try:
     y1 = y0 + height
     print("x0:", x0, "y0:", y0, "x1:", x1, "y1:", y1)
     tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
+    time.sleep(3)
 except Exception as e:
     print(e)
 
@@ -79,6 +80,7 @@ try:
     x1 = x0 + width
     y1 = y0 + height
     tft.clear(x0=x0, y0=y0-height+1, x1=x1, y1=y1-height+1)
+    time.sleep(3)
 
     msg = "GFX Font BIGGER"
     tft.set_gfx_font(FreeMonoBoldOblique12pt7b)
@@ -92,6 +94,7 @@ try:
     x1 = x0 + width
     y1 = y0 + height
     tft.clear(x0=x0, y0=y0-height+1, x1=x1, y1=y1-height+1)
+    time.sleep(3)
 except Exception as e:
     print(e)
 

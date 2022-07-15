@@ -608,26 +608,32 @@ class TestILI9225(unittest.TestCase):
         msg = f"Expected cursor x '{expect_currx}' found '{currx}'"
 
     #@unittest.skip("Temporary")
-    def test_get_char_width(self):
+    def test_get_char_extent(self):
         """
         Test that the correct character width in pixels is returned.
         """
         self._tft.set_font(Terminal12x16)
-        width = self._tft.get_char_width('B')
+        width, height = self._tft.get_char_extent('B')
         expected_width = 11
+        expected_height = 16
         msg = f"Expected width '{expected_width}' found '{width}'"
         self.assertEqual(expected_width, width, msg=msg)
+        msg = f"Expected height '{expected_height}' found '{height}'"
+        self.assertEqual(expected_height, height, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_get_text_width(self):
+    def test_get_text_extent(self):
         """
         Test that the correct text strint width in pixels is returmed.
         """
         self._tft.set_font(Terminal12x16)
-        width = self._tft.get_text_width('ABC')
-        expected_width = 33
+        width, height = self._tft.get_text_extent('ABC')
+        expected_width = 36
+        expected_height = 16
         msg = f"Expected width '{expected_width}' found '{width}'"
         self.assertEqual(expected_width, width, msg=msg)
+        msg = f"Expected height '{expected_height}' found '{height}'"
+        self.assertEqual(expected_height, height, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_set_gfx_font(self):
