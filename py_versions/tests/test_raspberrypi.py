@@ -9,7 +9,7 @@ import time
 import unittest
 from contextlib import redirect_stdout
 
-from ILI9225 import Boards, CompatibilityException
+from ILI9225 import ILI9225, Boards, CompatibilityException
 from py_versions.raspberrypi import PiVersion
 
 from RPi import GPIO
@@ -63,6 +63,7 @@ class TestPiVersion(unittest.TestCase):
 
     def setUp(self):
         PiVersion.TESTING = True
+        PiVersion.ERROR_MSGS = ILI9225.ERROR_MSGS
         PiVersion.BOARD = Boards.RASPI
         PiVersion.MAX_BRIGHTNESS = 255
         self._pyv = PiVersion()
@@ -175,7 +176,7 @@ class TestPiVersion(unittest.TestCase):
         The above line needs to be added to the `/boot/config.txt` on the RPI.
         """
         # Port 0
-        port, freq, device = self._pyv._spi_port_freq_device(self.PORT, self.CS)
+        port, freq, device = self._pyv._spi_port_freq_device(self.CS)
         msg = f"The port should be '0', found '{port}'."
         self.assertEqual(0, port, msg=msg)
         msg = f"The device should be '0', found '{device}'."
@@ -196,20 +197,33 @@ class TestPiVersion(unittest.TestCase):
         self.assertEqual(expect, freq, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_invalid__spi_port_freq_device(self):
+    def test_invalid_port__spi_port_freq_device(self):
         """
-        Test that invalid arguments raises the proper exception.
+        Test that an invalid port raises the proper exception.
         """
-        port = 100
+        self._pyv._spi_port = 100
+
+        with self.assertRaises(CompatibilityException) as cm:
+            self._pyv._spi_port_freq_device(self.CS)
+
+        expected_msg = self._pyv.ERROR_MSGS['INV_PORT'].format(
+                self._get_board_name(self.BOARD))
+        msg = f"'{expected_msg}' != '{str(cm.exception)}'"
+        self.assertEqual(expected_msg, str(cm.exception), msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_invalid_cs__spi_port_freq_device(self):
+        """
+        Test that an invalid CS pin raises the proper exception.
+        """
         cs = 101
 
         with self.assertRaises(CompatibilityException) as cm:
-            self._pyv._spi_port_freq_device(port, cs)
+            self._pyv._spi_port_freq_device(cs)
 
         expected_msg = ("Invalid cs pin '{}' selection for port '{}'."
-                        ).format(cs, port)
-        msg = (f"Error message should be '{expected_msg}', "
-               f"found '{str(cm.exception)}'.")
+                        ).format(cs, self._pyv._spi_port)
+        msg = f"'{expected_msg}' != '{str(cm.exception)}'"
         self.assertEqual(expected_msg, str(cm.exception), msg=msg)
 
     #@unittest.skip("Temporary")

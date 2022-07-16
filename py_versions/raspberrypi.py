@@ -98,28 +98,33 @@ class PiVersion:
         """
         sleep(ms/1000) # Convert to floating point.
 
-    def _spi_port_freq_device(self, spi_port, cs):
+    def _spi_port_freq_device(self, cs):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
         and 'select' at a minimum, to a hardware SPI port, device tuple.
 
-        :param spi_port: The SPI port number
-        :type spi_port: int
         :param cs: The SPI Chip Select pin number.
         :type cs: int
         :returns: A tuple of (port, freq, device).
         :rtype: tuple
-        :raises CompatibilityException: If the pins do not represent a valid
-                                        hardware SPI device.
+        :raises CompatibilityException: If the spi port number is invalid for
+                                        the current board or the cs pin is
+                                        not valid.
         """
         # The port variable is sometimes refered to as the bus.
-        for port, data in self._SPI_HARDWARE_PORTS.items():
-            if cs in data and spi_port == port :
-                device = data.index(cs)
-                return port, self.spi_frequency, device
+        try:
+            data = self._SPI_HARDWARE_PORTS[self._spi_port]
+        except KeyError:
+            msg = self.ERROR_MSGS['INV_PORT'].format(
+                self._get_board_name(self.BOARD))
+            raise CompatibilityException(msg)
+
+        if cs in data:
+            device = data.index(cs)
+            return self.spi_frequency, device
 
         msg = ("Invalid cs pin '{}' selection for port '{}'."
-               ).format(cs, spi_port)
+               ).format(cs, self._spi_port)
         raise CompatibilityException(msg)
 
     def spi_start_transaction(self):
@@ -129,8 +134,7 @@ class PiVersion:
         :raises CompatibilityException: If the spi calls fail.
         """
         if self._spi is None:
-            port, freq, device = self._spi_port_freq_device(
-                self._spi_port, self._cs)
+            freq, device = self._spi_port_freq_device(self._cs)
 
             try:
                 self._spi = SpiDev()

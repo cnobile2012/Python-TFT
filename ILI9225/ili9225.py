@@ -102,8 +102,7 @@ class ILI9225(Compatibility):
         'GFX_FONT': "Please set a GFX font before using this method.",
         'GFX_BAD_CH': "The character '{}' is not in the current font.",
         'BRD_UNSUP': "Error: The {} board is not supported.",
-        'INV_PORT': "Invalid port for the {} board.",
-        'SPI_PINS_INV': "The sck amd mosi pins must be set."
+        'INV_PORT': "Invalid port for the {} board."
         }
 
     LCD_WIDTH                   = 176
@@ -167,7 +166,7 @@ class ILI9225(Compatibility):
          AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
         )
 
-    def __init__(self, rst, rs, spi_port, cs, mosi=-1, sck=-1, led=-1,
+    def __init__(self, rst, rs, spi_port, cs=-1, mosi=-1, sck=-1, led=-1,
                  board=None, *, brightness=MAX_BRIGHTNESS, rpi_mode=None):
         """
         Initialize the ILI9225 class.
@@ -178,8 +177,12 @@ class ILI9225(Compatibility):
         :type rs: int
         :param spi_port: The SPI port to use on the board.
         :type spi_port: int
-        :param cs: The CS (chip select) pin on the display.
+        :param cs: The CS (chip select) pin on the MCU.
         :type cs: int
+        :param mosi: The mosi GPIO number on the MCU.
+        :type mosi: int
+        :param sck: The SCK GPIO number on the MCU.
+        :type sck: int
         :param led: The LED pin on the display.
         :type led: int
         :param brightness: Set the brightness from 0..255 (default=255).
