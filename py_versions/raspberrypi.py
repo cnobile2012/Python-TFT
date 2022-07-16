@@ -116,7 +116,7 @@ class PiVersion:
             data = self._SPI_HARDWARE_PORTS[self._spi_port]
         except KeyError:
             msg = self.ERROR_MSGS['INV_PORT'].format(
-                self._get_board_name(self.BOARD))
+                Boards._get_board_name(self.BOARD))
             raise CompatibilityException(msg)
 
         if cs in data:
@@ -138,7 +138,7 @@ class PiVersion:
 
             try:
                 self._spi = SpiDev()
-                self._spi.open(port, device)
+                self._spi.open(self._spi_port, device)
                 self._spi.max_speed_hz = freq
                 self._spi.mode = self._SPI_MODE
             except IndexError as e: # pragma: no cover

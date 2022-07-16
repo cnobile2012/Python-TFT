@@ -168,7 +168,8 @@ class TestPiVersion(unittest.TestCase):
     #@unittest.skip("Temporary")
     def test__spi_port_freq_device(self):
         """
-        Test that a proper pin mapping returns the correct port and device.
+        Test that a proper pin mapping returns the correct frequency
+        and device.
 
         # Second SPI buss
         dtoverlay=spi1-3cs
@@ -176,23 +177,21 @@ class TestPiVersion(unittest.TestCase):
         The above line needs to be added to the `/boot/config.txt` on the RPI.
         """
         # Port 0
-        port, freq, device = self._pyv._spi_port_freq_device(self.CS)
-        msg = f"The port should be '0', found '{port}'."
-        self.assertEqual(0, port, msg=msg)
-        msg = f"The device should be '0', found '{device}'."
+        expected_device = 0
+        freq, device = self._pyv._spi_port_freq_device(self.CS)
+        msg = f"The device should be '{expected_device}', found '{device}'."
         self.assertEqual(0, device, msg=msg)
         expect = self._pyv.spi_frequency
         msg = f"The frequency should be '{expect}', found '{freq}'"
         self.assertEqual(expect, freq, msg=msg)
         # Port 1
         expected_port = 1
-        port, freq, device = self._pyv._spi_port_freq_device(1, 16)
-        msg = f"The port should be '{expected_port}', found '{port}'."
-        self.assertEqual(expected_port, port, msg=msg)
-        expected_port = 2
-        msg = f"The device should be '{expected_port}', found '{device}'."
-        self.assertEqual(expected_port, device, msg=msg)
-        expect = Boards.get_frequency(self._pyv.BOARD, self._pyv._spi_port)
+        self._pyv._spi_port = expected_port
+        expected_device = 2
+        freq, device = self._pyv._spi_port_freq_device(16)
+        msg = f"The device should be '{expected_device}', found '{device}'."
+        self.assertEqual(expected_device, device, msg=msg)
+        expect = self._pyv.spi_frequency
         msg = f"The frequency should be '{expect}', found '{freq}'"
         self.assertEqual(expect, freq, msg=msg)
 
