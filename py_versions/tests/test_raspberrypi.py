@@ -206,7 +206,7 @@ class TestPiVersion(unittest.TestCase):
             self._pyv._spi_port_freq_device(self.CS)
 
         expected_msg = self._pyv.ERROR_MSGS['INV_PORT'].format(
-                self._get_board_name(self.BOARD))
+                Boards.get_board_name(self.BOARD))
         msg = f"'{expected_msg}' != '{str(cm.exception)}'"
         self.assertEqual(expected_msg, str(cm.exception), msg=msg)
 
