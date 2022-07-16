@@ -116,7 +116,7 @@ class PiVersion:
             data = self._SPI_HARDWARE_PORTS[self._spi_port]
         except KeyError:
             msg = self.ERROR_MSGS['INV_PORT'].format(
-                Boards._get_board_name(self.BOARD))
+                Boards.get_board_name(self.BOARD))
             raise CompatibilityException(msg)
 
         if cs in data:
