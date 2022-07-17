@@ -185,10 +185,11 @@ class TestPiVersion(unittest.TestCase):
         expected_port = 1
         self._pyv._spi_port = expected_port
         expected_device = 2
-        self._pyv._spi_port_device(16)
+        self._pyv._cs = 16
+        self._pyv._spi_port_device()
         msg = (f"The device should be '{expected_device}', "
                f"found '{self._pyv._device}'.")
-        self.assertEqual(expected_device, device, msg=msg)
+        self.assertEqual(expected_device, self._pyv._device, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_invalid_port__spi_port_device(self):
