@@ -180,7 +180,7 @@ class TestPiVersion(unittest.TestCase):
         self._pyv._spi_port_device()
         msg = (f"The device should be '{expected_device}', "
                f"found '{self._pyv._device}'.")
-        self.assertEqual(0, self._pyv.device, msg=msg)
+        self.assertEqual(0, self._pyv._device, msg=msg)
         # Port 1
         expected_port = 1
         self._pyv._spi_port = expected_port
