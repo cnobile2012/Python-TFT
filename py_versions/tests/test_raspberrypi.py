@@ -177,7 +177,7 @@ class TestPiVersion(unittest.TestCase):
         """
         # Port 0
         expected_device = 0
-        self._pyv._spi_port_device(self.CS)
+        self._pyv._spi_port_device()
         msg = (f"The device should be '{expected_device}', "
                f"found '{self._pyv._device}'.")
         self.assertEqual(0, device, msg=msg)
@@ -191,14 +191,14 @@ class TestPiVersion(unittest.TestCase):
         self.assertEqual(expected_device, device, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_invalid_port__spi_port_freq_device(self):
+    def test_invalid_port__spi_port_device(self):
         """
         Test that an invalid port raises the proper exception.
         """
         self._pyv._spi_port = 100
 
         with self.assertRaises(CompatibilityException) as cm:
-            self._pyv._spi_port_freq_device(self.CS)
+            self._pyv._spi_port_device()
 
         expected_msg = self._pyv.ERROR_MSGS['INV_PORT'].format(
                 Boards.get_board_name(self._pyv.BOARD))
@@ -206,17 +206,17 @@ class TestPiVersion(unittest.TestCase):
         self.assertEqual(expected_msg, str(cm.exception), msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_invalid_cs__spi_port_freq_device(self):
+    def test_invalid_cs__spi_port_device(self):
         """
         Test that an invalid CS pin raises the proper exception.
         """
-        cs = 101
+        self._pyv._cs = 101
 
         with self.assertRaises(CompatibilityException) as cm:
-            self._pyv._spi_port_freq_device(cs)
+            self._pyv._spi_port_device()
 
         expected_msg = ("Invalid cs pin '{}' selection for port '{}'."
-                        ).format(cs, self._pyv._spi_port)
+                        ).format(self._pyv._cs, self._pyv._spi_port)
         msg = f"'{expected_msg}' != '{str(cm.exception)}'"
         self.assertEqual(expected_msg, str(cm.exception), msg=msg)
 

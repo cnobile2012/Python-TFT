@@ -216,9 +216,9 @@ class TestCompatibility(unittest.TestCase):
         # GPIO pins.
         self._com.BOARD = Boards.RP2040
         self._com.set_spi_pins(sck, mosi, miso=miso)
-        msg = f"Expect sck {sck} found {self._com.sck}"
-        self.assertEqual(sck, self._com.sck, msg=msg)
-        msg = f"Expect mosi {mosi} found {self._com.mosi}"
-        self.assertEqual(mosi, self._com.mosi, msg=msg)
-        msg = f"Expect miso {miso} found {self._com.miso}"
-        self.assertEqual(miso, self._com.miso, msg=msg)
+        msg = f"Expect sck {sck} found {self._com._sck}"
+        self.assertEqual(sck, self._com._sck, msg=msg)
+        msg = f"Expect mosi {mosi} found {self._com._mosi}"
+        self.assertEqual(mosi, self._com._mosi, msg=msg)
+        msg = f"Expect miso {miso} found {self._com._miso}"
+        self.assertEqual(miso, self._com._miso, msg=msg)
