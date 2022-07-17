@@ -180,7 +180,7 @@ class TestPiVersion(unittest.TestCase):
         self._pyv._spi_port_device()
         msg = (f"The device should be '{expected_device}', "
                f"found '{self._pyv._device}'.")
-        self.assertEqual(0, device, msg=msg)
+        self.assertEqual(0, self._pyv.device, msg=msg)
         # Port 1
         expected_port = 1
         self._pyv._spi_port = expected_port
@@ -225,6 +225,8 @@ class TestPiVersion(unittest.TestCase):
         """
         Test that an SPI connection can be opened and closed and checked.
         """
+        self._pyv._spi_port_device()
+
         try:
             self._pyv.spi_start_transaction()
             expect = 0xFFFF
@@ -244,6 +246,8 @@ class TestPiVersion(unittest.TestCase):
         """
         Test that writing data to the SPI port works properly.
         """
+        self._pyv._spi_port_device()
+
         try:
             # Test non sequence value
             self._pyv.spi_start_transaction()
