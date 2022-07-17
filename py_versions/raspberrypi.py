@@ -98,13 +98,11 @@ class PiVersion:
         """
         sleep(ms/1000) # Convert to floating point.
 
-    def _spi_port_freq_device(self, cs):
+    def _spi_port_device(self):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
         and 'select' at a minimum, to a hardware SPI port, device tuple.
 
-        :param cs: The SPI Chip Select pin number.
-        :type cs: int
         :returns: A tuple of (port, freq, device).
         :rtype: tuple
         :raises CompatibilityException: If the spi port number is invalid for
@@ -119,13 +117,12 @@ class PiVersion:
                 Boards.get_board_name(self.BOARD))
             raise CompatibilityException(msg)
 
-        if cs in data:
-            device = data.index(cs)
-            return self.spi_frequency, device
-
-        msg = ("Invalid cs pin '{}' selection for port '{}'."
-               ).format(cs, self._spi_port)
-        raise CompatibilityException(msg)
+        if self._cs in data:
+            self._device = data.index(self._cs)
+        else:
+            msg = ("Invalid cs pin '{}' selection for port '{}'."
+                   ).format(self._cs, self._spi_port)
+            raise CompatibilityException(msg)
 
     def spi_start_transaction(self):
         """
@@ -134,12 +131,10 @@ class PiVersion:
         :raises CompatibilityException: If the spi calls fail.
         """
         if self._spi is None:
-            freq, device = self._spi_port_freq_device(self._cs)
-
             try:
                 self._spi = SpiDev()
-                self._spi.open(self._spi_port, device)
-                self._spi.max_speed_hz = freq
+                self._spi.open(self._spi_port, self._device)
+                self._spi.max_speed_hz = self.spi_frequency
                 self._spi.mode = self._SPI_MODE
             except IndexError as e: # pragma: no cover
                 msg = ("There were no frequencies defines for the {} board, {}"

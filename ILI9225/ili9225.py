@@ -238,6 +238,9 @@ class ILI9225(Compatibility):
         self.__spi_close_override = value
 
     def begin(self):
+        # Setup MCU specific pins
+        self._spi_port_device()
+
         # Setup reset pin.
         self.pin_mode(self._rst, self.OUTPUT)
         self.digital_write(self._rst, self.LOW)

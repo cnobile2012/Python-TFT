@@ -166,10 +166,9 @@ class TestPiVersion(unittest.TestCase):
         self.assertTrue(math.isclose(ms, found, abs_tol=approx), msg)
 
     #@unittest.skip("Temporary")
-    def test__spi_port_freq_device(self):
+    def test__spi_port_device(self):
         """
-        Test that a proper pin mapping returns the correct frequency
-        and device.
+        Test that a proper pin mapping returns the correct device.
 
         # Second SPI buss
         dtoverlay=spi1-3cs
@@ -178,22 +177,18 @@ class TestPiVersion(unittest.TestCase):
         """
         # Port 0
         expected_device = 0
-        freq, device = self._pyv._spi_port_freq_device(self.CS)
-        msg = f"The device should be '{expected_device}', found '{device}'."
+        self._pyv._spi_port_device(self.CS)
+        msg = (f"The device should be '{expected_device}', "
+               f"found '{self._pyv._device}'.")
         self.assertEqual(0, device, msg=msg)
-        expect = self._pyv.spi_frequency
-        msg = f"The frequency should be '{expect}', found '{freq}'"
-        self.assertEqual(expect, freq, msg=msg)
         # Port 1
         expected_port = 1
         self._pyv._spi_port = expected_port
         expected_device = 2
-        freq, device = self._pyv._spi_port_freq_device(16)
-        msg = f"The device should be '{expected_device}', found '{device}'."
+        self._pyv._spi_port_device(16)
+        msg = (f"The device should be '{expected_device}', "
+               f"found '{self._pyv._device}'.")
         self.assertEqual(expected_device, device, msg=msg)
-        expect = self._pyv.spi_frequency
-        msg = f"The frequency should be '{expect}', found '{freq}'"
-        self.assertEqual(expect, freq, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_invalid_port__spi_port_freq_device(self):

@@ -158,8 +158,7 @@ class Compatibility(PiVersion):
         :raises CompatibilityException: If both the MOSI and SCK pins are
                                         not set.
         """
-        if sck != -1 and mosi != -1:
-            self.sck = sck
-            self.mosi = mosi
-            self.miso = miso
-            [self.pin_mode(pin) for pin in (sck, mosi, miso) if pin != -1]
+        self._sck = sck
+        self._mosi = mosi
+        self._miso = miso
+        [self.pin_mode(pin) for pin in (sck, mosi, miso) if pin != -1]
