@@ -14,16 +14,20 @@ try:
 except:
     pass
 
-#          rst, rs, port, cs, mosi, sck
-#tft = ILI9225(32, 33, 2, 15, 23, 18, board=Boards.ESP32) # ID=2
-tft = ILI9225(32, 33, 1, 15, 13, 14, board=Boards.ESP32) # ID=1
+#           rst, rs, port
+tft = ILI9225(32, 33, 1, board=Boards.ESP32) # ID=1
+#tft = ILI9225(32, 33, 2, board=Boards.ESP32) # ID=2
 
 print("rst: {}, rs: {}, port: {}, cs: {}, mosi: {}, sck: {}".format(
-    tft._rst, tft._rs, tft._spi_port, tft._cs, tft.mosi, tft.sck))
+    tft._rst, tft._rs, tft._spi_port, tft._cs, tft._mosi, tft._sck))
 
-tft.spi_frequency = 55000000
+#tft.spi_frequency = 60000000
 
 tft.begin()
+
+print("rst: {}, rs: {}, port: {}, cs: {}, mosi: {}, sck: {}".format(
+    tft._rst, tft._rs, tft._spi_port, tft._cs, tft._mosi, tft._sck))
+
 tft.draw_rectangle(44, 55, 132, 165, Color.LIGHTGREEN)
 tft.fill_triangle(88, 165, 132, 55, 44, 55, Color.YELLOW)
 time.sleep(5)

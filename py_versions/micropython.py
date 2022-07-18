@@ -90,6 +90,19 @@ class PiVersion:
     INPUT_PULLOFF = None
     _DEF_PWM_FREQ = 102400
 
+    # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".
+    _SPI_HARDWARE_PORTS = {
+        #   SCK, MISO, MOSI, CS0
+        Boards.ESP8266: {
+            1: (14, 12, 13, 15),
+            2: (18, 19, 23, 5)
+            },
+        Boards.ESP32: {
+            1: (14, 12, 13, 15),
+            2: (18, 19, 23, 5)
+            },
+        }
+
     def __init__(self, mode=None):
         self._spi = None
         self.__pin_state = {}
@@ -150,6 +163,25 @@ class PiVersion:
         """
         sleep_ms(ms)
 
+    def _spi_port_device(self):
+        """
+        Convert a mapping of pin definitions, which must contain 'clock',
+        and 'select' at a minimum for a hardware SPI port.
+
+        :raises CompatibilityException: If the spi port number is invalid for
+                                        the current board.
+        """
+        try:
+            data = self._SPI_HARDWARE_PORTS[self.BOARD][self._spi_port]
+        except KeyError:
+            msg = self.ERROR_MSGS['INV_PORT'].format(
+                Boards.get_board_name(self.BOARD))
+            raise CompatibilityException(msg)
+
+        self._sck, self._miso, self._mosi, self._cs = data
+        [self.pin_mode(pin) for pin in (self._sck, self._mosi, self._miso)
+         if pin != -1]
+
     def spi_start_transaction(self):
         """
         Create the SPI connection.
@@ -163,16 +195,14 @@ class PiVersion:
             kwargs['phase'] = 0
             kwargs['bits'] = 8
             kwargs['firstbit'] = SPI.MSB
+            kwargs['sck'] = self.__pin_state[self._sck]
+            kwargs['mosi'] = self.__pin_state[self._mosi]
 
-            if 'mosi' in dir(self):
-                kwargs['sck'] = self.__pin_state[self.sck]
-                kwargs['mosi'] = self.__pin_state[self.mosi]
-
-                if self.miso is not None:
-                    kwargs['miso'] = self.__pin_state[self.miso]
+            if self._miso != -1:
+                kwargs['miso'] = self.__pin_state[self._miso]
 
             try:
-               self._spi = SPI(self._spi_port, **kwargs)
+                self._spi = SPI(self._spi_port, **kwargs)
             except Exception as e:
                 self.spi_end_transaction()
                 raise CompatibilityException(e)

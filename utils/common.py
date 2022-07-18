@@ -29,8 +29,8 @@ class _Boards:
         # WiPy
         ('CC32xx', (20000000,)),
         #('COMPUTER', (80000000,)),
-        ('ESP8266', (80000000)),
-        ('ESP32', (80000000, 80000000)),
+        ('ESP8266', (60000000, 60000000)),
+        ('ESP32', (60000000, 60000000)),
         # BBC Micro:bit
         ('NRF52', (32000000, 32000000, 32000000, 32000000,)),
         # Raspberry Pi
@@ -152,30 +152,30 @@ class RGB16BitColor:
     YELLOW      = 0xFFE0  # 255, 255,   0
 
 
-class _BGR16BitColor:
-    """
-    BGR 16-bit color table definition (BGR565)
-    """
-    RGB_TO_BGR = lambda self, c: (
-        ((c & 0b1111100000000000) >> 11)
-        | (c & 0b0000011111100000)
-        | ((c & 0b0000000000011111) << 11)
-        )
+## class _BGR16BitColor:
+##     """
+##     BGR 16-bit color table definition (BGR565)
+##     """
+##     RGB_TO_BGR = lambda self, c: (
+##         ((c & 0b1111100000000000) >> 11)
+##         | (c & 0b0000011111100000)
+##         | ((c & 0b0000000000011111) << 11)
+##         )
 
-    def __init__(self, rgb_class=RGB16BitColor):
-        """
-        Constructor
+##     def __init__(self, rgb_class=RGB16BitColor):
+##         """
+##         Constructor
 
-        Dynamically creates BGR member objects from the an RGB class.
+##         Dynamically creates BGR member objects from the an RGB class.
 
-        :param rgb_class: The RGB 16-bit class object
-                          (default is RGB16BitColor).
-        :type rgb_class: <class object>
-        """
-        class_name = rgb_class.__qualname__
-        bgr_colors = {c: self.RGB_TO_BGR(eval("{}.{}".format(class_name, c)))
-                      for c in dir(rgb_class) if not c.startswith("_")}
-        [exec("_BGR16BitColor.{} = {}".format(c, v), globals())
-         for c, v in bgr_colors.items()]
+##         :param rgb_class: The RGB 16-bit class object
+##                           (default is RGB16BitColor).
+##         :type rgb_class: <class object>
+##         """
+##         class_name = rgb_class.__qualname__
+##         bgr_colors = {c: self.RGB_TO_BGR(eval("{}.{}".format(class_name, c)))
+##                       for c in dir(rgb_class) if not c.startswith("_")}
+##         [exec("_BGR16BitColor.{} = {}".format(c, v), globals())
+##          for c, v in bgr_colors.items()]
 
-BGR16BitColor = _BGR16BitColor()
+## BGR16BitColor = _BGR16BitColor()
