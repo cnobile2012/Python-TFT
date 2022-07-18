@@ -30,11 +30,11 @@ class SPITest(SpiDev):
 
     def __init__(self, miso=9, mosi=10, clock=11, select=8, speed=31200000,
                  mode=GPIO.BCM):
-        self.miso = miso
-        self.mosi = mosi
-        self.clock = clock
-        self.select = select
-        self.speed = speed
+        self._miso = miso
+        self._mosi = mosi
+        self._clock = clock
+        self._select = select
+        self._speed = speed
         self._spi = None
         mode = mode if mode is not None else GPIO.BCM
         GPIO.setmode(mode)
@@ -80,9 +80,9 @@ class SPITest(SpiDev):
         try:
             self._spi = SpiDev()
             port, device = self.spi_port_device(
-                self.clock, self.mosi, self.miso, self.select)
+                self._clock, self._mosi, self._miso, self.select)
             self._spi.open(port, device)
-            self._spi.max_speed_hz = self.speed
+            self._spi.max_speed_hz = self._speed
             self._spi.mode = self.SPI_MODE
         except Exception as e:
             self.spi_end_transaction()
