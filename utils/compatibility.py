@@ -137,28 +137,3 @@ class Compatibility(PiVersion):
         :type freq: int
         """
         self.__spi_freq = freq
-
-    def set_spi_pins(self, sck, mosi, *, miso=-1):
-        """
-        Set SPI pins. This method is only needed when an MCU has a
-        programmable peripheral interface such as the RP2040 and NRF52 MCUs.
-
-        .. note::
-
-           This method is not used for some boards because they have their
-           SCK and MOSI pins defined by the spa library they uses. In this
-           case the method just drops through.
-
-        :param sck: SPI clock.
-        :type sck: int
-        :param mosi: SPI Master Out Slave In.
-        :type mosi: int
-        :param miso: SPI Master In Slave Out (Not used on most devices).
-        :type miso: int
-        :raises CompatibilityException: If both the MOSI and SCK pins are
-                                        not set.
-        """
-        self._sck = sck
-        self._mosi = mosi
-        self._miso = miso
-        [self.pin_mode(pin) for pin in (sck, mosi, miso) if pin != -1]

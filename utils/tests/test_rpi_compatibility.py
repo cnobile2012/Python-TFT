@@ -201,24 +201,3 @@ class TestCompatibility(unittest.TestCase):
         found_freq = self._com.spi_frequency
         msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
-
-    #@unittest.skip("Temporary")
-    def test_set_spi_pins(self):
-        """
-        Test that setting SPI pins works as expected. This may be difficult
-        to test since it cannot be used on a Raspberry Pi and that's our
-        test environment.
-        """
-        sck = 14
-        mosi = 15
-        miso = 16
-        # Mock the board to a valid MicroPython board that has programmable
-        # GPIO pins.
-        self._com.BOARD = Boards.RP2040
-        self._com.set_spi_pins(sck, mosi, miso=miso)
-        msg = f"Expect sck {sck} found {self._com._sck}"
-        self.assertEqual(sck, self._com._sck, msg=msg)
-        msg = f"Expect mosi {mosi} found {self._com._mosi}"
-        self.assertEqual(mosi, self._com._mosi, msg=msg)
-        msg = f"Expect miso {miso} found {self._com._miso}"
-        self.assertEqual(miso, self._com._miso, msg=msg)

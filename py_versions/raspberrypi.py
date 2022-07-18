@@ -101,10 +101,8 @@ class PiVersion:
     def _spi_port_device(self):
         """
         Convert a mapping of pin definitions, which must contain 'clock',
-        and 'select' at a minimum, to a hardware SPI port, device tuple.
+        and 'select' at a minimum, for a hardware SPI port.
 
-        :returns: A tuple of (port, freq, device).
-        :rtype: tuple
         :raises CompatibilityException: If the spi port number is invalid for
                                         the current board or the cs pin is
                                         not valid.

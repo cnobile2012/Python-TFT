@@ -201,6 +201,9 @@ class ILI9225(Compatibility):
         self._rs = rs
         self._spi_port = spi_port
         self._cs = cs
+        self._sck = sck
+        self._mosi = mosi
+        self._miso = -1
         self._led = led
         self.__brightness = 0
         self.brightness = brightness # Default it maximum brightness.
@@ -213,7 +216,6 @@ class ILI9225(Compatibility):
         self._cfont = CurrentFont()
         self._gfx_font = None
         self.set_board(board)
-        self.set_spi_pins(sck, mosi)
 
     @property
     def spi_close_override(self):
