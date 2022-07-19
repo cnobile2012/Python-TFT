@@ -1,3 +1,4 @@
+# MircoPython
 #
 # Basic functionality test on a ESP32 with MicroPython
 #
@@ -94,6 +95,7 @@ except Exception as e:
 tft.pin_cleanup()
 
 """
+rst: 32, rs: 33, port: 1, cs: -1, mosi: -1, sck: -1
 rst: 32, rs: 33, port: 1, cs: 15, mosi: 13, sck: 14
 Text width: 172 Text height: 8 Max screen width: 220
 x0: 0 y0: 88.0 x1: 172 y1: 96.0
