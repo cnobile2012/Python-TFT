@@ -37,7 +37,7 @@ class _Boards:
         ('RASPI', (80000000, 80000000)),
         # RPi Pico, Feather 2040, ItsyBitsy 2040, Tiny 2040, etc.
         ('RP2040', (65200000, 65200000)),
-        ('SAMD20', (8000000,))
+        ('SAMD20', (8000000,)),
         # Seeeduino XIAO SAMD21G18
         ('SAMD21', (12000000,)),
         # Some Blue Pill boards and many others.
