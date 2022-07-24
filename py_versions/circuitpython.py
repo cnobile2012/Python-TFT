@@ -26,6 +26,7 @@ class PiVersion:
     INPUT_PULLUP = Pull.UP
     INPUT_PULLDOWN = Pull.DOWN
     INPUT_PULLOFF = None
+    _DEF_PWM_FREQ = 102400
 
     def __init__(self, mode=None):
         self.__pin_state = {}
@@ -69,35 +70,38 @@ class PiVersion:
     def delay(self, ms):
         sleep_ms(ms)
 
-    def set_spi_port(self, sclk, mosi, miso):
+    def _spi_port_device(self):
         """
-        Optional call if you want to use a secondary SPI port.
-
-        .. note::
-
-            This method must be called before the begin() method.
-
-        :param sclk: The SPI clock pin.
-        :type sclk: int
-        :param mosi: Master Out Slave In pin.
-        :type mosi: int
-        :param miso: Master In Slave Out pin.
-        :type: miso: int
+        We just need to test that the GPIO pins have been set.
         """
-        self._sclk = sclk
-        self._mosi = mosi
-        self._miso = miso
 
-    def spi_start_transaction(self, reuse=False):
-        if self._spi is None or not reuse:
-            freq = Boards.get_frequency()
-            self._spi = SPI(self._sclk, self._mosi, self._miso)
+
+        pass
+
+    def spi_start_transaction(self):
+        if self._spi is None:
+            self._spi = SPI(self._sck, self._mosi, self._miso)
             while self._spi.try_lock(): pass
-            self._spi.configure(baudrate=freq)
+            self._spi.configure(baudrate=Boards.get_frequency())
             self._spi.unlock()
 
     def spi_end_transaction(self):
-        self._spi.deinit()
+        """
+        Destroy the SPI connection.
+        """
+        if self._spi is not None:
+            self._spi.deinit()
+            self._spi = None
+
+    @property
+    def is_spi_connected(self):
+        """
+        Check if the SPI connection has been established.
+
+        :return: True if connected else False
+        :rtype: bool
+        """
+        return True if self._spi is not None else False
 
     def spi_write(self, value):
         self.__pin_state[self._rs].value = self.LOW

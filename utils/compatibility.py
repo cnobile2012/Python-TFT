@@ -137,3 +137,26 @@ class Compatibility(PiVersion):
         :type freq: int
         """
         self.__spi_freq = freq
+
+    def set_spi_pins(self, sck, mosi, miso=-1):
+        """
+        Set the SPI pins.
+
+        Optional call if you want to change the SPI pins. The proper GPIO
+        pins are generally used not the actual pins on your board.
+
+        .. note::
+
+            1. If using CircuitPython this method is required.
+            2. This method must be called before the begin() method.
+
+        :param sck: The SPI clock pin.
+        :type sck: int
+        :param mosi: Master Out Slave In pin.
+        :type mosi: int
+        :param miso: Master In Slave Out pin.
+        :type: miso: int
+        """
+        self._sck = sck
+        self._mosi = mosi
+        self._miso = miso
