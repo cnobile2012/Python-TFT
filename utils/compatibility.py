@@ -147,8 +147,8 @@ class Compatibility(PiVersion):
 
         .. note::
 
-            1. If using CircuitPython this method is required.
-            2. This method must be called before the begin() method.
+          1. If using CircuitPython this method is required.
+          2. This method must be called before the begin() method.
 
         :param sck: The SPI clock pin.
         :type sck: int

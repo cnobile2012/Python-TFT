@@ -201,3 +201,29 @@ class TestCompatibility(unittest.TestCase):
         found_freq = self._com.spi_frequency
         msg = f"Expect '{expect_freq}' found '{found_freq}'"
         self.assertEqual(expect_freq, found_freq, msg=msg)
+
+    #@unittest.skip("Temporary")
+    def test_set_spi_pins(self):
+        """
+        Set the SPI pins.
+        """
+        sck = 10
+        mosi = 11
+        miso = 12
+        not_set_miso = -1
+        # Test with MISO not set
+        self._com.set_spi_pins(sck, mosi)
+        msg = f"SCK should be '{sck}', found '{self._com._sck}'"
+        self.assertEqual(sck, self._com._sck, msg=msg)
+        msg = f"MOSI should be '{mosi}', found '{self._com._mosi}'"
+        self.assertEqual(mosi, self._com._mosi, msg=msg)
+        msg = f"MISO should be '{not_set_miso}', found '{self._com._miso}'"
+        self.assertEqual(not_set_miso, self._com._miso, msg=msg)
+        # Test with MISO set
+        self._com.set_spi_pins(sck, mosi, miso)
+        msg = f"SCK should be '{sck}', found '{self._com._sck}'"
+        self.assertEqual(sck, self._com._sck, msg=msg)
+        msg = f"MOSI should be '{mosi}', found '{self._com._mosi}'"
+        self.assertEqual(mosi, self._com._mosi, msg=msg)
+        msg = f"MISO should be '{miso}', found '{self._com._miso}'"
+        self.assertEqual(miso, self._com._miso, msg=msg)
