@@ -215,7 +215,7 @@ class PiVersion:
         self.__pwm_pin_states[pin] = GPIO.PWM(pin, self.pwm_frequency)
         self.__pwm_pin_states[pin].start(duty_cycle)
 
-    def change_duty_cycle(self, pin, brightness):
+    def change_led_duty_cycle(self, brightness):
         """
         Writes the value to the analog PWM pin.
 
@@ -225,7 +225,7 @@ class PiVersion:
         :type value: int
         """
         duty_cycle = self.__get_duty_cycle(brightness)
-        self.__pwm_pin_states[pin].ChangeDutyCycle(duty_cycle)
+        self.__pwm_pin_states[self._led].ChangeDutyCycle(duty_cycle)
 
     def __get_duty_cycle(self, brightness):
         return (brightness * 100 // (self.MAX_BRIGHTNESS + 1)

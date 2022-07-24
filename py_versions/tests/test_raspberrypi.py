@@ -297,7 +297,7 @@ class TestPiVersion(unittest.TestCase):
             self.unset_pin(self.LED)
 
     #@unittest.skip("Temporary")
-    def test_change_duty_cycle(self):
+    def test_change_led_duty_cycle(self):
         """
         Test that a PWM pin gets setup properly.
         """
@@ -323,7 +323,7 @@ class TestPiVersion(unittest.TestCase):
             # Set brightness to 64 -- 25%
             brightness /= 2
             expect_percent /= 2
-            self._pyv.change_duty_cycle(self.LED, brightness)
+            self._pyv.change_led_duty_cycle(brightness)
             readings = [self.read_pin_value(self.LED) for c in range(num_reps)
                         if not time.sleep(sleep)]
             percent = min(readings.count(0), readings.count(1)

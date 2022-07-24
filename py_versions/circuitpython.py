@@ -9,6 +9,7 @@ import board
 from digitalio import DigitalInOut, Direction, Pull
 from uasyncio import sleep_ms
 from busio import SPI
+from pwmio import PWMOut
 
 from utils.common import Boards, CompatibilityException
 
@@ -27,12 +28,11 @@ class PiVersion:
     INPUT_PULLDOWN = Pull.DOWN
     INPUT_PULLOFF = None
     _DEF_PWM_FREQ = 102400
+    _GP_PINS = [pin for pin in dir(board) if not pin.startswith('_')]
 
     def __init__(self, mode=None):
         self.__pin_state = {}
-        self._sclk = board.SCLK
-        self._mosi = board.MOSI
-        self._miso = board.MISO
+        self.__pwm_pin_states = {}
 
     def pin_mode(self, pin, direction, *, pull=None, default=None):
         """
@@ -67,16 +67,25 @@ class PiVersion:
         """
         self.__pin_state[pin].value = high_low
 
+    def pin_cleanup(self):
+        """
+        To be run after this API is no longer used.
+        """
+        for obj in self.__pwm_pin_states.values():
+            obj.deinit()
+
     def delay(self, ms):
         sleep_ms(ms)
 
     def _spi_port_device(self):
         """
-        We just need to test that the GPIO pins have been set.
+        We just need to test that the SCK and MOSI pins have been set.
         """
-
-
-        pass
+        if (-1 in (self._sck, self._mosi) or self._sck not in self._GP_PINS
+            or self._mosi not in self._GP_PINS):
+            msg = ("At a minimum SCK '{}' and MOSI '{}' needs to be "
+                   "set to a GPIO pin.")
+            raise CompatibilityException(msg.format(self._sck, self._mosi))
 
     def spi_start_transaction(self):
         if self._spi is None:
@@ -103,11 +112,68 @@ class PiVersion:
         """
         return True if self._spi is not None else False
 
-    def spi_write(self, value):
-        self.__pin_state[self._rs].value = self.LOW
+    def spi_write(self, values):
+        """
+        Write data to the SPI port. First set the rs pin to command mode
+        then the cs (chip select) pin to low (selected) then write the data
+        then set the cs pin to high (unselected).
+
+        :param value: The value to write to the SPI port.
+        :type value: str
+        """
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+        elif isinstance(values, tuple):
+            values = list(values)
+
+        items = bytearray()
+
+        for value in values:
+            value = round(value)
+            items.append(value >> 8)
+            items.append(value & 0xFF)
 
         try:
-            self.__pin_state[self._cs].value = self.LOW
-            self._spi.write(value)
-        finally:
-            self.__pin_state[self._cs].value = self.HIGH
+            self._spi.write(items)
+        except Exception as e:
+            raise CompatibilityException("Error writing: {}".format(str(e)))
+
+    def setup_pwm(self, pin, brightness):
+        """
+        Setup a PWM for controlling the back light LEDs brightness.
+
+        .. note::
+
+          The duty_cycle is derived by multiplying the brightness by 100
+          then dividing by the maximum number of brightness values.
+
+        :param pin: The pin to setup the PWM on.
+        :type pin: int
+        :param brightness: Sets the duty cycle.
+        :type brightness: int
+        """
+        duty_cycle = self.__get_duty_cycle(brightness)
+        self.__pwm_pin_states[pin] = PWMOut(
+            self._led, duty_cycle=duty_cycle, frequency=self._DEF_PWM_FREQ)
+
+    def change_led_duty_cycle(self, brightness):
+        """
+        Writes the value to the analog PWM pin.
+
+        :param pin: The pin to setup the PWM on.
+        :type pin: int
+        :param brightness: The brightness value.
+        :type value: int
+        """
+        duty_cycle = self.__get_duty_cycle(brightness)
+        self.__pwm_pin_states[self._led].duty_cycle = duty_cycle
+
+    def __get_duty_cycle(self, brightness):
+        duty_cycle = 0
+
+        if brightness == self.MAX_BRIGHTNESS:
+            duty_cycle = 0xffff
+        elif brightness > 0:
+            duty_cycle = brightness * 0xffff // (self.MAX_BRIGHTNESS + 1)
+
+        return duty_cycle
