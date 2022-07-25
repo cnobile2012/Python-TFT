@@ -929,7 +929,7 @@ class TestILI9225(unittest.TestCase):
         16 bit BGR color.
         """
         rgb_blue = Colors.BLUE
-        bgr_blue = BGR16BitColor.BLUE
+        bgr_blue = 0xF800
         found_color = self._tft.rgb16_to_bgr16(rgb_blue)
         msg = f"Expect BGR color '{bgr_blue}' found '{found_color}'"
         self.assertEqual(bgr_blue, found_color, msg=msg)
