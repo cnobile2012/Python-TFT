@@ -7,7 +7,7 @@ The CircuitPython compatibility file.
 
 import board
 from digitalio import DigitalInOut, Direction, Pull
-from uasyncio import sleep_ms
+from time import sleep
 from busio import SPI
 from pwmio import PWMOut
 
@@ -22,15 +22,17 @@ class PiVersion:
     PLATFORM = "CircuitPython"
     HIGH = True
     LOW = False
-    INPUT = Direction.IN
-    OUTPUT = Direction.OUT
+    INPUT = Direction.INPUT
+    OUTPUT = Direction.OUTPUT
     INPUT_PULLUP = Pull.UP
     INPUT_PULLDOWN = Pull.DOWN
     INPUT_PULLOFF = None
     _DEF_PWM_FREQ = 102400
-    _GP_PINS = [pin for pin in dir(board) if not pin.startswith('_')]
+    _GP_PINS = ["board.{}".format(pin) for pin in dir(board)
+                if not pin.startswith('_')]
 
     def __init__(self, mode=None):
+        self._spi = None
         self.__pin_state = {}
         self.__pwm_pin_states = {}
 
@@ -52,9 +54,9 @@ class PiVersion:
         :param default: Set a default value of the pin.
         :type default: int
         """
-        self.__pin_state[pin] = DigitalInOut(pin)
-        self.__pin_state[pin].direction = direction
-        if default is not None: pin.value = default
+        self.__pin_state[str(pin)] = DigitalInOut(pin)
+        self.__pin_state[str(pin)].direction = direction
+        if default is not None: self.__pin_state[str(pin)].value = default
 
     def digital_write(self, pin, high_low):
         """
@@ -65,33 +67,51 @@ class PiVersion:
         :param high_low: Set HIGH (True) or LOW (False).
         :type high_low: bool
         """
-        self.__pin_state[pin].value = high_low
+        self.__pin_state[str(pin)].value = high_low
 
     def pin_cleanup(self):
         """
         To be run after this API is no longer used.
         """
+        if self._spi: self._spi.deinit()
+
+        for obj in self.__pin_state.values():
+            obj.deinit()
+
         for obj in self.__pwm_pin_states.values():
             obj.deinit()
 
     def delay(self, ms):
-        sleep_ms(ms)
+        """
+        Set a delay in milliseconds.
+
+        :param ms: The value in milliseconds.
+        :type ms: int
+        """
+        sleep(ms/1000) # Convert to floating point.
 
     def _spi_port_device(self):
         """
         We just need to test that the SCK and MOSI pins have been set.
         """
-        if (-1 in (self._sck, self._mosi) or self._sck not in self._GP_PINS
-            or self._mosi not in self._GP_PINS):
+        if (-1 in (self._sck, self._mosi)
+            or str(self._sck) not in self._GP_PINS
+            or str(self._mosi) not in self._GP_PINS):
             msg = ("At a minimum SCK '{}' and MOSI '{}' needs to be "
-                   "set to a GPIO pin.")
-            raise CompatibilityException(msg.format(self._sck, self._mosi))
+                   "set to a GPIO pin, your options are: {}")
+            raise CompatibilityException(msg.format(
+                self._sck, self._mosi, self._GP_PINS))
 
     def spi_start_transaction(self):
         if self._spi is None:
-            self._spi = SPI(self._sck, self._mosi, self._miso)
+            if self._miso == -1:
+                miso = None
+            else:
+                miso = self._miso
+
+            self._spi = SPI(self._sck, self._mosi, miso)
             while self._spi.try_lock(): pass
-            self._spi.configure(baudrate=Boards.get_frequency())
+            self._spi.configure(baudrate=self.spi_frequency)
             self._spi.unlock()
 
     def spi_end_transaction(self):
@@ -134,9 +154,12 @@ class PiVersion:
             items.append(value & 0xFF)
 
         try:
+            while self._spi.try_lock(): pass
             self._spi.write(items)
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
+        finally:
+            self._spi.unlock()
 
     def setup_pwm(self, pin, brightness):
         """
@@ -153,7 +176,7 @@ class PiVersion:
         :type brightness: int
         """
         duty_cycle = self.__get_duty_cycle(brightness)
-        self.__pwm_pin_states[pin] = PWMOut(
+        self.__pwm_pin_states[str(pin)] = PWMOut(
             self._led, duty_cycle=duty_cycle, frequency=self._DEF_PWM_FREQ)
 
     def change_led_duty_cycle(self, brightness):
@@ -166,7 +189,7 @@ class PiVersion:
         :type value: int
         """
         duty_cycle = self.__get_duty_cycle(brightness)
-        self.__pwm_pin_states[self._led].duty_cycle = duty_cycle
+        self.__pwm_pin_states[str(self._led)].duty_cycle = duty_cycle
 
     def __get_duty_cycle(self, brightness):
         duty_cycle = 0

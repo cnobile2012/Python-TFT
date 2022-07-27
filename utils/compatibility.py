@@ -16,7 +16,7 @@ try: # MicroPython
     from time import sleep_ms
 except:
     try: # CircuitPython
-        from uasyncio import sleep_ms
+        import board
     except:
         try: # A PC with the RTx.GPIO library and hardware
             import RTk
