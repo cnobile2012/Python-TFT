@@ -190,11 +190,11 @@ class PiVersion:
             items.append(value & 0xFF)
 
         try:
-            self.__write(items)
+            result = self.__write(items)
         except Exception as e: # pragma: no cover
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
-            self.__read(result)
+            return self.__read(result)
 
     def __dummy_read(self, result):
         pass
