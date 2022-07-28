@@ -50,6 +50,13 @@ class PiVersion:
         self._spi = None
         self.__pwm_pin_states = {}
 
+        if self.TESTING:
+            self.__write = self._spi.xfer2
+            self.__read = self.__test_read
+        else:
+            self.__write = self._spi.writebytes
+            self.__read = self.__dummy_read
+
     def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None):
         """
         Set a pin, direction, pull, mode, and default.
@@ -180,22 +187,23 @@ class PiVersion:
             items.append(value & 0xFF)
 
         try:
-            if self.TESTING:
-                if self.BOARD == Boards.RASPI:
-                    result = self._spi.xfer2(items)
-            else: # pragma: no cover
-                self._spi.writebytes(items)
+            self.__write(items)
         except Exception as e: # pragma: no cover
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
-            if self.TESTING and self.BOARD == Boards.RASPI:
-                data = []
+            self.__read(result)
 
-                for idx in range(0, len(result), 2):
-                    high, low = result[idx: idx + 2]
-                    data.append((high << 8) | low)
+    def __dummy_read(self, result):
+        pass
 
-                return data
+    def __test_read(self, result):
+        data = []
+
+        for idx in range(0, len(result), 2):
+            high, low = result[idx: idx + 2]
+            data.append((high << 8) | low)
+
+        return data
 
     def setup_pwm(self, pin, brightness):
         """
