@@ -13,6 +13,7 @@ __pycache__/
 old
 RTk
 coverage.txt
+mpy-cross*
 
 # C extensions
 *.so
