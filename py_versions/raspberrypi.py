@@ -50,6 +50,7 @@ class PiVersion:
         self._spi = None
         self.__pwm_pin_states = {}
 
+    def __setup_testing(self):
         if self.TESTING:
             self.__write = self._spi.xfer2
             self.__read = self.__test_read
@@ -148,6 +149,8 @@ class PiVersion:
             except Exception as e: # pragma: no cover
                 self.spi_end_transaction()
                 raise CompatibilityException(e)
+            else:
+                self.__setup_testing()
 
     def spi_end_transaction(self):
         """
