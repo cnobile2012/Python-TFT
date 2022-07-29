@@ -113,9 +113,9 @@ class SPITest(SpiDev):
 
         ## print(f"Items: {items}")
         print(f"values: {values}")
+        self.digital_write(self._select, GPIO.LOW)
 
         try:
-            self.digital_write(self._select, GPIO.LOW)
             result = self._spi.xfer2(values)
         except Exception as e:
             print(f"Error: {e}")
