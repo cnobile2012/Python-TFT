@@ -930,11 +930,16 @@ class ILI9225(Compatibility):
         self.spi_close_override = True
         self._start_write()
         self._set_window(x0, y0, x1, y1)
+        array = bytearray()
+        c_hi = color >> 8
+        c_lo = color & 0xFF
 
         # Count backwards from (y1 - y0 + 1) * (x1 - x0 + 1)) + 1 ending at 1.
         for t in reversed(range(1, round((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)):
-            self._write_data(color)
+            array.append(c_hi)
+            array.append(c_lo)
 
+        self._write_data(array)
         self._reset_window()
         self.spi_close_override = False
         self._end_write(reuse=False)

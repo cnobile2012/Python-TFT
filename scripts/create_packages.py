@@ -264,18 +264,23 @@ class CreatePackages:
                         if process_path.endswith(self.FONT_DIR):
                             for f in self._fonts:
                                 font_path = os.path.join(process_path, f)
-                                self._cross_compile(font_path)
+                                self._cross_compile(font_path, platform)
                         else:
                             raise OSError(f"Unknown directory: {process_path}")
                     else:
-                        self._cross_compile(process_path)
+                        self._cross_compile(process_path, platform)
 
-    def _cross_compile(self, process_path):
+    def _cross_compile(self, process_path, platform):
         arch_num = self._options.compress
 
         if arch_num != -1:
+            if platform == self.STRIP_PLATFORMS[0]: # circuitpython
+                mpy_cross = 'mpy-cross-cp'
+            else: # micropython
+                mpy_cross = 'mpy-cross'
+
             mpy_cross_path = os.path.join(
-                os.getenv('VIRTUAL_ENV'), 'bin', 'mpy-cross')
+                os.getenv('VIRTUAL_ENV'), 'bin', mpy_cross)
 
             if arch_num > 0:
                 arch_type = self.M_COMPRESS[arch_num+1][0]

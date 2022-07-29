@@ -52,10 +52,10 @@ class PiVersion:
 
     def __setup_testing(self):
         if self.TESTING:
-            self.__write = self._spi.xfer2
+            self.__write = self._spi.xfer3
             self.__read = self.__test_read
         else:
-            self.__write = self._spi.writebytes
+            self.__write = self._spi.writebytes2
             self.__read = self.__dummy_read
 
     def pin_mode(self, pin, direction, *, pull=INPUT_PULLOFF, default=None):
@@ -177,17 +177,22 @@ class PiVersion:
         :param values: The values to write.
         :type values: int, list, or tuple
         """
-        if not isinstance(values, (list, tuple)):
-            values = [values]
-        elif isinstance(values, tuple):
-            values = list(values)
+        if  isinstance(values, bytearray):
+            items = values
+        else:
+            if not isinstance(values, (list, tuple)):
+                values = [values]
+            elif isinstance(values, tuple):
+                values = list(values)
 
-        items = []
+            items = []
 
-        for value in values:
-            value = round(value)
-            items.append(value >> 8)
-            items.append(value & 0xFF)
+            for value in values:
+                value = round(value)
+                items.append(value >> 8)
+                items.append(value & 0xFF)
+
+        result = None
 
         try:
             result = self.__write(items)
