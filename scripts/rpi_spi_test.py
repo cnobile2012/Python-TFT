@@ -117,7 +117,7 @@ class SPITest(SpiDev):
         result = None
 
         try:
-            result = self._spi.xfer2(values)
+            result = self._spi.xfer3(values)
         except Exception as e:
             print(f"Error: {e}")
         finally:
