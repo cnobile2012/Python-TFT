@@ -47,8 +47,8 @@ class SPITest(SpiDev):
 
     def begin(self):
         # Control pins
-        self.pin_mode(self.select, GPIO.OUT)
-        self.digital_write(self.select, GPIO.HIGH)
+        self.pin_mode(self._select, GPIO.OUT)
+        self.digital_write(self._select, GPIO.HIGH)
 
     def pin_mode(self, pin, direction, *, pull=GPIO.PUD_OFF, default=None,
                  alt=-1):
@@ -85,7 +85,7 @@ class SPITest(SpiDev):
         try:
             self._spi = SpiDev()
             port, device = self.spi_port_device(
-                self._clock, self._mosi, self._miso, self.select)
+                self._clock, self._mosi, self._miso, self._select)
             self._spi.open(port, device)
             self._spi.max_speed_hz = self._speed
             self._spi.mode = self.SPI_MODE
@@ -115,12 +115,12 @@ class SPITest(SpiDev):
         print(f"values: {values}")
 
         try:
-            self.digital_write(self.select, GPIO.LOW)
+            self.digital_write(self._select, GPIO.LOW)
             result = self._spi.xfer2(values)
         except Exception as e:
             print(f"Error: {e}")
         finally:
-            self.digital_write(self.select, GPIO.HIGH)
+            self.digital_write(self._select, GPIO.HIGH)
             if result: print(f"Result: {result}")
 
     def spi_port_device(self, clock, mosi, miso, select):
