@@ -112,7 +112,7 @@ class SPITest(SpiDev):
         ##     items.append(value & 0xFF)
 
         ## print(f"Items: {items}")
-        print(f"values: {values}")
+        print(f"values--length: {len(values)}, {values}")
         self.digital_write(self._select, GPIO.LOW)
         result = None
 
@@ -122,7 +122,7 @@ class SPITest(SpiDev):
             print(f"Error: {e}")
         finally:
             self.digital_write(self._select, GPIO.HIGH)
-            if result: print(f"Result: {result}")
+            if result: print(f"Result--length: {len(result)}, {result}")
 
     def spi_port_device(self, clock, mosi, miso, select):
         """
