@@ -158,7 +158,7 @@ class SPITest(SpiDev):
 if __name__ == '__main__':
     import random
 
-    iterations = 100
+    iterations = 76800
     st = SPITest()
     st.begin()
     st.spi_start_transaction()
