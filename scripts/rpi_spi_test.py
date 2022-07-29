@@ -156,10 +156,13 @@ class SPITest(SpiDev):
 
 
 if __name__ == '__main__':
+    import random
+
+    iterations = 100
     st = SPITest()
     st.begin()
     st.spi_start_transaction()
-    values = (0x10, 0xFF, 0x10FF)
+    values = [random.randint(0, 0xFFFF) for i in range(iterations)]
     array = bytearray()
 
     for value in values:
