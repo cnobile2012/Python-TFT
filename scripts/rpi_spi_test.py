@@ -8,6 +8,8 @@
 #      in the `/boot/config.txt` file on the RPI.
 #
 
+import os
+import sys
 from RPi import GPIO
 from spidev import SpiDev
 
