@@ -150,14 +150,14 @@ if __name__ == '__main__':
     st.begin()
     st.spi_start_transaction()
     values = [random.randint(0, 0xFFFF) for i in range(iterations)]
-    print(f"Initial values-length: {len(values)}")
+    print(f"Values-length: {len(values)}")
     array = bytearray()
 
     for value in values:
         array.append(value >> 8)
         array.append(value & 0xFF)
 
-    print(f"values--length: {len(values)}") #, {values}")
+    print(f"Array--length: {len(array)}") #, {array}")
     result = st.spi_write(array)
     print(f"Result--length: {len(result)}") #, {result}")
     st.spi_end_transaction()
