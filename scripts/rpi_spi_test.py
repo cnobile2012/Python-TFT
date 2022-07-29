@@ -11,7 +11,10 @@
 from RPi import GPIO
 from spidev import SpiDev
 
-from utils import CompatibilityException
+ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(ROOT_PATH)
+
+from ILI9225 import CompatibilityException
 
 
 class SPITest(SpiDev):
