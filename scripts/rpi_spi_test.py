@@ -94,23 +94,24 @@ class SPITest(SpiDev):
             self._spi = None
 
     def spi_write(self, values):
-        if not isinstance(values, (list, tuple)):
-            values = [values]
-        elif isinstance(values, tuple):
-            values = list(values)
+        ## if not isinstance(values, (list, tuple)):
+        ##     values = [values]
+        ## elif isinstance(values, tuple):
+        ##     values = list(values)
 
-        result = None
-        items = []
+        ## result = None
+        ## items = []
 
-        for value in values:
-            items.append(value >> 8)
-            items.append(value & 0xFF)
+        ## for value in values:
+        ##     items.append(value >> 8)
+        ##     items.append(value & 0xFF)
 
-        print(f"Items: {items}")
+        ## print(f"Items: {items}")
+        print(f"values: {values}")
 
         try:
             self.digital_write(self.select, GPIO.LOW)
-            result = self._spi.xfer2(items)
+            result = self._spi.xfer2(values)
         except Exception as e:
             print(f"Error: {e}")
         finally:
@@ -152,5 +153,11 @@ if __name__ == '__main__':
     st = SPITest()
     st.begin()
     st.spi_start_transaction()
-    st.spi_write((0x10, 0xFF, 0x10FF))
+    array = bytearray()
+
+    for value in array:
+        array.append(value >> 8)
+        array.append(value & 0xFF)
+
+    st.spi_write(array)
     st.spi_end_transaction()
