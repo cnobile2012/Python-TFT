@@ -114,6 +114,7 @@ class SPITest(SpiDev):
         ## print(f"Items: {items}")
         print(f"values: {values}")
         self.digital_write(self._select, GPIO.LOW)
+        result = None
 
         try:
             result = self._spi.xfer2(values)
@@ -158,9 +159,10 @@ if __name__ == '__main__':
     st = SPITest()
     st.begin()
     st.spi_start_transaction()
+    values = (0x10, 0xFF, 0x10FF)
     array = bytearray()
 
-    for value in array:
+    for value in values:
         array.append(value >> 8)
         array.append(value & 0xFF)
 
