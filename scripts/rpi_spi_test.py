@@ -99,20 +99,6 @@ class SPITest(SpiDev):
             self._spi = None
 
     def spi_write(self, values):
-        ## if not isinstance(values, (list, tuple)):
-        ##     values = [values]
-        ## elif isinstance(values, tuple):
-        ##     values = list(values)
-
-        ## result = None
-        ## items = []
-
-        ## for value in values:
-        ##     items.append(value >> 8)
-        ##     items.append(value & 0xFF)
-
-        ## print(f"Items: {items}")
-        print(f"values--length: {len(values)}, {values}")
         self.digital_write(self._select, GPIO.LOW)
         result = None
 
@@ -122,7 +108,8 @@ class SPITest(SpiDev):
             print(f"Error: {e}")
         finally:
             self.digital_write(self._select, GPIO.HIGH)
-            if result: print(f"Result--length: {len(result)}, {result}")
+
+        return result
 
     def spi_port_device(self, clock, mosi, miso, select):
         """
@@ -163,11 +150,14 @@ if __name__ == '__main__':
     st.begin()
     st.spi_start_transaction()
     values = [random.randint(0, 0xFFFF) for i in range(iterations)]
+    print(f"Initial values-length: {len(values)}")
     array = bytearray()
 
     for value in values:
         array.append(value >> 8)
         array.append(value & 0xFF)
 
-    st.spi_write(array)
+    print(f"values--length: {len(values)}") #, {values}")
+    result = st.spi_write(array)
+    print(f"Result--length: {len(result)}") #, {result}")
     st.spi_end_transaction()
