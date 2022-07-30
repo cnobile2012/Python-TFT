@@ -69,7 +69,6 @@ STM32F76 = port 1=SPI1 (MISO=PA6, MOSI=PA7, SCK=PA5) or
                        (MISO=PB4, MOSI=PB5, SCK=PB3)
 """
 
-import gc
 from machine import Pin, SPI, PWM, reset
 from time import sleep_ms
 

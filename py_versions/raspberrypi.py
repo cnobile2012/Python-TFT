@@ -54,7 +54,7 @@ class PiVersion:
         if self.TESTING:
             self.__write = self._spi.xfer3
             self.__read = self.__test_read
-        else:
+        else: # pragma: no cover
             self.__write = self._spi.writebytes2
             self.__read = self.__dummy_read
 
@@ -201,7 +201,7 @@ class PiVersion:
         else:
             return self.__read(result)
 
-    def __dummy_read(self, result):
+    def __dummy_read(self, result): # pragma: no cover
         pass
 
     def __test_read(self, result):
