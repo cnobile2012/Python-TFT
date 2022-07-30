@@ -12,17 +12,6 @@ from utils.common import (Boards, TFTException, CompatibilityException,
                           RGB16BitColor as Colors)
 
 
-class AutoIncMode:
-    R2L_BOTTOM_UP = 0
-    BOTTOM_UP_R2L = 1
-    L2R_BOTTOM_UP = 2
-    BOTTOM_UP_L2R = 3
-    R2L_TOP_DOWN = 4
-    TOP_DOWN_R2L = 5
-    L2R_TOP_DOWN = 6
-    TOP_DOWN_L2R = 7
-
-
 class CurrentFont:
     """
     Stores the currently used standard font.
@@ -149,21 +138,29 @@ class ILI9225(Compatibility):
 
     # 1: pixel width of 1 font character, 2: pixel height
     _CFONT_HEADER_SIZE = 4
+    R2L_BOTTOM_UP = 0
+    BOTTOM_UP_R2L = 1
+    L2R_BOTTOM_UP = 2
+    BOTTOM_UP_L2R = 3
+    R2L_TOP_DOWN = 4
+    TOP_DOWN_R2L = 5
+    L2R_TOP_DOWN = 6
+    TOP_DOWN_L2R = 7
 
     # Corresponding modes when orientation changes.
     _MODE_TAB = (
-        (AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP,
-         AutoIncMode.TOP_DOWN_L2R, AutoIncMode.L2R_TOP_DOWN,
-         AutoIncMode.BOTTOM_UP_R2L, AutoIncMode.R2L_BOTTOM_UP,
-         AutoIncMode.TOP_DOWN_R2L, AutoIncMode.R2L_TOP_DOWN), # 90°
-        (AutoIncMode.L2R_TOP_DOWN, AutoIncMode.TOP_DOWN_L2R,
-         AutoIncMode.R2L_TOP_DOWN, AutoIncMode.TOP_DOWN_R2L,
-         AutoIncMode.L2R_BOTTOM_UP, AutoIncMode.BOTTOM_UP_L2R,
-         AutoIncMode.R2L_BOTTOM_UP, AutoIncMode.BOTTOM_UP_R2L), # 180°
-        (AutoIncMode.TOP_DOWN_R2L, AutoIncMode.R2L_TOP_DOWN,
-         AutoIncMode.BOTTOM_UP_R2L, AutoIncMode.R2L_BOTTOM_UP,
-         AutoIncMode.TOP_DOWN_L2R, AutoIncMode.L2R_TOP_DOWN,
-         AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
+        (self.BOTTOM_UP_L2R, self.L2R_BOTTOM_UP,
+         self.TOP_DOWN_L2R, self.L2R_TOP_DOWN,
+         self.BOTTOM_UP_R2L, self.R2L_BOTTOM_UP,
+         self.TOP_DOWN_R2L, self.R2L_TOP_DOWN), # 90°
+        (self.L2R_TOP_DOWN, self.TOP_DOWN_L2R,
+         self.R2L_TOP_DOWN, self.TOP_DOWN_R2L,
+         self.L2R_BOTTOM_UP, self.BOTTOM_UP_L2R,
+         self.R2L_BOTTOM_UP, self.BOTTOM_UP_R2L), # 180°
+        (self.TOP_DOWN_R2L, self.R2L_TOP_DOWN,
+         self.BOTTOM_UP_R2L, self.R2L_BOTTOM_UP,
+         self.TOP_DOWN_L2R, self.L2R_TOP_DOWN,
+         self.BOTTOM_UP_L2R, self.L2R_BOTTOM_UP) # 270°
         )
 
     def __init__(self, rst, rs, spi_port, cs=-1, mosi=-1, sck=-1, led=-1,
@@ -1283,7 +1280,7 @@ class ILI9225(Compatibility):
 
     ##     self.spi_close_override = True
     ##     self._start_write()
-    ##     self._set_window(wx0, wy0, wx1, wy1, AutoIncMode.L2R_TOP_DOWN)
+    ##     self._set_window(wx0, wy0, wx1, wy1, self.L2R_TOP_DOWN)
 
     ##     # for (j = y >= 0 ? 0 : -y; j < (y >= 0 ? 0 : -y)+wh; j++) {...}
     ##     yy = 0 if y >= 0 else -y
@@ -1361,7 +1358,7 @@ class ILI9225(Compatibility):
         blu = round((0xFF * (color & 0b0000000000011111)) / 0x1F)
         return red, grn, blu
 
-    def _set_window(self, x0, y0, x1, y1, mode=AutoIncMode.TOP_DOWN_L2R):
+    def _set_window(self, x0, y0, x1, y1, mode=TOP_DOWN_L2R):
         """
         Set the window that will be drawn using the current orientation.
 
