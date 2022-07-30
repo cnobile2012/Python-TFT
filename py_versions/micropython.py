@@ -69,6 +69,7 @@ STM32F76 = port 1=SPI1 (MISO=PA6, MOSI=PA7, SCK=PA5) or
                        (MISO=PB4, MOSI=PB5, SCK=PB3)
 """
 
+import gc
 from machine import Pin, SPI, PWM, reset
 from time import sleep_ms
 
@@ -262,8 +263,8 @@ class PiVersion:
 
     def _need_chunking(self, array):
         array_len = len(array)
-        return (array_len => self.BYTEARRAY_SIZE
-                or array_len == self.BYTEARRAY_SIZE -1)
+        return (array_len >= self.BYTEARRAY_SIZE
+                or array_len == (self.BYTEARRAY_SIZE -1))
 
     def setup_pwm(self, pin, brightness):
         """

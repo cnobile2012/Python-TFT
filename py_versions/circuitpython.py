@@ -164,8 +164,8 @@ class PiVersion:
 
     def _need_chunking(self, array):
         array_len = len(array)
-        return (array_len => self.BYTEARRAY_SIZE
-                or array_len == self.BYTEARRAY_SIZE -1)
+        return (array_len >= self.BYTEARRAY_SIZE
+                or array_len == (self.BYTEARRAY_SIZE -1))
 
     def setup_pwm(self, pin, brightness):
         """
