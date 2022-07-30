@@ -936,7 +936,8 @@ class ILI9225(Compatibility):
 
         # Count backwards from (y1 - y0 + 1) * (x1 - x0 + 1)) + 1 ending at 1.
         for t in reversed(range(1, round((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)):
-            if hasattr(self, '_need_chunking') and self._need_chunking(array):
+            if (hasattr(self, '_need_chunking')
+                and self._need_chunking(array)): # pragma: no cover
                 self._write_data(array)
                 array = bytearray()
 
