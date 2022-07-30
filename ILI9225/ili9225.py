@@ -138,29 +138,31 @@ class ILI9225(Compatibility):
 
     # 1: pixel width of 1 font character, 2: pixel height
     _CFONT_HEADER_SIZE = 4
-    R2L_BOTTOM_UP = 0
-    BOTTOM_UP_R2L = 1
-    L2R_BOTTOM_UP = 2
-    BOTTOM_UP_L2R = 3
-    R2L_TOP_DOWN = 4
-    TOP_DOWN_R2L = 5
-    L2R_TOP_DOWN = 6
-    TOP_DOWN_L2R = 7
+
+    # Orientation modes
+    MODE_R2L_MODE_BOTTOM_UP = 0
+    MODE_BOTTOM_UP_R2L = 1
+    MODE_L2RBOTTOM_UP = 2
+    MODE_BOTTOM_UP_L2R = 3
+    MODE_R2L_TOP_DOWN = 4
+    MODE_TOP_DOWN_R2L = 5
+    MODE_L2R_TOP_DOWN = 6
+    MODE_TOP_DOWN_L2R = 7
 
     # Corresponding modes when orientation changes.
     _MODE_TAB = (
-        (BOTTOM_UP_L2R, L2R_BOTTOM_UP,
-         TOP_DOWN_L2R, L2R_TOP_DOWN,
-         BOTTOM_UP_R2L, R2L_BOTTOM_UP,
-         TOP_DOWN_R2L, R2L_TOP_DOWN), # 90°
-        (L2R_TOP_DOWN, TOP_DOWN_L2R,
-         R2L_TOP_DOWN, TOP_DOWN_R2L,
-         L2R_BOTTOM_UP, BOTTOM_UP_L2R,
-         R2L_BOTTOM_UP, BOTTOM_UP_R2L), # 180°
-        (TOP_DOWN_R2L, R2L_TOP_DOWN,
-         BOTTOM_UP_R2L, R2L_BOTTOM_UP,
-         TOP_DOWN_L2R, L2R_TOP_DOWN,
-         BOTTOM_UP_L2R, L2R_BOTTOM_UP) # 270°
+        (MODE_BOTTOM_UP_L2R, MODE_L2R_BOTTOM_UP,
+         MODE_TOP_DOWN_L2R, MODE_L2R_TOP_DOWN,
+         MODE_BOTTOM_UP_R2L, MODE_R2L_BOTTOM_UP,
+         MODE_TOP_DOWN_R2L, MODE_R2L_TOP_DOWN), # 90°
+        (MODE_L2R_TOP_DOWN, MODE_TOP_DOWN_L2R,
+         MODE_R2L_TOP_DOWN, MODE_TOP_DOWN_R2L,
+         MODE_L2R_BOTTOM_UP, MODE_BOTTOM_UP_L2R,
+         MODE_R2L_BOTTOM_UP, MODE_BOTTOM_UP_R2L), # 180°
+        (MODE_TOP_DOWN_R2L, MODE_R2L_TOP_DOWN,
+         MODE_BOTTOM_UP_R2L, MODE_R2L_BOTTOM_UP,
+         MODE_TOP_DOWN_L2R, MODE_L2R_TOP_DOWN,
+         MODE_BOTTOM_UP_L2R, MODE_L2R_BOTTOM_UP) # 270°
         )
 
     def __init__(self, rst, rs, spi_port, cs=-1, mosi=-1, sck=-1, led=-1,
@@ -1280,7 +1282,7 @@ class ILI9225(Compatibility):
 
     ##     self.spi_close_override = True
     ##     self._start_write()
-    ##     self._set_window(wx0, wy0, wx1, wy1, self.L2R_TOP_DOWN)
+    ##     self._set_window(wx0, wy0, wx1, wy1, self.MODE_L2R_TOP_DOWN)
 
     ##     # for (j = y >= 0 ? 0 : -y; j < (y >= 0 ? 0 : -y)+wh; j++) {...}
     ##     yy = 0 if y >= 0 else -y
@@ -1358,7 +1360,7 @@ class ILI9225(Compatibility):
         blu = round((0xFF * (color & 0b0000000000011111)) / 0x1F)
         return red, grn, blu
 
-    def _set_window(self, x0, y0, x1, y1, mode=TOP_DOWN_L2R):
+    def _set_window(self, x0, y0, x1, y1, mode=MODE_TOP_DOWN_L2R):
         """
         Set the window that will be drawn using the current orientation.
 

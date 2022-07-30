@@ -32,10 +32,10 @@ class ILI9225:
     _CFONT_HEADER_SIZE = 4
 
     _MODE_TAB = (
-        (AutoIncMode.L2R_TOP_DOWN, AutoIncMode.TOP_DOWN_L2R,
-         AutoIncMode.R2L_BOTTOM_UP, AutoIncMode.BOTTOM_UP_R2L), # 180°
-        (AutoIncMode.TOP_DOWN_R2L, AutoIncMode.R2L_TOP_DOWN,
-         AutoIncMode.BOTTOM_UP_L2R, AutoIncMode.L2R_BOTTOM_UP) # 270°
+        (MODE_L2R_TOP_DOWN, MODE_TOP_DOWN_L2R,
+         MODE_R2L_BOTTOM_UP, MODE_BOTTOM_UP_R2L), # 180°
+        (MODE_TOP_DOWN_R2L, MODE_R2L_TOP_DOWN,
+         MODE_BOTTOM_UP_L2R, MODE_L2R_BOTTOM_UP) # 270°
         )
 
     def __init__(self, rst, rs, spi_port, cs, led=-1, board=None, *,

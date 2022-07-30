@@ -8,7 +8,7 @@ import unittest
 
 from ILI9225 import (ILI9225, Boards, TFTException, CompatibilityException,
                      Terminal12x16, RGB16BitColor as Colors)
-from ILI9225.ili9225 import AutoIncMode, CurrentFont, GFXFont, GFXGlyph
+from ILI9225.ili9225 import CurrentFont, GFXFont, GFXGlyph
 from fonts.FreeSerifItalic18pt7b import FreeSerifItalic18pt7b
 from fonts.FreeSansBold10pt7b import FreeSansBold10pt7b
 
@@ -956,8 +956,8 @@ class TestILI9225(unittest.TestCase):
             self._tft.orientation = orientation
             x, y, x1, y1 = tests[orientation]
 
-            for mode in [getattr(AutoIncMode, m)
-                         for m in dir(AutoIncMode) if not m.startswith('_')]:
+            for mode in [getattr(ILI9225, m)
+                         for m in dir(ILI9225) if not m.startswith('MODE_')]:
                 self._tft._set_window(x, y, x1, y1, mode)
                 self._run_spi_test(expect, 'test__set_window')
                 self._tft._reset_window()
