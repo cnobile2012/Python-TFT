@@ -142,7 +142,7 @@ class ILI9225(Compatibility):
     # Orientation modes
     MODE_R2L_BOTTOM_UP = 0
     MODE_BOTTOM_UP_R2L = 1
-    MODE_L2RBOTTOM_UP = 2
+    MODE_L2R_BOTTOM_UP = 2
     MODE_BOTTOM_UP_L2R = 3
     MODE_R2L_TOP_DOWN = 4
     MODE_TOP_DOWN_R2L = 5
