@@ -89,6 +89,7 @@ class PiVersion:
     INPUT_PULLDOWN = Pin.PULL_DOWN
     INPUT_PULLOFF = None
     _DEF_PWM_FREQ = 102400
+    BYTEARRAY_SIZE = 4092
 
     # To get second port add "dtoverlay=spi1-3cs" to "/boot/config.txt".
     _SPI_HARDWARE_PORTS = {
@@ -239,22 +240,31 @@ class PiVersion:
         :param value: The value to write to the SPI port.
         :type value: str
         """
-        if not isinstance(values, (list, tuple)):
-            values = [values]
-        elif isinstance(values, tuple):
-            values = list(values)
+        if  isinstance(values, bytearray):
+            items = values
+        else:
+            if not isinstance(values, (list, tuple)):
+                values = [values]
+            elif isinstance(values, tuple):
+                values = list(values)
 
-        items = bytearray()
+            items = bytearray()
 
-        for value in values:
-            value = round(value)
-            items.append(value >> 8)
-            items.append(value & 0xFF)
+            for value in values:
+                value = round(value)
+                items.append(value >> 8)
+                items.append(value & 0xFF)
 
         try:
             self._spi.write(items)
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
+
+    def _chunk_buffer(self, array):
+        array_len = len(array)
+        return (array_len == self.BYTEARRAY_SIZE
+                or array_len == self.BYTEARRAY_SIZE -1
+                or array_len > self.BYTEARRAY_SIZE)
 
     def setup_pwm(self, pin, brightness):
         """
