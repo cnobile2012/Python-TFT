@@ -149,18 +149,18 @@ class ILI9225(Compatibility):
 
     # Corresponding modes when orientation changes.
     _MODE_TAB = (
-        (self.BOTTOM_UP_L2R, self.L2R_BOTTOM_UP,
-         self.TOP_DOWN_L2R, self.L2R_TOP_DOWN,
-         self.BOTTOM_UP_R2L, self.R2L_BOTTOM_UP,
-         self.TOP_DOWN_R2L, self.R2L_TOP_DOWN), # 90°
-        (self.L2R_TOP_DOWN, self.TOP_DOWN_L2R,
-         self.R2L_TOP_DOWN, self.TOP_DOWN_R2L,
-         self.L2R_BOTTOM_UP, self.BOTTOM_UP_L2R,
-         self.R2L_BOTTOM_UP, self.BOTTOM_UP_R2L), # 180°
-        (self.TOP_DOWN_R2L, self.R2L_TOP_DOWN,
-         self.BOTTOM_UP_R2L, self.R2L_BOTTOM_UP,
-         self.TOP_DOWN_L2R, self.L2R_TOP_DOWN,
-         self.BOTTOM_UP_L2R, self.L2R_BOTTOM_UP) # 270°
+        (BOTTOM_UP_L2R, L2R_BOTTOM_UP,
+         TOP_DOWN_L2R, L2R_TOP_DOWN,
+         BOTTOM_UP_R2L, R2L_BOTTOM_UP,
+         TOP_DOWN_R2L, R2L_TOP_DOWN), # 90°
+        (L2R_TOP_DOWN, TOP_DOWN_L2R,
+         R2L_TOP_DOWN, TOP_DOWN_R2L,
+         L2R_BOTTOM_UP, BOTTOM_UP_L2R,
+         R2L_BOTTOM_UP, BOTTOM_UP_R2L), # 180°
+        (TOP_DOWN_R2L, R2L_TOP_DOWN,
+         BOTTOM_UP_R2L, R2L_BOTTOM_UP,
+         TOP_DOWN_L2R, L2R_TOP_DOWN,
+         BOTTOM_UP_L2R, L2R_BOTTOM_UP) # 270°
         )
 
     def __init__(self, rst, rs, spi_port, cs=-1, mosi=-1, sck=-1, led=-1,
