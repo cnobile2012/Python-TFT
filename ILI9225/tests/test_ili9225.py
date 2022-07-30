@@ -957,7 +957,7 @@ class TestILI9225(unittest.TestCase):
             x, y, x1, y1 = tests[orientation]
 
             for mode in [getattr(ILI9225, m)
-                         for m in dir(ILI9225) if not m.startswith('MODE_')]:
+                         for m in dir(ILI9225) if m.startswith('MODE_')]:
                 self._tft._set_window(x, y, x1, y1, mode)
                 self._run_spi_test(expect, 'test__set_window')
                 self._tft._reset_window()
