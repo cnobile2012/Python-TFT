@@ -260,11 +260,10 @@ class PiVersion:
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
 
-    def _chunk_buffer(self, array):
+    def _need_chunking(self, array):
         array_len = len(array)
-        return (array_len == self.BYTEARRAY_SIZE
-                or array_len == self.BYTEARRAY_SIZE -1
-                or array_len > self.BYTEARRAY_SIZE)
+        return (array_len => self.BYTEARRAY_SIZE
+                or array_len == self.BYTEARRAY_SIZE -1)
 
     def setup_pwm(self, pin, brightness):
         """

@@ -30,6 +30,7 @@ class PiVersion:
     _DEF_PWM_FREQ = 102400
     _GP_PINS = ["board.{}".format(pin) for pin in dir(board)
                 if not pin.startswith('_')]
+    BYTEARRAY_SIZE = 4092
 
     def __init__(self, mode=None):
         self._spi = None
@@ -160,6 +161,11 @@ class PiVersion:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         finally:
             self._spi.unlock()
+
+    def _need_chunking(self, array):
+        array_len = len(array)
+        return (array_len => self.BYTEARRAY_SIZE
+                or array_len == self.BYTEARRAY_SIZE -1)
 
     def setup_pwm(self, pin, brightness):
         """
