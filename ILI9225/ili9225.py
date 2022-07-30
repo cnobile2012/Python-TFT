@@ -140,7 +140,7 @@ class ILI9225(Compatibility):
     _CFONT_HEADER_SIZE = 4
 
     # Orientation modes
-    MODE_R2L_MODE_BOTTOM_UP = 0
+    MODE_R2L_BOTTOM_UP = 0
     MODE_BOTTOM_UP_R2L = 1
     MODE_L2RBOTTOM_UP = 2
     MODE_BOTTOM_UP_L2R = 3
