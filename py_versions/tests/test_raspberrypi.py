@@ -78,6 +78,7 @@ class TestPiVersion(unittest.TestCase):
         self._pyv.pwm_frequency = self._pyv._DEF_PWM_FREQ
         self._pyv.spi_frequency = Boards.get_frequency(
             self._pyv.BOARD, self._pyv._spi_port)
+        self._pyv.pin_mode(self._pyv._cs, self.OUTPUT)
 
     def tearDown(self):
         self.unset_pin(self.TEST_PIN)
