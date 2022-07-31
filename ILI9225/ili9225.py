@@ -772,16 +772,6 @@ class ILI9225(Compatibility):
         yo = glyph.y_offset
         bits = bit = 0
 
-        # Use autoincrement/decrement feature, if character fits
-        # completely on the screen.
-        fast_mode = ((x + w + 1) < self._max_x and (y + h - 1) < self._max_y)
-
-        # Set character window.
-        if fast_mode:
-            self._set_window(x, y, x + w + 1, y + h - 1)
-            array = bytearray()
-
-
         # Add character clipping here one day.
         for yy in range(h):
             for xx in range(w):
@@ -791,22 +781,10 @@ class ILI9225(Compatibility):
 
                 bit += 1
 
-                if fast_mode:
-                    if (hasattr(self, '_need_chunking')
-                        and self._need_chunking(array)): # pragma: no cover
-                        self._write_data(array)
-                        array = bytearray()
-
-                    array.append(color >> 8)
-                    array.append(color & 0xFF)
-                elif bits & 0x80:
+                if bits & 0x80:
                     self.draw_pixel(x + xo + xx, y + yo + yy, color)
 
                 bits <<= 1
-
-        if fast_mode:
-            self._write_data(array)
-            self._reset_window()
 
         return xa
 
