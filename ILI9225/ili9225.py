@@ -165,6 +165,9 @@ class ILI9225(Compatibility):
          MODE_BOTTOM_UP_L2R, MODE_L2R_BOTTOM_UP) # 270°
         )
 
+    # Is bit out-of-range for value.
+    _BIT_READ = lambda self, value, bit: ((value) >> (bit)) & 0x01
+
     def __init__(self, rst, rs, spi_port, cs=-1, mosi=-1, sck=-1, led=-1,
                  board=None, *, brightness=MAX_BRIGHTNESS, rpi_mode=None):
         """
@@ -594,6 +597,7 @@ class ILI9225(Compatibility):
         if fast_mode:
             self._set_window(x, y, x + char_width + 1,
                              y + self._cfont.height - 1)
+            array = bytearray()
 
         self._start_write()
 
@@ -603,9 +607,9 @@ class ILI9225(Compatibility):
 
             for j in range(self._cfont.nbrows): # Each column byte.
                 if i == char_width:
-                    char_data = 0x00  # Insert blank column
+                    chr_data = 0x00  # Insert blank column
                 else:
-                    char_data = self._cfont.font[char_offset]
+                    chr_data = self._cfont.font[char_offset]
 
                 char_offset += 1
 
@@ -613,16 +617,25 @@ class ILI9225(Compatibility):
                     if h >= self._cfont.height: break
 
                     if fast_mode:
-                        self._write_data(color if self._bit_read(
-                            char_data, k) else bg_color)
+                        if (hasattr(self, '_need_chunking')
+                            and self._need_chunking(array)): # pragma: no cover
+                            self._write_data(array)
+                            array = bytearray()
+
+                        clr = color if self._BIT_READ(chr_data, k) else bg_color
+                        array.append(clr >> 8)
+                        array.append(clr & 0xFF)
                     else:
                         self.draw_pixel(x + i, y + (j * 8) + k,
-                                        color if self._bit_read(char_data, k)
+                                        color if self._bit_read(chr_data, k)
                                         else bg_color)
 
                     h += 1
 
-        if fast_mode: self._reset_window()
+        if fast_mode:
+            self._write_data(array)
+            self._reset_window()
+
         self._end_write(reuse=False)
         return char_width
 
@@ -708,19 +721,6 @@ class ILI9225(Compatibility):
         if len(self._cfont.font) <= 0:
             raise TFTException(self.ERROR_MSGS.get('STD_FONT'))
 
-    def _bit_read(self, value, bit):
-        """
-        Is bit out-of-range for value.
-
-        :param value: The integer value.
-        :type value: int
-        :param bit: The bit within the value.
-        :type bit: int
-        :return: A 1 if the bit is within the value range and 0 if
-                 out-of-range.
-        :rtype: int
-        """
-        return ((value) >> (bit)) & 0x01
     #
     # End of standard font methods.
     #
