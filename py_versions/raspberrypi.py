@@ -193,6 +193,7 @@ class PiVersion:
                 items.append(value & 0xFF)
 
         result = None
+        self.digital_write(self._cs, self.LOW)
 
         try:
             result = self.__write(items)
@@ -200,6 +201,8 @@ class PiVersion:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
             return self.__read(result)
+        finally:
+            self.digital_write(self._cs, self.HIGH)
 
     def __dummy_read(self, result): # pragma: no cover
         pass

@@ -154,6 +154,8 @@ class PiVersion:
             items.append(value >> 8)
             items.append(value & 0xFF)
 
+        self.digital_write(self._cs, self.LOW)
+
         try:
             while self._spi.try_lock(): pass
             self._spi.write(items)
@@ -161,6 +163,7 @@ class PiVersion:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         finally:
             self._spi.unlock()
+            self.digital_write(self._cs, self.HIGH)
 
     def _need_chunking(self, array):
         array_len = len(array)

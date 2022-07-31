@@ -1,5 +1,9 @@
 #!/bin/env python
 #
+# scripts/find_gram_data.py
+#
+# This is a test script that parses the *.txt files usually found
+# in the ILI9225/tests/ directory
 #
 
 import os

@@ -1434,9 +1434,7 @@ class ILI9225(Compatibility):
     def _write_command(self, command):
         try:
             self.digital_write(self._rs, self.LOW) # Command
-            self.digital_write(self._cs, self.LOW)
             result = self.spi_write(command)
-            self.digital_write(self._cs, self.HIGH)
         except CompatibilityException as e: # pragma: no cover
             self._end_write(reuse=False)
             raise e
@@ -1449,9 +1447,7 @@ class ILI9225(Compatibility):
     def _write_data(self, data):
         try:
             self.digital_write(self._rs, self.HIGH) # Data
-            self.digital_write(self._cs, self.LOW)
             result = self.spi_write(data)
-            self.digital_write(self._cs, self.HIGH)
         except CompatibilityException as e: # pragma: no cover
             self._end_write(reuse=False)
             raise e
