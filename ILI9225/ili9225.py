@@ -804,6 +804,10 @@ class ILI9225(Compatibility):
 
                 bits <<= 1
 
+        if fast_mode:
+            self._write_data(array)
+            self._reset_window()
+
         return xa
 
     def draw_gfx_text(self, x, y, s, color=Colors.WHITE, *, add_pixels=0):
