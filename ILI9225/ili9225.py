@@ -629,7 +629,7 @@ class ILI9225(Compatibility):
 
                         array.append(clr >> 8)
                         array.append(clr & 0xFF)
-                    elif (x0 >= self._max_x) or (y0 >= self._max_y):
+                    elif not self.__out_of_range(x0, y0):
                         #self.draw_pixel(x + i, y + (j * 8) + k,
                         #                color if self._BIT_READ(chr_data, k)
                         #                else bg_color)
