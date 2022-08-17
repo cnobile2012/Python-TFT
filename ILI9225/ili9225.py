@@ -1256,6 +1256,7 @@ class ILI9225(Compatibility):
         self._start_write()
 
         for x, y, color in pixels:
+            x, y = self._orient_coordinates(x, y )
             self._write_register(self.CMD_RAM_ADDR_SET1, x)
             self._write_register(self.CMD_RAM_ADDR_SET2, y)
             self._write_register(self.CMD_GRAM_DATA_REG, color)
