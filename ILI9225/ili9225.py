@@ -771,6 +771,7 @@ class ILI9225(Compatibility):
         xo = glyph.x_offset
         yo = glyph.y_offset
         bits = bit = 0
+        pixels = []
 
         # Add character clipping here one day.
         for yy in range(h):
@@ -781,11 +782,18 @@ class ILI9225(Compatibility):
 
                 bit += 1
 
-                if bits & 0x80:
-                    self.draw_pixel(x + xo + xx, y + yo + yy, color)
+                ## if bits & 0x80:
+                ##     self.draw_pixel(x + xo + xx, y + yo + yy, color)
+
+                x0 = x + xo + xx
+                y0 = y + yo + yy
+
+                if not self.__out_of_range(x0, y0) and bits & 0x80:
+                    pixels.append((x0, y0, color))
 
                 bits <<= 1
 
+        self.draw_pixel_alt(pixels)
         return xa
 
     def draw_gfx_text(self, x, y, s, color=Colors.WHITE, *, add_pixels=0):
@@ -1237,6 +1245,25 @@ class ILI9225(Compatibility):
             self._write_register(self.CMD_RAM_ADDR_SET2, y0)
             self._write_register(self.CMD_GRAM_DATA_REG, color)
             self._end_write(reuse=False)
+
+    def draw_pixel_alt(self, pixels):
+        """
+        Draw a pixel.
+
+        :param pixels: A list of tuples: [(x, y, color)...].
+        :type pixels: list
+        """
+        self._start_write()
+
+        for x, y, color in pixels:
+            self._write_register(self.CMD_RAM_ADDR_SET1, x)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y)
+            self._write_register(self.CMD_GRAM_DATA_REG, color)
+
+        self._end_write(reuse=False)
+
+    def __out_of_range(self, x, y):
+        return (x0 >= self._max_x) or (y0 >= self._max_y)
 
     ## def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
     ##                 transparent=False, x_bit=False):
