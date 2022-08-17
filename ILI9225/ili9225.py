@@ -1263,7 +1263,7 @@ class ILI9225(Compatibility):
         self._end_write(reuse=False)
 
     def __out_of_range(self, x, y):
-        return (x0 >= self._max_x) or (y0 >= self._max_y)
+        return (x >= self._max_x) or (y >= self._max_y)
 
     ## def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
     ##                 transparent=False, x_bit=False):
