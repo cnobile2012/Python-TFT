@@ -598,6 +598,8 @@ class ILI9225(Compatibility):
             self._set_window(x, y, x + char_width + 1,
                              y + self._cfont.height - 1)
             array = bytearray()
+        else:
+            pixels = []
 
         self._start_write()
 
@@ -615,6 +617,9 @@ class ILI9225(Compatibility):
 
                 for k in range(8): # Process every row in font character.
                     if h >= self._cfont.height: break
+                    x0 = x + i
+                    y0 = y + (j * 8) + k
+                    clr = color if self._BIT_READ(chr_data, k) else bg_color
 
                     if fast_mode:
                         if (hasattr(self, '_need_chunking')
@@ -622,19 +627,21 @@ class ILI9225(Compatibility):
                             self._write_data(array)
                             array = bytearray()
 
-                        clr = color if self._BIT_READ(chr_data, k) else bg_color
                         array.append(clr >> 8)
                         array.append(clr & 0xFF)
-                    else:
-                        self.draw_pixel(x + i, y + (j * 8) + k,
-                                        color if self._BIT_READ(chr_data, k)
-                                        else bg_color)
+                    elif (x0 >= self._max_x) or (y0 >= self._max_y):
+                        #self.draw_pixel(x + i, y + (j * 8) + k,
+                        #                color if self._BIT_READ(chr_data, k)
+                        #                else bg_color)
+                        pixels.append((x0, y0, clr))
 
                     h += 1
 
         if fast_mode:
             self._write_data(array)
             self._reset_window()
+        else:
+            self.draw_pixel_alt(pixels)
 
         self._end_write(reuse=False)
         return char_width
