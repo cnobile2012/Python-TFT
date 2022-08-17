@@ -781,10 +781,6 @@ class ILI9225(Compatibility):
                     bo += 1
 
                 bit += 1
-
-                ## if bits & 0x80:
-                ##     self.draw_pixel(x + xo + xx, y + yo + yy, color)
-
                 x0 = x + xo + xx
                 y0 = y + yo + yy
 
@@ -1259,7 +1255,8 @@ class ILI9225(Compatibility):
             x, y = self._orient_coordinates(x, y )
             self._write_register(self.CMD_RAM_ADDR_SET1, x)
             self._write_register(self.CMD_RAM_ADDR_SET2, y)
-            self._write_register(self.CMD_GRAM_DATA_REG, color)
+            array = bytearray((color >> 8, color & 0xFF))
+            self._write_register(self.CMD_GRAM_DATA_REG, array)
 
         self._end_write(reuse=False)
 
