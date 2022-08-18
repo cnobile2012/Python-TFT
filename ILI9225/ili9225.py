@@ -629,10 +629,7 @@ class ILI9225(Compatibility):
 
                         array.append(clr >> 8)
                         array.append(clr & 0xFF)
-                    elif not self.__out_of_range(x0, y0):
-                        #self.draw_pixel(x + i, y + (j * 8) + k,
-                        #                color if self._BIT_READ(chr_data, k)
-                        #                else bg_color)
+                    else:
                         pixels.append((x0, y0, clr))
 
                     h += 1
@@ -791,7 +788,7 @@ class ILI9225(Compatibility):
                 x0 = x + xo + xx
                 y0 = y + yo + yy
 
-                if not self.__out_of_range(x0, y0) and bits & 0x80:
+                if bits & 0x80:
                     pixels.append((x0, y0, color))
 
                 bits <<= 1
@@ -977,13 +974,19 @@ class ILI9225(Compatibility):
         ddf_y = -2 * radius
         x = 0
         y = radius
+        pixels = []
         self.spi_close_override = True
-        self._start_write()
+        ## self._start_write()
 
-        self.draw_pixel(x0, y0 + radius, color)
-        self.draw_pixel(x0, y0 - radius, color)
-        self.draw_pixel(x0 + radius, y0, color)
-        self.draw_pixel(x0 - radius, y0, color)
+        ## self.draw_pixel(x0, y0 + radius, color)
+        ## self.draw_pixel(x0, y0 - radius, color)
+        ## self.draw_pixel(x0 + radius, y0, color)
+        ## self.draw_pixel(x0 - radius, y0, color)
+
+        pixels.append((x0, y0 + radius, color))
+        pixels.append((x0, y0 - radius, color))
+        pixels.append((x0 + radius, y0, color))
+        pixels.append((x0 - radius, y0, color))
 
         while x < y:
             if f >= 0:
@@ -995,17 +998,27 @@ class ILI9225(Compatibility):
             ddf_x += 2
             f += ddf_x
 
-            self.draw_pixel(x0 + x, y0 + y, color)
-            self.draw_pixel(x0 - x, y0 + y, color)
-            self.draw_pixel(x0 + x, y0 - y, color)
-            self.draw_pixel(x0 - x, y0 - y, color)
-            self.draw_pixel(x0 + y, y0 + x, color)
-            self.draw_pixel(x0 - y, y0 + x, color)
-            self.draw_pixel(x0 + y, y0 - x, color)
-            self.draw_pixel(x0 - y, y0 - x, color)
+            ## self.draw_pixel(x0 + x, y0 + y, color)
+            ## self.draw_pixel(x0 - x, y0 + y, color)
+            ## self.draw_pixel(x0 + x, y0 - y, color)
+            ## self.draw_pixel(x0 - x, y0 - y, color)
+            ## self.draw_pixel(x0 + y, y0 + x, color)
+            ## self.draw_pixel(x0 - y, y0 + x, color)
+            ## self.draw_pixel(x0 + y, y0 - x, color)
+            ## self.draw_pixel(x0 - y, y0 - x, color)
 
+            pixels.append((x0 + x, y0 + y, color))
+            pixels.append((x0 - x, y0 + y, color))
+            pixels.append((x0 + x, y0 - y, color))
+            pixels.append((x0 - x, y0 - y, color))
+            pixels.append((x0 + y, y0 + x, color))
+            pixels.append((x0 - y, y0 + x, color))
+            pixels.append((x0 + y, y0 - x, colo))
+            pixels.append((x0 - y, y0 - x, color))
+
+        self.draw_pixel_alt(pixels)
         self.spi_close_override = False
-        self._end_write(reuse=False)
+        ## self._end_write(reuse=False)
 
     def fill_circle(self, x0, y0, radius, color):
         """
@@ -1259,16 +1272,14 @@ class ILI9225(Compatibility):
         self._start_write()
 
         for x, y, color in pixels:
-            x, y = self._orient_coordinates(x, y )
-            self._write_register(self.CMD_RAM_ADDR_SET1, x)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y)
-            array = bytearray((color >> 8, color & 0xFF))
-            self._write_register(self.CMD_GRAM_DATA_REG, array)
+            if not ((x >= self._max_x) or (y >= self._max_y)):
+                x, y = self._orient_coordinates(x, y )
+                self._write_register(self.CMD_RAM_ADDR_SET1, x)
+                self._write_register(self.CMD_RAM_ADDR_SET2, y)
+                array = bytearray((color >> 8, color & 0xFF))
+                self._write_register(self.CMD_GRAM_DATA_REG, array)
 
         self._end_write(reuse=False)
-
-    def __out_of_range(self, x, y):
-        return (x >= self._max_x) or (y >= self._max_y)
 
     ## def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
     ##                 transparent=False, x_bit=False):
