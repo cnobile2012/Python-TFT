@@ -1013,7 +1013,7 @@ class ILI9225(Compatibility):
             pixels.append((x0 - x, y0 - y, color))
             pixels.append((x0 + y, y0 + x, color))
             pixels.append((x0 - y, y0 + x, color))
-            pixels.append((x0 + y, y0 - x, colo))
+            pixels.append((x0 + y, y0 - x, color))
             pixels.append((x0 - y, y0 - x, color))
 
         self.draw_pixel_alt(pixels)
