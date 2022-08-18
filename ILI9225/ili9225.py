@@ -976,6 +976,7 @@ class ILI9225(Compatibility):
         y = radius
         pixels = []
         self.spi_close_override = True
+        self._start_write()
 
         pixels.append((x0, y0 + radius, color))
         pixels.append((x0, y0 - radius, color))
@@ -1002,6 +1003,7 @@ class ILI9225(Compatibility):
             pixels.append((x0 - y, y0 - x, color))
 
         self.draw_pixel_alt(pixels)
+        self._end_write(reuse=False)
         self.spi_close_override = False
 
     def fill_circle(self, x0, y0, radius, color):
@@ -1098,10 +1100,6 @@ class ILI9225(Compatibility):
         if y1 > y2:
             y2, y1 = y1, y2
             x2, x1 = x1, x2
-
-        ## if y0 > y1:
-        ##     y0, y1 = y1, y0
-        ##     x0, x1 = x1, x0
 
         # Handle awkward all-on-same-line case as its own thing.
         if y0 == y2:
@@ -1210,14 +1208,12 @@ class ILI9225(Compatibility):
             ystep = -1
 
         pixels = []
-        ## self._start_write()
+        self._start_write()
 
         while x0 <= x1:
             if steep:
-                ## self.draw_pixel(y0, x0, color)
                 pixels.append((y0, x0, color))
             else:
-                ## self.draw_pixel(x0, y0, color)
                 pixels.append((x0, y0, color))
 
             err -= dy
@@ -1229,26 +1225,7 @@ class ILI9225(Compatibility):
             x0 += 1
 
         self.draw_pixel_alt(pixels)
-        ## self._end_write(reuse=False)
-
-    def draw_pixel(self, x0, y0, color):
-        """
-        Draw a pixel.
-
-        :param x0: Point coordinate (x-axis).
-        :type x0: int
-        :param y0: Point coordinate (y-axis).
-        :type y0: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        if not ((x0 >= self._max_x) or (y0 >= self._max_y)):
-            x0, y0 = self._orient_coordinates(x0, y0)
-            self._start_write()
-            self._write_register(self.CMD_RAM_ADDR_SET1, x0)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y0)
-            self._write_register(self.CMD_GRAM_DATA_REG, color)
-            self._end_write(reuse=False)
+        self._end_write(reuse=False)
 
     def draw_pixel_alt(self, pixels):
         """
