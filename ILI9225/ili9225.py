@@ -976,12 +976,6 @@ class ILI9225(Compatibility):
         y = radius
         pixels = []
         self.spi_close_override = True
-        ## self._start_write()
-
-        ## self.draw_pixel(x0, y0 + radius, color)
-        ## self.draw_pixel(x0, y0 - radius, color)
-        ## self.draw_pixel(x0 + radius, y0, color)
-        ## self.draw_pixel(x0 - radius, y0, color)
 
         pixels.append((x0, y0 + radius, color))
         pixels.append((x0, y0 - radius, color))
@@ -998,15 +992,6 @@ class ILI9225(Compatibility):
             ddf_x += 2
             f += ddf_x
 
-            ## self.draw_pixel(x0 + x, y0 + y, color)
-            ## self.draw_pixel(x0 - x, y0 + y, color)
-            ## self.draw_pixel(x0 + x, y0 - y, color)
-            ## self.draw_pixel(x0 - x, y0 - y, color)
-            ## self.draw_pixel(x0 + y, y0 + x, color)
-            ## self.draw_pixel(x0 - y, y0 + x, color)
-            ## self.draw_pixel(x0 + y, y0 - x, color)
-            ## self.draw_pixel(x0 - y, y0 - x, color)
-
             pixels.append((x0 + x, y0 + y, color))
             pixels.append((x0 - x, y0 + y, color))
             pixels.append((x0 + x, y0 - y, color))
@@ -1018,7 +1003,6 @@ class ILI9225(Compatibility):
 
         self.draw_pixel_alt(pixels)
         self.spi_close_override = False
-        ## self._end_write(reuse=False)
 
     def fill_circle(self, x0, y0, radius, color):
         """
@@ -1225,13 +1209,16 @@ class ILI9225(Compatibility):
         else:
             ystep = -1
 
-        self._start_write()
+        pixels = []
+        ## self._start_write()
 
         while x0 <= x1:
             if steep:
-                self.draw_pixel(y0, x0, color)
+                ## self.draw_pixel(y0, x0, color)
+                pixels.append((y0, x0, color))
             else:
-                self.draw_pixel(x0, y0, color)
+                ## self.draw_pixel(x0, y0, color)
+                pixels.append((x0, y0, color))
 
             err -= dy
 
@@ -1241,7 +1228,8 @@ class ILI9225(Compatibility):
 
             x0 += 1
 
-        self._end_write(reuse=False)
+        self.draw_pixel_alt(pixels)
+        ## self._end_write(reuse=False)
 
     def draw_pixel(self, x0, y0, color):
         """
