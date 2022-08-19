@@ -638,7 +638,7 @@ class ILI9225(Compatibility):
             self._write_data(array)
             self._reset_window()
         else:
-            self.draw_pixel(pixels)
+            self.draw_pixel_alt(pixels)
 
         self._end_write(reuse=False)
         return char_width
@@ -793,7 +793,7 @@ class ILI9225(Compatibility):
 
                 bits <<= 1
 
-        self.draw_pixel(pixels)
+        self.draw_pixel_alt(pixels)
         return xa
 
     def draw_gfx_text(self, x, y, s, color=Colors.WHITE, *, add_pixels=0):
@@ -1002,7 +1002,7 @@ class ILI9225(Compatibility):
             pixels.append((x0 + y, y0 - x, color))
             pixels.append((x0 - y, y0 - x, color))
 
-        self.draw_pixel(pixels)
+        self.draw_pixel_alt(pixels)
         self._end_write(reuse=False)
         self.spi_close_override = False
 
@@ -1224,10 +1224,22 @@ class ILI9225(Compatibility):
 
             x0 += 1
 
-        self.draw_pixel(pixels)
+        self.draw_pixel_alt(pixels)
         self._end_write(reuse=False)
 
-    def draw_pixel(self, pixels):
+    def draw_pixel(self, x0, y0, color):
+        """
+        Draw a pixel.
+        :param x0: Point coordinate (x-axis).
+        :type x0: int
+        :param y0: Point coordinate (y-axis).
+        :type y0: int
+        :param color: A 16-bit RGB color.
+        :type color: int
+        """
+        self.draw_pixel_alt(((x0, y0, color),))
+
+    def draw_pixel_alt(self, pixels):
         """
         Draw a pixel.
 

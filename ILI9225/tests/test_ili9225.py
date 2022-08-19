@@ -855,13 +855,27 @@ class TestILI9225(unittest.TestCase):
         self._run_spi_test(expect, 'test_draw_line')
 
     #@unittest.skip("Temporary")
-    def test_draw_pixel(self):
+    def test_draw_pixel_alt(self):
         """
         Test that a pixel is correctly drawn on the display.
         """
         x0, y0 = 88, 75
         pixels = [(x0, y0, Colors.BLUE)]
-        self._tft.draw_pixel(pixels)
+        self._tft.draw_pixel_alt(pixels)
+        expect = [
+            [self._tft.CMD_RAM_ADDR_SET1, 1, 88],
+            [self._tft.CMD_RAM_ADDR_SET2, 1, 75],
+            [self._tft.CMD_GRAM_DATA_REG, 1, 31]
+            ]
+        self._run_spi_test(expect, 'test_draw_pixel_alt')
+
+    #@unittest.skip("Temporary")
+    def test_draw_pixel(self):
+        """
+        Test that a pixel is correctly drawn on the display.
+        """
+        x0, y0 = 88, 75
+        self._tft.draw_pixel(x0, y0, Colors.BLUE)
         expect = [
             [self._tft.CMD_RAM_ADDR_SET1, 1, 88],
             [self._tft.CMD_RAM_ADDR_SET2, 1, 75],
