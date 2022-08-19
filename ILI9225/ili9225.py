@@ -638,7 +638,7 @@ class ILI9225(Compatibility):
             self._write_data(array)
             self._reset_window()
         else:
-            self.draw_pixel_alt(pixels)
+            self.draw_pixel(pixels)
 
         self._end_write(reuse=False)
         return char_width
@@ -793,7 +793,7 @@ class ILI9225(Compatibility):
 
                 bits <<= 1
 
-        self.draw_pixel_alt(pixels)
+        self.draw_pixel(pixels)
         return xa
 
     def draw_gfx_text(self, x, y, s, color=Colors.WHITE, *, add_pixels=0):
@@ -1002,7 +1002,7 @@ class ILI9225(Compatibility):
             pixels.append((x0 + y, y0 - x, color))
             pixels.append((x0 - y, y0 - x, color))
 
-        self.draw_pixel_alt(pixels)
+        self.draw_pixel(pixels)
         self._end_write(reuse=False)
         self.spi_close_override = False
 
@@ -1224,10 +1224,10 @@ class ILI9225(Compatibility):
 
             x0 += 1
 
-        self.draw_pixel_alt(pixels)
+        self.draw_pixel(pixels)
         self._end_write(reuse=False)
 
-    def draw_pixel_alt(self, pixels):
+    def draw_pixel(self, pixels):
         """
         Draw a pixel.
 

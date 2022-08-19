@@ -860,7 +860,8 @@ class TestILI9225(unittest.TestCase):
         Test that a pixel is correctly drawn on the display.
         """
         x0, y0 = 88, 75
-        self._tft.draw_pixel(x0, y0, Colors.BLUE)
+        pixels = [(x0, y0, Colors.BLUE)]
+        self._tft.draw_pixel(pixels)
         expect = [
             [self._tft.CMD_RAM_ADDR_SET1, 1, 88],
             [self._tft.CMD_RAM_ADDR_SET2, 1, 75],
