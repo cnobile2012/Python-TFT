@@ -208,11 +208,13 @@ class PiVersion:
         pass
 
     def __test_read(self, result):
-        data = []
+        data = bytearray()
 
         for idx in range(0, len(result), 2):
             high, low = result[idx: idx + 2]
-            data.append((high << 8) | low)
+            data.append(high)
+            data.append(low)
+            #data.append((high << 8) | low)
 
         return data
 
