@@ -232,7 +232,7 @@ class TestPiVersion(unittest.TestCase):
 
         try:
             self._pyv.spi_start_transaction()
-            expect = 0xFFFF
+            expect = bytearray((0xFF, 0xFF))
             found = self._pyv.spi_write(expect)
             exists = self._pyv.is_spi_connected
             msg = f"Expect {expect} found {found} exists {exists}"
@@ -254,7 +254,7 @@ class TestPiVersion(unittest.TestCase):
         try:
             # Test non sequence value
             self._pyv.spi_start_transaction()
-            expect = 0xFFFF
+            expect = bytearray((0xFF, 0xFF))
             found = self._pyv.spi_write(expect)
             msg = f"Expect {expect} found {found}"
             self.assertEqual(expect, found[0], msg=msg)
