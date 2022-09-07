@@ -203,6 +203,7 @@ class TestILI9225(unittest.TestCase):
     def _run_spi_test(self, expect, func_name, idx=None):
         ret = self._read_spi_buff(func_name)
         data = self._find_data(ret)
+        expect = bytearray(expect)
         expect_len = len(expect)
         data_len = len(data)
         msg = (f"Expected length {expect_len} is not equal to found "

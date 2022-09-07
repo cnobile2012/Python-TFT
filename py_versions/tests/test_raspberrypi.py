@@ -263,11 +263,6 @@ class TestPiVersion(unittest.TestCase):
             found = self._pyv.spi_write(expect)
             msg = f"Expect {expect} found {found}"
             self.assertEqual(expect, found, msg=msg)
-            # Test a tuple
-            #expect = (0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC)
-            #found = tuple(self._pyv.spi_write(expect))
-            #msg = f"Expect {expect} found {found}"
-            #self.assertEqual(expect, found, msg=msg)
         finally:
             self._pyv.spi_end_transaction()
 
