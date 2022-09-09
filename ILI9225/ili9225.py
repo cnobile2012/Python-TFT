@@ -1474,7 +1474,7 @@ class ILI9225(Compatibility):
 
     def _write_data(self, data, buff=[]):
         array = bytearray((data >> 8, data & 0xFF))
-        buff.append((data, self.HIGH))
+        buff.append((array, self.HIGH))
 
         ## try:
         ##     self.digital_write(self._rs, self.HIGH) # Data
