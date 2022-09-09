@@ -1495,7 +1495,7 @@ class ILI9225(Compatibility):
         for ba, cd in buff:
             try:
                 self.digital_write(self._rs, cd)
-                result = self.spi_write(data)
+                result = self.spi_write(ba)
             except CompatibilityException as e: # pragma: no cover
                 self._end_write(reuse=False)
                 raise e
