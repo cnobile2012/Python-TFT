@@ -1461,7 +1461,7 @@ class ILI9225(Compatibility):
         self._write_data(data, buff)
 
     def _write_command(self, command, buff):
-        array = array if isinstance(command, bytearray) else  bytearray(
+        array = command if isinstance(command, bytearray) else  bytearray(
             (command >> 8, command & 0xFF))
         buff.append((array, self.LOW))
 
@@ -1478,7 +1478,7 @@ class ILI9225(Compatibility):
         ##         return self.__write_spi_test_buff(result)
 
     def _write_data(self, data, buff):
-        array = array if isinstance(data, bytearray) else bytearray(
+        array = data if isinstance(data, bytearray) else bytearray(
             (data >> 8, data & 0xFF))
         buff.append((array, self.HIGH))
 
