@@ -348,6 +348,7 @@ class ILI9225(Compatibility):
         self._write_register(self.CMD_DISP_CTRL1, 0x0012, buff)
         self.delay(50)
         self._write_register(self.CMD_DISP_CTRL1, 0x1017, buff)
+        self._write_to_spi(buff)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished set GAMMA curve.")
@@ -938,6 +939,7 @@ class ILI9225(Compatibility):
         self.spi_close_override = True
         self._start_write()
         self._set_window(x0, y0, x1, y1)
+        buff = []
         array = bytearray()
         c_hi = color >> 8
         c_lo = color & 0xFF
@@ -946,13 +948,14 @@ class ILI9225(Compatibility):
         for t in reversed(range(1, round((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)):
             if (hasattr(self, '_need_chunking')
                 and self._need_chunking(array)): # pragma: no cover
-                self._write_data(array)
+                self._write_data(array, buff)
                 array = bytearray()
 
             array.append(c_hi)
             array.append(c_lo)
 
-        self._write_data(array)
+        self._write_data(array, buff)
+        self._write_to_spi(buff)
         self._reset_window()
         self.spi_close_override = False
         self._end_write(reuse=False)
@@ -1493,9 +1496,14 @@ class ILI9225(Compatibility):
         """
         buff = [(bytearray, command/data),...]
         """
+        previous_cd = None
+
         for ba, cd in buff:
             try:
-                self.digital_write(self._rs, cd)
+                if previous_cd != cd:
+                    self.digital_write(self._rs, cd)
+                    previous_cd = cd
+
                 result = self.spi_write(ba)
             except CompatibilityException as e: # pragma: no cover
                 self._end_write(reuse=False)
