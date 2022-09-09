@@ -187,10 +187,11 @@ class TestILI9225(unittest.TestCase):
 
         if data:
             for line in data:
+                dt = []
+
                 if line[0] != '':
                     cmd = eval(line[0])
                     item = []
-                    dt = []
                     item.append(self.CMD_NAMES_REV.get(cmd))
                     item.append(cmd)
                     item.append(dt)
