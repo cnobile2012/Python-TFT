@@ -1412,71 +1412,99 @@ class ILI9225(Compatibility):
         if self.__orientation > 0:
             mode = self._MODE_TAB[self.__orientation - 1][mode]
 
+        buff = []
         self._start_write()
-        self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3))
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, x1)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, x0)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, y1)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, y0)
+        self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3), buff)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, x1, buff)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, x0, buff)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, y1, buff)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, y0, buff)
 
         # Starting position within window and increment/decrement direction
         pos = mode >> 1
 
         if pos == 0:
-            self._write_register(self.CMD_RAM_ADDR_SET1, x1)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y1)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x1, buff)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y1, buff)
         elif pos == 1:
-            self._write_register(self.CMD_RAM_ADDR_SET1, x0)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y1)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x0, buff)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y1, buff)
         elif pos == 2:
-            self._write_register(self.CMD_RAM_ADDR_SET1, x1)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y0)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x1, buff)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y0, buff)
         elif pos == 3:
-            self._write_register(self.CMD_RAM_ADDR_SET1, x0)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y0)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x0, buff)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y0, buff)
 
-        self._write_command(self.CMD_GRAM_DATA_REG)
+        self._write_command(self.CMD_GRAM_DATA_REG, buff)
+        self._write_to_spi(buff)
         self._end_write(reuse=False)
 
     def _reset_window(self):
+        buff = []
         self._start_write()
         self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1,
-                             self.LCD_WIDTH - 1)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0)
+                             self.LCD_WIDTH - 1, buff)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0, buff)
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1,
-                             self.LCD_HEIGHT - 1)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0)
+                             self.LCD_HEIGHT - 1, buff)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0, buff)
+        self._write_to_spi(buff)
         self._end_write(reuse=False)
 
-    def _write_register(self, command, data):
-        self._write_command(command)
-        self._write_data(data)
+    def _write_register(self, command, data, buff=[]):
+        self._write_command(command, buff)
+        self._write_data(data, buff)
 
-    def _write_command(self, command):
-        try:
-            self.digital_write(self._rs, self.LOW) # Command
-            result = self.spi_write(command)
-        except CompatibilityException as e: # pragma: no cover
-            self._end_write(reuse=False)
-            raise e
-        else:
-            if result is not None:
-                result = ','.join(str(v) for v in result)
-                result = 'Command: {}\n'.format(result) if self.TESTING else ""
-                return self.__write_spi_test_buff(result)
+    def _write_command(self, command, buff=[]):
+        array = bytearray((command >> 8, command & 0xFF))
+        buff.append((array, self.LOW))
 
-    def _write_data(self, data):
-        try:
-            self.digital_write(self._rs, self.HIGH) # Data
-            result = self.spi_write(data)
-        except CompatibilityException as e: # pragma: no cover
-            self._end_write(reuse=False)
-            raise e
-        else:
-            if result is not None:
-                result = ','.join(str(v) for v in result)
-                result = '   Data: {}\n'.format(result) if self.TESTING else ""
-                return self.__write_spi_test_buff(result)
+        ## try:
+        ##     self.digital_write(self._rs, self.LOW) # Command
+        ##     result = self.spi_write(command)
+        ## except CompatibilityException as e: # pragma: no cover
+        ##     self._end_write(reuse=False)
+        ##     raise e
+        ## else:
+        ##     if result is not None:
+        ##         result = ','.join(str(v) for v in result)
+        ##         result = 'Command: {}\n'.format(result) if self.TESTING else ""
+        ##         return self.__write_spi_test_buff(result)
+
+    def _write_data(self, data, buff=[]):
+        array = bytearray((data >> 8, data & 0xFF))
+        buff.append((data, self.HIGH))
+
+        ## try:
+        ##     self.digital_write(self._rs, self.HIGH) # Data
+        ##     result = self.spi_write(data)
+        ## except CompatibilityException as e: # pragma: no cover
+        ##     self._end_write(reuse=False)
+        ##     raise e
+        ## else:
+        ##     if result is not None:
+        ##         result = ','.join(str(v) for v in result)
+        ##         result = '   Data: {}\n'.format(result) if self.TESTING else ""
+        ##         return self.__write_spi_test_buff(result)
+
+    def _write_to_spi(self, buff):
+        """
+        buff = [(bytearray, command/data),...]
+        """
+        for ba, cd in buff:
+            try:
+                self.digital_write(self._rs, cd)
+                result = self.spi_write(data)
+            except CompatibilityException as e: # pragma: no cover
+                self._end_write(reuse=False)
+                raise e
+            else:
+                if result is not None:
+                    result = ','.join(str(v) for v in result)
+                    result = '   Data: {}\n'.format(
+                        result) if self.TESTING else ""
+                    return self.__write_spi_test_buff(result)
 
     def __write_spi_test_buff(self, data):
         if data is not None:
