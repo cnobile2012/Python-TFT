@@ -275,78 +275,79 @@ class ILI9225(Compatibility):
             print("begin: Finished setting up pins.")
 
         # Power-on sequence
+        buff = []
         self._start_write()
         self.spi_close_override = True
         # Set APON,PON,AON,VCI1EN,VC
-        self._write_register(self.CMD_POWER_CTRL2, 0x0018)
+        self._write_register(self.CMD_POWER_CTRL2, 0x0018, buff)
         # Set BT,DC1,DC2,DC3
-        self._write_register(self.CMD_POWER_CTRL3, 0x6121)
+        self._write_register(self.CMD_POWER_CTRL3, 0x6121, buff)
         # Set GVDD (007F 0088)
-        self._write_register(self.CMD_POWER_CTRL4, 0x006F)
+        self._write_register(self.CMD_POWER_CTRL4, 0x006F, buff)
         # Set VCOMH/VCOML voltage
-        self._write_register(self.CMD_POWER_CTRL5, 0x495F)
+        self._write_register(self.CMD_POWER_CTRL5, 0x495F, buff)
         # Set SAP,DSTB,STB
-        self._write_register(self.CMD_POWER_CTRL1, 0x0800)
+        self._write_register(self.CMD_POWER_CTRL1, 0x0800, buff)
         self.delay(10)
         # Set APON,PON,AON,VCI1EN,VC
-        self._write_register(self.CMD_POWER_CTRL2, 0x103B)
+        self._write_register(self.CMD_POWER_CTRL2, 0x103B, buff)
         self.delay(50)
 
         # Set the display line number and display direction
-        self._write_register(self.CMD_DRIVER_OUTPUT_CTRL, 0x011C) # 0x001C
+        self._write_register(self.CMD_DRIVER_OUTPUT_CTRL, 0x011C, buff) # 0x001C
         # Set 1 line inversion
-        self._write_register(self.CMD_LCD_AC_DRIVING_CTRL, 0x0100)
+        self._write_register(self.CMD_LCD_AC_DRIVING_CTRL, 0x0100, buff)
         # Set GRAM write direction and BGR=1.
-        self._write_register(self.CMD_ENTRY_MODE, 0x1038) # 0x0038
+        self._write_register(self.CMD_ENTRY_MODE, 0x1038, buff) # 0x0038
         # Display off
-        self._write_register(self.CMD_DISP_CTRL1, 0x0000)
+        self._write_register(self.CMD_DISP_CTRL1, 0x0000, buff)
         # Set the back porch and front porch
-        self._write_register(self.CMD_BLANK_PERIOD_CTRL1, 0x0808)
+        self._write_register(self.CMD_BLANK_PERIOD_CTRL1, 0x0808, buff)
         # Set the clocks number per line
-        self._write_register(self.CMD_FRAME_CYCLE_CTRL, 0x1100)
+        self._write_register(self.CMD_FRAME_CYCLE_CTRL, 0x1100, buff)
         # CPU interface
-        self._write_register(self.CMD_INTERFACE_CTRL, 0x0000)
+        self._write_register(self.CMD_INTERFACE_CTRL, 0x0000, buff)
         # 0e01
-        self._write_register(self.CMD_OSC_CTRL, 0x0D01)
+        self._write_register(self.CMD_OSC_CTRL, 0x0D01, buff)
         # Set VCI recycling
-        self._write_register(self.CMD_VCI_RECYCLING, 0x0020)
+        self._write_register(self.CMD_VCI_RECYCLING, 0x0020, buff)
         # RAM Address
-        self._write_register(self.CMD_RAM_ADDR_SET1, 0x0000)
-        self._write_register(self.CMD_RAM_ADDR_SET2, 0x0000)
+        self._write_register(self.CMD_RAM_ADDR_SET1, 0x0000, buff)
+        self._write_register(self.CMD_RAM_ADDR_SET2, 0x0000, buff)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished power-on sequence.")
 
         # Set GRAM area
-        self._write_register(self.CMD_GATE_SCAN_CTRL, 0x0000)
-        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL1, 0x00DB)
-        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL2, 0x0000)
-        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL3, 0x0000)
-        self._write_register(self.CMD_PARTIAL_DRIVING_POS1, 0x00DB)
-        self._write_register(self.CMD_PARTIAL_DRIVING_POS2, 0x0000)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, 0x00AF)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0x0000)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, 0x00DB)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0x0000)
+        self._write_register(self.CMD_GATE_SCAN_CTRL, 0x0000, buff)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL1, 0x00DB, buff)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL2, 0x0000, buff)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL3, 0x0000, buff)
+        self._write_register(self.CMD_PARTIAL_DRIVING_POS1, 0x00DB, buff)
+        self._write_register(self.CMD_PARTIAL_DRIVING_POS2, 0x0000, buff)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, 0x00AF, buff)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0x0000, buff)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, 0x00DB, buff)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0x0000, buff)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished set GRAM area.")
 
         # Adjust GAMMA curve
-        self._write_register(self.CMD_GAMMA_CTRL1, 0x0000)
-        self._write_register(self.CMD_GAMMA_CTRL2, 0x060B)
-        self._write_register(self.CMD_GAMMA_CTRL3, 0x0C0A)
-        self._write_register(self.CMD_GAMMA_CTRL4, 0x0105)
-        self._write_register(self.CMD_GAMMA_CTRL5, 0x0A0C)
-        self._write_register(self.CMD_GAMMA_CTRL6, 0x0B06)
-        self._write_register(self.CMD_GAMMA_CTRL7, 0x0004)
-        self._write_register(self.CMD_GAMMA_CTRL8, 0x0501)
-        self._write_register(self.CMD_GAMMA_CTRL9, 0x0E00)
-        self._write_register(self.CMD_GAMMA_CTRL10, 0x000E)
+        self._write_register(self.CMD_GAMMA_CTRL1, 0x0000, buff)
+        self._write_register(self.CMD_GAMMA_CTRL2, 0x060B, buff)
+        self._write_register(self.CMD_GAMMA_CTRL3, 0x0C0A, buff)
+        self._write_register(self.CMD_GAMMA_CTRL4, 0x0105, buff)
+        self._write_register(self.CMD_GAMMA_CTRL5, 0x0A0C, buff)
+        self._write_register(self.CMD_GAMMA_CTRL6, 0x0B06, buff)
+        self._write_register(self.CMD_GAMMA_CTRL7, 0x0004, buff)
+        self._write_register(self.CMD_GAMMA_CTRL8, 0x0501, buff)
+        self._write_register(self.CMD_GAMMA_CTRL9, 0x0E00, buff)
+        self._write_register(self.CMD_GAMMA_CTRL10, 0x000E, buff)
 
-        self._write_register(self.CMD_DISP_CTRL1, 0x0012)
+        self._write_register(self.CMD_DISP_CTRL1, 0x0012, buff)
         self.delay(50)
-        self._write_register(self.CMD_DISP_CTRL1, 0x1017)
+        self._write_register(self.CMD_DISP_CTRL1, 0x1017, buff)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished set GAMMA curve.")
@@ -1452,11 +1453,11 @@ class ILI9225(Compatibility):
         self._write_to_spi(buff)
         self._end_write(reuse=False)
 
-    def _write_register(self, command, data, buff=[]):
+    def _write_register(self, command, data, buff):
         self._write_command(command, buff)
         self._write_data(data, buff)
 
-    def _write_command(self, command, buff=[]):
+    def _write_command(self, command, buff):
         array = bytearray((command >> 8, command & 0xFF))
         buff.append((array, self.LOW))
 
@@ -1472,7 +1473,7 @@ class ILI9225(Compatibility):
         ##         result = 'Command: {}\n'.format(result) if self.TESTING else ""
         ##         return self.__write_spi_test_buff(result)
 
-    def _write_data(self, data, buff=[]):
+    def _write_data(self, data, buff):
         array = bytearray((data >> 8, data & 0xFF))
         buff.append((array, self.HIGH))
 
