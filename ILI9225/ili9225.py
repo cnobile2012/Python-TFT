@@ -1501,7 +1501,8 @@ class ILI9225(Compatibility):
                 raise e
             else:
                 if result is not None:
-                    result = ','.join(str(v) for v in result)
+                    result = int.from_bytes(
+                        result, byteorder='big', signed=False)
                     result = '   Data: {}\n'.format(
                         result) if self.TESTING else ""
                     return self.__write_spi_test_buff(result)
