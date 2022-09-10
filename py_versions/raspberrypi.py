@@ -177,26 +177,26 @@ class PiVersion:
         :param values: The values to write.
         :type values: int, list, or tuple
         """
-        if  isinstance(values, bytearray):
-            items = values
-        else:
-            if not isinstance(values, (list, tuple)):
-                values = [values]
-            elif isinstance(values, tuple):
-                values = list(values)
+        ## if  isinstance(values, bytearray):
+        ##     items = values
+        ## else:
+        ##     if not isinstance(values, (list, tuple)):
+        ##         values = [values]
+        ##     elif isinstance(values, tuple):
+        ##         values = list(values)
 
-            items = []
+        ##     items = []
 
-            for value in values:
-                value = round(value)
-                items.append(value >> 8)
-                items.append(value & 0xFF)
+        ##     for value in values:
+        ##         value = round(value)
+        ##         items.append(value >> 8)
+        ##         items.append(value & 0xFF)
 
         result = None
         self.digital_write(self._cs, self.LOW)
 
         try:
-            result = self.__write(items)
+            result = self.__write(values) #items)
         except Exception as e: # pragma: no cover
             raise CompatibilityException("Error writing: {}".format(str(e)))
         else:
