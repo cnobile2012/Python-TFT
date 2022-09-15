@@ -217,6 +217,7 @@ class ILI9225(Compatibility):
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
+        self.__spi_buff = []
         self.set_board(board)
 
     @property
@@ -275,80 +276,78 @@ class ILI9225(Compatibility):
             print("begin: Finished setting up pins.")
 
         # Power-on sequence
-        buff = []
         self._start_write()
         self.spi_close_override = True
         # Set APON,PON,AON,VCI1EN,VC
-        self._write_register(self.CMD_POWER_CTRL2, 0x0018, buff)
+        self._write_register(self.CMD_POWER_CTRL2, 0x0018)
         # Set BT,DC1,DC2,DC3
-        self._write_register(self.CMD_POWER_CTRL3, 0x6121, buff)
+        self._write_register(self.CMD_POWER_CTRL3, 0x6121)
         # Set GVDD (007F 0088)
-        self._write_register(self.CMD_POWER_CTRL4, 0x006F, buff)
+        self._write_register(self.CMD_POWER_CTRL4, 0x006F)
         # Set VCOMH/VCOML voltage
-        self._write_register(self.CMD_POWER_CTRL5, 0x495F, buff)
+        self._write_register(self.CMD_POWER_CTRL5, 0x495F)
         # Set SAP,DSTB,STB
-        self._write_register(self.CMD_POWER_CTRL1, 0x0800, buff)
+        self._write_register(self.CMD_POWER_CTRL1, 0x0800)
         self.delay(10)
         # Set APON,PON,AON,VCI1EN,VC
-        self._write_register(self.CMD_POWER_CTRL2, 0x103B, buff)
+        self._write_register(self.CMD_POWER_CTRL2, 0x103B)
         self.delay(50)
 
         # Set the display line number and display direction
-        self._write_register(self.CMD_DRIVER_OUTPUT_CTRL, 0x011C, buff) # 0x001C
+        self._write_register(self.CMD_DRIVER_OUTPUT_CTRL, 0x011C) # 0x001C
         # Set 1 line inversion
-        self._write_register(self.CMD_LCD_AC_DRIVING_CTRL, 0x0100, buff)
+        self._write_register(self.CMD_LCD_AC_DRIVING_CTRL, 0x0100)
         # Set GRAM write direction and BGR=1.
-        self._write_register(self.CMD_ENTRY_MODE, 0x1038, buff) # 0x0038
+        self._write_register(self.CMD_ENTRY_MODE, 0x1038) # 0x0038
         # Display off
-        self._write_register(self.CMD_DISP_CTRL1, 0x0000, buff)
+        self._write_register(self.CMD_DISP_CTRL1, 0x0000)
         # Set the back porch and front porch
-        self._write_register(self.CMD_BLANK_PERIOD_CTRL1, 0x0808, buff)
+        self._write_register(self.CMD_BLANK_PERIOD_CTRL1, 0x0808)
         # Set the clocks number per line
-        self._write_register(self.CMD_FRAME_CYCLE_CTRL, 0x1100, buff)
+        self._write_register(self.CMD_FRAME_CYCLE_CTRL, 0x1100)
         # CPU interface
-        self._write_register(self.CMD_INTERFACE_CTRL, 0x0000, buff)
+        self._write_register(self.CMD_INTERFACE_CTRL, 0x0000)
         # 0e01
-        self._write_register(self.CMD_OSC_CTRL, 0x0D01, buff)
+        self._write_register(self.CMD_OSC_CTRL, 0x0D01)
         # Set VCI recycling
-        self._write_register(self.CMD_VCI_RECYCLING, 0x0020, buff)
+        self._write_register(self.CMD_VCI_RECYCLING, 0x0020)
         # RAM Address
-        self._write_register(self.CMD_RAM_ADDR_SET1, 0x0000, buff)
-        self._write_register(self.CMD_RAM_ADDR_SET2, 0x0000, buff)
+        self._write_register(self.CMD_RAM_ADDR_SET1, 0x0000)
+        self._write_register(self.CMD_RAM_ADDR_SET2, 0x0000)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished power-on sequence.")
 
         # Set GRAM area
-        self._write_register(self.CMD_GATE_SCAN_CTRL, 0x0000, buff)
-        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL1, 0x00DB, buff)
-        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL2, 0x0000, buff)
-        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL3, 0x0000, buff)
-        self._write_register(self.CMD_PARTIAL_DRIVING_POS1, 0x00DB, buff)
-        self._write_register(self.CMD_PARTIAL_DRIVING_POS2, 0x0000, buff)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, 0x00AF, buff)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0x0000, buff)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, 0x00DB, buff)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0x0000, buff)
+        self._write_register(self.CMD_GATE_SCAN_CTRL, 0x0000)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL1, 0x00DB)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL2, 0x0000)
+        self._write_register(self.CMD_VERTICAL_SCROLL_CTRL3, 0x0000)
+        self._write_register(self.CMD_PARTIAL_DRIVING_POS1, 0x00DB)
+        self._write_register(self.CMD_PARTIAL_DRIVING_POS2, 0x0000)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, 0x00AF)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0x0000)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, 0x00DB)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0x0000)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished set GRAM area.")
 
         # Adjust GAMMA curve
-        self._write_register(self.CMD_GAMMA_CTRL1, 0x0000, buff)
-        self._write_register(self.CMD_GAMMA_CTRL2, 0x060B, buff)
-        self._write_register(self.CMD_GAMMA_CTRL3, 0x0C0A, buff)
-        self._write_register(self.CMD_GAMMA_CTRL4, 0x0105, buff)
-        self._write_register(self.CMD_GAMMA_CTRL5, 0x0A0C, buff)
-        self._write_register(self.CMD_GAMMA_CTRL6, 0x0B06, buff)
-        self._write_register(self.CMD_GAMMA_CTRL7, 0x0004, buff)
-        self._write_register(self.CMD_GAMMA_CTRL8, 0x0501, buff)
-        self._write_register(self.CMD_GAMMA_CTRL9, 0x0E00, buff)
-        self._write_register(self.CMD_GAMMA_CTRL10, 0x000E, buff)
+        self._write_register(self.CMD_GAMMA_CTRL1, 0x0000)
+        self._write_register(self.CMD_GAMMA_CTRL2, 0x060B)
+        self._write_register(self.CMD_GAMMA_CTRL3, 0x0C0A)
+        self._write_register(self.CMD_GAMMA_CTRL4, 0x0105)
+        self._write_register(self.CMD_GAMMA_CTRL5, 0x0A0C)
+        self._write_register(self.CMD_GAMMA_CTRL6, 0x0B06)
+        self._write_register(self.CMD_GAMMA_CTRL7, 0x0004)
+        self._write_register(self.CMD_GAMMA_CTRL8, 0x0501)
+        self._write_register(self.CMD_GAMMA_CTRL9, 0x0E00)
+        self._write_register(self.CMD_GAMMA_CTRL10, 0x000E)
 
-        self._write_register(self.CMD_DISP_CTRL1, 0x0012, buff)
+        self._write_register(self.CMD_DISP_CTRL1, 0x0012)
         self.delay(50)
-        self._write_register(self.CMD_DISP_CTRL1, 0x1017, buff)
-        self._write_to_spi(buff)
+        self._write_register(self.CMD_DISP_CTRL1, 0x1017)
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished set GAMMA curve.")
@@ -443,6 +442,8 @@ class ILI9225(Compatibility):
         :param flag: True = display on and False = display off.
         :type flag: bool
         """
+        buff = []
+
         if flag:
             self._start_write()
             self._write_register(0x00ff, 0x0000)
@@ -603,6 +604,7 @@ class ILI9225(Compatibility):
         else:
             pixels = []
 
+        buff = []
         self._start_write()
 
         # Each font "column" (+1 blank column for spacing).
@@ -939,7 +941,6 @@ class ILI9225(Compatibility):
         self.spi_close_override = True
         self._start_write()
         self._set_window(x0, y0, x1, y1)
-        buff = []
         array = bytearray()
         c_hi = color >> 8
         c_lo = color & 0xFF
@@ -948,14 +949,13 @@ class ILI9225(Compatibility):
         for t in reversed(range(1, round((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)):
             if (hasattr(self, '_need_chunking')
                 and self._need_chunking(array)): # pragma: no cover
-                self._write_data(array, buff)
+                self._write_data(array)
                 array = bytearray()
 
             array.append(c_hi)
             array.append(c_lo)
 
-        self._write_data(array, buff)
-        self._write_to_spi(buff)
+        self._write_data(array)
         self._reset_window()
         self.spi_close_override = False
         self._end_write(reuse=False)
@@ -1416,91 +1416,63 @@ class ILI9225(Compatibility):
         if self.__orientation > 0:
             mode = self._MODE_TAB[self.__orientation - 1][mode]
 
-        buff = []
         self._start_write()
-        self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3), buff)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, x1, buff)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, x0, buff)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, y1, buff)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, y0, buff)
+        self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3))
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, x1)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, x0)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, y1)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, y0)
 
         # Starting position within window and increment/decrement direction
         pos = mode >> 1
 
         if pos == 0:
-            self._write_register(self.CMD_RAM_ADDR_SET1, x1, buff)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y1, buff)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x1)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y1)
         elif pos == 1:
-            self._write_register(self.CMD_RAM_ADDR_SET1, x0, buff)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y1, buff)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x0)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y1)
         elif pos == 2:
-            self._write_register(self.CMD_RAM_ADDR_SET1, x1, buff)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y0, buff)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x1)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y0)
         elif pos == 3:
-            self._write_register(self.CMD_RAM_ADDR_SET1, x0, buff)
-            self._write_register(self.CMD_RAM_ADDR_SET2, y0, buff)
+            self._write_register(self.CMD_RAM_ADDR_SET1, x0)
+            self._write_register(self.CMD_RAM_ADDR_SET2, y0)
 
-        self._write_command(self.CMD_GRAM_DATA_REG, buff)
-        self._write_to_spi(buff)
+        self._write_command(self.CMD_GRAM_DATA_REG)
         self._end_write(reuse=False)
 
     def _reset_window(self):
-        buff = []
         self._start_write()
         self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1,
-                             self.LCD_WIDTH - 1, buff)
-        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0, buff)
+                             self.LCD_WIDTH - 1)
+        self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0)
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1,
-                             self.LCD_HEIGHT - 1, buff)
-        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0, buff)
-        self._write_to_spi(buff)
+                             self.LCD_HEIGHT - 1)
+        self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0)
         self._end_write(reuse=False)
 
-    def _write_register(self, command, data, buff):
-        self._write_command(command, buff)
-        self._write_data(data, buff)
+    def _buffer_register(self, command, data):
+        self._buffer_command(command)
+        self._buffer_data(data)
 
-    def _write_command(self, command, buff):
+    def _buffer_command(self, command):
         array = command if isinstance(command, bytearray) else  bytearray(
             (command >> 8, command & 0xFF))
-        buff.append((array, self.LOW))
+        self.__spi_buff.append((array, self.LOW))
 
-        ## try:
-        ##     self.digital_write(self._rs, self.LOW) # Command
-        ##     result = self.spi_write(command)
-        ## except CompatibilityException as e: # pragma: no cover
-        ##     self._end_write(reuse=False)
-        ##     raise e
-        ## else:
-        ##     if result is not None:
-        ##         result = ','.join(str(v) for v in result)
-        ##         result = 'Command: {}\n'.format(result) if self.TESTING else ""
-        ##         return self.__write_spi_test_buff(result)
-
-    def _write_data(self, data, buff):
+    def _buffer_data(self, data):
         array = data if isinstance(data, bytearray) else bytearray(
             (data >> 8, data & 0xFF))
-        buff.append((array, self.HIGH))
+        self.__spi_buff.append((array, self.HIGH))
 
-        ## try:
-        ##     self.digital_write(self._rs, self.HIGH) # Data
-        ##     result = self.spi_write(data)
-        ## except CompatibilityException as e: # pragma: no cover
-        ##     self._end_write(reuse=False)
-        ##     raise e
-        ## else:
-        ##     if result is not None:
-        ##         result = ','.join(str(v) for v in result)
-        ##         result = '   Data: {}\n'.format(result) if self.TESTING else ""
-        ##         return self.__write_spi_test_buff(result)
-
-    def _write_to_spi(self, buff):
+    def _write_to_spi(self):
         """
         buff = [(bytearray, command/data),...]
         """
         previous_cd = None
 
-        for ba, cd in buff:
+        for ba, cd in self.__spi_buff:
             try:
                 if previous_cd != cd:
                     self.digital_write(self._rs, cd)
@@ -1509,6 +1481,7 @@ class ILI9225(Compatibility):
                 result = self.spi_write(ba)
             except CompatibilityException as e: # pragma: no cover
                 self._end_write(reuse=False)
+                self.__spi_buff = []
                 raise e
             else:
                 if result is not None:
@@ -1517,6 +1490,38 @@ class ILI9225(Compatibility):
                     result = '   Data: {}\n'.format(
                         result) if self.TESTING else ""
                     return self.__write_spi_test_buff(result)
+
+        self.__spi_buff = []
+
+    def _write_register(self, command, data):
+        self._write_command(command)
+        self._write_data(data)
+
+    def _write_command(self, command):
+        try:
+            self.digital_write(self._rs, self.LOW) # Command
+            result = self.spi_write(command)
+        except CompatibilityException as e: # pragma: no cover
+            self._end_write(reuse=False)
+            raise e
+        else:
+            if result is not None:
+                result = ','.join(str(v) for v in result)
+                result = 'Command: {}\n'.format(result) if self.TESTING else ""
+                return self.__write_spi_test_buff(result)
+
+    def _write_data(self, data):
+        try:
+            self.digital_write(self._rs, self.HIGH) # Data
+            result = self.spi_write(data)
+        except CompatibilityException as e: # pragma: no cover
+            self._end_write(reuse=False)
+            raise e
+        else:
+            if result is not None:
+                result = ','.join(str(v) for v in result)
+                result = '   Data: {}\n'.format(result) if self.TESTING else ""
+                return self.__write_spi_test_buff(result)
 
     def __write_spi_test_buff(self, data):
         if data is not None:
