@@ -442,8 +442,6 @@ class ILI9225(Compatibility):
         :param flag: True = display on and False = display off.
         :type flag: bool
         """
-        buff = []
-
         if flag:
             self._start_write()
             self._write_register(0x00ff, 0x0000)
@@ -604,7 +602,6 @@ class ILI9225(Compatibility):
         else:
             pixels = []
 
-        buff = []
         self._start_write()
 
         # Each font "column" (+1 blank column for spacing).
