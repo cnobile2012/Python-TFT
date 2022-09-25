@@ -259,8 +259,14 @@ class TestPiVersion(unittest.TestCase):
             msg = f"Expect {expect} found {found}"
             self.assertEqual(expect, found[0], msg=msg)
             # Test a bytearray
-            expect = (0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC)
-            found = self._pyv.spi_write(bytearray(expect))
+            expect = [0xAAAA, 0xBBBB, 0xCCCC]
+            array = bytearray()
+
+            for value in expect:
+                array.append(value >> 8)
+                array.append(value & 0xFF)
+
+            found = self._pyv.spi_write(array)
             msg = f"Expect {expect} found {found}"
             self.assertEqual(expect, found, msg=msg)
         finally:
