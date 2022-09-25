@@ -181,6 +181,11 @@ class TestILI9225(unittest.TestCase):
          ['CMD_RAM_ADDR_SET2', [33, 0]],
          ['CMD_GRAM_DATA_REG', [34, 0, 0]]
         ]
+
+        The evaluated variable name in single quotes is equal to the 1st
+        value in the embedded list to it's right. This means that the text
+        value of the variable is just there to show what it is and is not
+        needed for any other reason.
         """
         data = self.REGEX_DATA.findall(values)
         cmds = []
@@ -328,7 +333,7 @@ class TestILI9225(unittest.TestCase):
     #@unittest.skip("Temporary")
     def test_set_backlight(self):
         """
-        Test that the backlight variable is set to eithe True or False.
+        Test that the backlight variable is set to either True or False.
         """
         # Test initial value.
         value = self._tft._bl_state
@@ -614,7 +619,7 @@ class TestILI9225(unittest.TestCase):
     #@unittest.skip("Temporary")
     def test_get_text_extent(self):
         """
-        Test that the correct text strint width in pixels is returmed.
+        Test that the correct text string width in pixels is returned.
         """
         self._tft.set_font(Terminal12x16)
         width, height = self._tft.get_text_extent('ABC')
