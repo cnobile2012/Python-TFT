@@ -179,7 +179,7 @@ class PiVersion:
         """
         if  isinstance(values, bytearray):
             items = values
-            print("Found bytearray")
+            #print("Found bytearray")
         else:
             if not isinstance(values, (list, tuple)):
                 values = [values]
@@ -193,7 +193,7 @@ class PiVersion:
                 items.append(value >> 8)
                 items.append(value & 0xFF)
 
-            print("Found list")
+            #print("Found list")
 
         result = None
         self.digital_write(self._cs, self.LOW)
@@ -211,13 +211,11 @@ class PiVersion:
         pass
 
     def __test_read(self, result):
-        data = bytearray()
+        data = []
 
         for idx in range(0, len(result), 2):
             high, low = result[idx: idx + 2]
-            data.append(high)
-            data.append(low)
-            #data.append((high << 8) | low)
+            data.append((high << 8) | low)
 
         return data
 
