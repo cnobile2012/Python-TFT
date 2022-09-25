@@ -236,7 +236,7 @@ class TestPiVersion(unittest.TestCase):
             found = self._pyv.spi_write(bytearray(expect.to_bytes(2, 'big')))
             exists = self._pyv.is_spi_connected
             msg = f"Expect {expect} found {found} exists {exists}"
-            self.assertEqual(expect, found, msg=msg)
+            self.assertEqual(expect, found[0], msg=msg)
             self.assertTrue(exists, msg=msg)
         finally:
             self._pyv.spi_end_transaction()
@@ -257,7 +257,7 @@ class TestPiVersion(unittest.TestCase):
             expect = 0xFFFF
             found = self._pyv.spi_write(bytearray(expect.to_bytes(2, 'big')))
             msg = f"Expect {expect} found {found}"
-            self.assertEqual(expect, found, msg=msg)
+            self.assertEqual(expect, found[0], msg=msg)
             # Test a bytearray
             expect = (0xAA, 0xAA, 0xBB, 0xBB, 0xCC, 0xCC)
             found = self._pyv.spi_write(bytearray(expect))
