@@ -255,7 +255,7 @@ class TestPiVersion(unittest.TestCase):
             # Test non sequence value
             self._pyv.spi_start_transaction()
             expect = 0xFFFF
-            found = self._pyv.spi_write(bytearray(expect.to_bytes(2, 'big'))
+            found = self._pyv.spi_write(bytearray(expect.to_bytes(2, 'big')))
             msg = f"Expect {expect} found {found}"
             self.assertEqual(expect, found, msg=msg)
             # Test a bytearray
