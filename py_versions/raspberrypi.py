@@ -227,6 +227,7 @@ class PiVersion:
                 self._test_spi_buff = StringIO()
 
             self._test_spi_buff.write(result)
+            return data
 
     def setup_pwm(self, pin, brightness):
         """

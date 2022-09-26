@@ -79,6 +79,7 @@ class TestPiVersion(unittest.TestCase):
         self._pyv.spi_frequency = Boards.get_frequency(
             self._pyv.BOARD, self._pyv._spi_port)
         self._pyv.pin_mode(self._pyv._cs, self._pyv.OUTPUT)
+        GPIO.setup(self._pyv._rs, GPIO.OUT, pull_up_down=GPIO.PUD_OFF)
 
     def tearDown(self):
         self.unset_pin(self.TEST_PIN)
