@@ -126,8 +126,8 @@ class PiVersion:
         if self._cs in data:
             self._device = data.index(self._cs)
         else:
-            msg = ("Invalid cs pin '{}' selection for port '{}'."
-                   ).format(self._cs, self._spi_port)
+            msg = (f"Invalid cs pin '{self._cs}' selection for "
+                   f"port '{self._spi_port}'.")
             raise CompatibilityException(msg)
 
     def spi_start_transaction(self):
@@ -143,8 +143,8 @@ class PiVersion:
                 self._spi.max_speed_hz = self.spi_frequency
                 self._spi.mode = self._SPI_MODE
             except IndexError as e: # pragma: no cover
-                msg = ("There were no frequencies defines for the {} board, {}"
-                       ).format(Boards.get_board_name(self.BOARD), e)
+                msg = (f"There were no frequencies defines for the "
+                       f"{Boards.get_board_name(self.BOARD)} board, {e}")
                 raise CompatibilityException(msg)
             except Exception as e: # pragma: no cover
                 self.spi_end_transaction()
@@ -201,7 +201,7 @@ class PiVersion:
         try:
             result = self.__write(items)
         except Exception as e: # pragma: no cover
-            raise CompatibilityException("Error writing: {}".format(str(e)))
+            raise CompatibilityException(f"Error writing: {e}")
         else:
             return self.__read(result)
         finally:
@@ -227,7 +227,8 @@ class PiVersion:
                 self._test_spi_buff = StringIO()
 
             self._test_spi_buff.write(result)
-            return data
+
+        return data
 
     def setup_pwm(self, pin, brightness):
         """
