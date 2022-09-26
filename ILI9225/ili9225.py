@@ -1501,11 +1501,11 @@ class ILI9225(Compatibility):
         except CompatibilityException as e: # pragma: no cover
             self._end_write(reuse=False)
             raise e
-        else:
-            if result is not None:
-                result = ','.join(str(v) for v in result)
-                result = 'Command: {}\n'.format(result) if self.TESTING else ""
-                return self.__write_spi_test_buff(result)
+        ## else:
+        ##     if result is not None:
+        ##         result = ','.join(str(v) for v in result)
+        ##         result = 'Command: {}\n'.format(result) if self.TESTING else ""
+        ##         return self.__write_spi_test_buff(result)
 
     def _write_data(self, data):
         try:
@@ -1514,19 +1514,19 @@ class ILI9225(Compatibility):
         except CompatibilityException as e: # pragma: no cover
             self._end_write(reuse=False)
             raise e
-        else:
-            if result is not None:
-                result = ','.join(str(v) for v in result)
-                result = '   Data: {}\n'.format(result) if self.TESTING else ""
-                return self.__write_spi_test_buff(result)
+    ##     else:
+    ##         if result is not None:
+    ##             result = ','.join(str(v) for v in result)
+    ##             result = '   Data: {}\n'.format(result) if self.TESTING else ""
+    ##             return self.__write_spi_test_buff(result)
 
-    def __write_spi_test_buff(self, data):
-        if data is not None:
-            if not hasattr(self, '_spi_buff'):
-                from io import StringIO
-                self._spi_buff = StringIO()
+    ## def __write_spi_test_buff(self, data):
+    ##     if data is not None:
+    ##         if not hasattr(self, '_spi_buff'):
+    ##             from io import StringIO
+    ##             self._spi_buff = StringIO()
 
-            self._spi_buff.write(data)
+    ##         self._spi_buff.write(data)
 
     def _start_write(self):
         if not self.is_spi_connected:
