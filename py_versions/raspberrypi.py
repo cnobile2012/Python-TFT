@@ -218,8 +218,9 @@ class PiVersion:
             data.append((high << 8) | low)
 
         if data:
+            dt_name = '   Data' if GPIO.input(self._rs) else 'Command'
             result = ','.join(str(v) for v in data)
-            result = '   Data: {}\n'.format(result) if self.TESTING else ""
+            result = f'{dt_name}: {result}\n'
 
             if not hasattr(self, '_test_spi_buff'):
                 from io import StringIO
