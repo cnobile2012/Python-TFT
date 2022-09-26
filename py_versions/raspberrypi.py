@@ -218,14 +218,14 @@ class PiVersion:
             data.append((high << 8) | low)
 
         if data:
-            result = ','.join(str(v) for v in result)
+            result = ','.join(str(v) for v in data)
             result = '   Data: {}\n'.format(result) if self.TESTING else ""
 
             if not hasattr(self, '_test_spi_buff'):
                 from io import StringIO
                 self._test_spi_buff = StringIO()
 
-            self._test_spi_buff.write(data)
+            self._test_spi_buff.write(result)
 
     def setup_pwm(self, pin, brightness):
         """
