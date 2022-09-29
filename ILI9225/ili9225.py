@@ -217,7 +217,6 @@ class ILI9225(Compatibility):
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
-        self.__spi_buff = []
         self.set_board(board)
 
     @property
@@ -1231,6 +1230,7 @@ class ILI9225(Compatibility):
     def draw_pixel(self, x0, y0, color):
         """
         Draw a pixel.
+
         :param x0: Point coordinate (x-axis).
         :type x0: int
         :param y0: Point coordinate (y-axis).
@@ -1244,7 +1244,7 @@ class ILI9225(Compatibility):
         """
         Draw a pixel.
 
-        :param pixels: A list of tuples: [(x, y, color)...].
+        :param pixels: A list of tuples: [(x, y, color),...].
         :type pixels: list
         """
         self._start_write()
@@ -1448,47 +1448,6 @@ class ILI9225(Compatibility):
                              self.LCD_HEIGHT - 1)
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0)
         self._end_write(reuse=False)
-
-    def _buffer_register(self, command, data):
-        self._buffer_command(command)
-        self._buffer_data(data)
-
-    def _buffer_command(self, command):
-        array = command if isinstance(command, bytearray) else  bytearray(
-            (command >> 8, command & 0xFF))
-        self.__spi_buff.append((array, self.LOW))
-
-    def _buffer_data(self, data):
-        array = data if isinstance(data, bytearray) else bytearray(
-            (data >> 8, data & 0xFF))
-        self.__spi_buff.append((array, self.HIGH))
-
-    def _write_to_spi(self):
-        """
-        buff = [(bytearray, command/data),...]
-        """
-        previous_cd = None
-
-        for ba, cd in self.__spi_buff:
-            try:
-                if previous_cd != cd:
-                    self.digital_write(self._rs, cd)
-                    previous_cd = cd
-
-                result = self.spi_write(ba)
-            except CompatibilityException as e: # pragma: no cover
-                self._end_write(reuse=False)
-                self.__spi_buff = []
-                raise e
-            else:
-                if result is not None:
-                    result = int.from_bytes(
-                        result, byteorder='big', signed=False)
-                    result = '   Data: {}\n'.format(
-                        result) if self.TESTING else ""
-                    return self.__write_spi_test_buff(result)
-
-        self.__spi_buff = []
 
     def _write_register(self, command, data):
         self._write_command(command)

@@ -165,7 +165,7 @@ class TestPiVersion(unittest.TestCase):
         found = float(found) if len(found) else 0.0
         buff.close()
         approx = 0.40
-        msg = f"Expected '{ms} with in {approx} ms' found: {found}"
+        msg = f"Expected '{ms} within {approx} ms' found: {found}"
         self.assertTrue(math.isclose(ms, found, abs_tol=approx), msg)
 
     #@unittest.skip("Temporary")

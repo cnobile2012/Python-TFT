@@ -278,7 +278,7 @@ class TestILI9225(unittest.TestCase):
             (self._tft.CMD_VERTICAL_WINDOW_ADDR1, 1, 0xdb),
             (self._tft.CMD_VERTICAL_WINDOW_ADDR2, 1, 0x00)
             )
-        self._run_spi_test(expect, 'test_set_display')
+        self._run_spi_test(expect, 'test_clear')
 
     #@unittest.skip("Temporary")
     def test_in_window_clear(self):
