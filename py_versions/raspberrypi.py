@@ -180,13 +180,13 @@ class PiVersion:
         if not isinstance(values, bytearray):
             items = values
 
-            if isinstance(items, str):
+            if isinstance(items, (int, float)):
+                items = round(items)
                 items = [items]
 
             values = bytearray()
 
             for item in items:
-                #item = round(item)
                 values.append(item >> 8)
                 values.append(item & 0xFF)
 
