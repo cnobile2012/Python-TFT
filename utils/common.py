@@ -35,7 +35,7 @@ class _Boards:
         ('NRF52', (32000000, 32000000, 32000000, 32000000,)),
         # Raspberry Pi
         ('RASPI', (80000000, 80000000)),
-        # RPi Pico, Feather 2040, ItsyBitsy 2040, Tiny 2040, etc.
+        # RPi Pico, Feather 2040, ItsyBitsy 2040, Tiny 2040, XIAO-RPi, etc.
         ('RP2040', (65200000, 65200000)),
         ('SAMD20', (8000000,)),
         # Seeeduino XIAO SAMD21G18

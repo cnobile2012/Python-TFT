@@ -52,12 +52,13 @@ Build Platform Packages
 -----------------------
 
 Building packages for a Raspberry Pi is not absolutely necessary since the
-size of the whole git repository is not very much for a RPi. You can build it
-if you want which can get you a much smaller package. Keep in mind that
-building packages on any platform will flatten the file structure under the
-chip type that you are using. All packages will look more or less the same.
-Note that the directory tree below is for a MicroPython package and the font
-files are just examples.
+size of the whole git repository is not very much for a RPi. You can build
+it if you want which can get you a much smaller package and also make the
+package tree the same as all other packages. Keep in mind that building
+packages on any platform will flatten the file tree under the TFT chip type
+that you are using. All packages will look more or less the same. Note that
+the directory tree below is for a MicroPython package and the font files are
+just examples.
 
 .. code-block:: console
 
@@ -81,7 +82,7 @@ Below is the basic usage of the package creation script.
 .. code-block:: console
 
    $ ./scripts/create_packages.py --help
-   usage: create_packages.py [-h] [-a] [-c] [-p] [-m] [-r] [-2] [-3] [-f] [-s] [-F] [-D] [-N]
+   usage: create_packages.py [-h] [-a] [-c] [-p] [-m] [-r] [-2] [-3] [-f] [-s] [-F] [-L] [-C arch-type] [-O opt-level] [-D] [-N]
 
    Creating packages...
 
@@ -99,8 +100,23 @@ Below is the basic usage of the package creation script.
                           MicroPython and CircuitPython packages.
      -F, --force-strip    Force striping on all packages including the
                           Raspberry Pi and Computer packages.
+     -L, --list-compress  List cross compile architecture types.
+     -C arch-type, --compress arch-type
+                          Enter the number of the cross compile architecture type.
+     -O opt-level, --opt-level opt-level
+                          Enter the optimization level for the cross compiler.
      -D, --debug          Run in debug mode.
      -N, --noop           Run as if creating, but do nothing.
+
+For both MicroPython and CircuitPython you will need to determine the
+archetecture type, this is no easy task as the trpes used by *mpy-cross* are
+somewhat cryptic, trial and error is the only way I have determined the
+correct type. If in doubt just use 0 (zero). To find the available types run
+the command below.
+
+.. code-block:: bash
+
+   $ ./scripts/create_packages.py -L
 
 Building a package for MicroPython would look similar to the following. The
 package will build for the *ILI9225* chip the curses screen will appear for
@@ -109,7 +125,20 @@ removed to save space on the MCU.
 
 .. code-block:: bash
 
-   $ ./scripts/create_packages.py -m2fs
+   $ ./scripts/create_packages.py -m2fsC10 # ESP32
+
+If you will be building for a CircuitPython the process is a little more
+involved. This is because the *mpy-cross* app that Adafruit provides here
+`mpy-cross Download <https://adafruit-circuit-python.s3.amazonaws.com/index.html?prefix=bin/mpy-cross/>`_
+is named the same as the MiroPython application and will overwrite it. Because
+of this the Adafruit version needs to be renamed to *mpy-cross-cp* and copied
+into the virtual environment bin directory. You will need to pick the latest
+one for your deveopment environment. You may also want to update the version
+of CircuitPython on your device for things to work properly.
+
+.. code-block:: bash
+
+   $ ./scripts/create_packages.py -c2sC0 # XIAO-RP2040
 
 You will be confronted by a curses terminal screen if you use the *-f* option.
 The mouse will work in the terminal. Without the *-f* option no fonts will be
@@ -141,8 +170,8 @@ the main menu.
 Uploading Packages
 ==================
 
-Be sure you are in the root directory of the git repository of this API
-that you have cloned to your machine.
+Be sure you are in the root directory of the git repository of this API.
+The instructions below are guaranteed to work on an Ubuntu derived OS.
 
 Raspberry Pi
 ------------
@@ -154,12 +183,76 @@ virtual environment because it can be copied directly into the VE much easier.
 MicroPython
 -----------
 
-Create you package as describe above.
+Create your package as describe above. Your device may be different than the
+one I used. If you type *ampy* with no arguments you will get a list of the
+commands  *ampy* provides. You may need to press the reset button on your
+device between runs od ampy.
 
 .. code-block:: bash
 
    $ cd build/micropython/
    $ ampy -p /dev/ttyUSB0 put ILI9225
 
-Your device may be different than the one I used. If you type *ampy* with no
-arguments you will get a list of the commands *ampy* provides.
+CircuitPython
+-------------
+
+Create your package as describe above.
+
+.. code-block:: bash
+
+   $ cd build/circuitpython
+   $ cp ILI9225 /media/<user>/CIRCUITPY/lib/
+   $ touch /media/<user>/CIRCUITPY/lib/__init__.py
+
+Running Unit Tests
+==================
+
+Assuming you are using the SPI port 0 put a jumper between the MOSI (GPIO 10)
+and MISO (GPIO 9). It is best to wire this up on a breadboard. Do NOT have
+the TFT plugged into the breadboard at the same time you are running tests.
+
+All tests are run with the nose tool.
+
+Full Tests
+----------
+
+Full tests can be run with the following make target:
+
+.. code-block:: bash
+
+   $ make rpi-tests
+
+This command will run all tests and when it's done the coverage will be
+displayed. A few tests pass based on precise timing between different
+operations measured between the hardware and software. These tests
+periodically fail when the Raspberry Pi seems to be under heaver load than
+normal. Just run the tests a few time and you may want to wait some time
+between runs.
+
+Partial Tests
+-------------
+
+There is a special script at the root of the project that should be used to
+run partial tests. These tests can be run in a few different way based on how
+the nose tool works. Notice that these are all dot separated paths and the :
+(Colon) after the module name.
+
+.. code-block:: bash
+
+   $ ./run_test.sh py_versions.tests.test_raspberrypi
+
+In the above all tests will be run in the *test_raspberrypi.py* module.
+
+.. code-block:: bash
+
+   $ ./run_test.sh ILI9225.tests.test_ili9225:TestILI9225
+
+In the above all tests will be run in the *TestILI9225* class from the
+*test_ili9225.py* module.
+
+.. code-block:: bash
+
+   $ ./run_test.sh ILI9225.tests.test_ili9225:TestILI9225.test__set_window
+
+In the above only one test method *test__set_window* in the *TestILI9225*
+class.

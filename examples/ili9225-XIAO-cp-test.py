@@ -1,5 +1,9 @@
 # CircuitPython
-# Basic functionality test on a Seeeduino XIAO with CircuitPython
+# Basic functionality test on a Seeeduino XIAO-RP2040 with CircuitPython
+#
+# Build:
+#  $ ./scripts/create_packages.py -c2sC0
+#  $ cp build/circuitpython/ILI9225 /media/<user>/CIRCUITPY/lib/
 #
 
 import time
@@ -17,7 +21,7 @@ except Exception:
 
 #           rst, rs, port
 tft = ILI9225(D1, D2, 0, D3, MOSI, SCK, board=Boards.RP2040) # ID=1
-#tft = ILI9225(32, 33, 0, board=Boards.SAMD21) # ID=2
+#tft = ILI9225(D1, D2, 0, D3, MOSI, SCK, board=Boards.SAMD21) # ID=2
 
 print("rst: {}, rs: {}, port: {}, cs: {}, mosi: {}, sck: {}".format(
     tft._rst, tft._rs, tft._spi_port, tft._cs, tft._mosi, tft._sck))

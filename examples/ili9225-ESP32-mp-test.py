@@ -2,6 +2,10 @@
 #
 # Basic functionality test on a ESP32 with MicroPython
 #
+# Build:
+#  $ /scripts/create_packages.py -m2sfC10
+#  $ ampy -p /dev/ttyUSB0 put build/micropython/ILI9225
+#
 
 import time
 

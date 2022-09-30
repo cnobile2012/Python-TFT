@@ -140,25 +140,26 @@ class PiVersion:
         then set the cs pin to high (unselected).
 
         :param value: The value to write to the SPI port.
-        :type value: str
+        :type value: str or bytearray
         """
-        if not isinstance(values, (list, tuple)):
-            values = [values]
-        elif isinstance(values, tuple):
-            values = list(values)
+        if not isinstance(values, bytearray):
+            items = values
 
-        items = bytearray()
+            if isinstance(items, (int, float)):
+                items = round(items)
+                items = [items]
 
-        for value in values:
-            value = round(value)
-            items.append(value >> 8)
-            items.append(value & 0xFF)
+            values = bytearray()
+
+            for item in items:
+                values.append(item >> 8)
+                values.append(item & 0xFF)
 
         self.digital_write(self._cs, self.LOW)
 
         try:
             while self._spi.try_lock(): pass
-            self._spi.write(items)
+            self._spi.write(values)
         except Exception as e:
             raise CompatibilityException("Error writing: {}".format(str(e)))
         finally:
