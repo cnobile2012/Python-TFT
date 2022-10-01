@@ -122,7 +122,7 @@ the command below.
    $ ./scripts/create_packages.py -L
 
 Building a package for MicroPython would look similar to the following. The
-package will be built for the **ILI9225** chip. The curses screen will appear
+package will be built for the ``ILI9225`` chip. The curses screen will appear
 so that you can choose the fonts you want. The build process will remove all
 doc strings, comments, and extra line-feeds to save space on the MCU.
 
@@ -244,18 +244,18 @@ the : (Colon) before the class name.
 
    $ ./run_test.sh py_versions.tests.test_raspberrypi
 
-In the above all tests will be run in the **test_raspberrypi.py** module.
+In the above all tests will be run in the ``test_raspberrypi.py`` module.
 
 .. code-block:: bash
 
    $ ./run_test.sh ILI9225.tests.test_ili9225:TestILI9225
 
-In the above all tests will be run in the **TestILI9225** class from the
-**test_ili9225.py** module.
+In the above all tests will be run in the ``TestILI9225`` class from the
+``test_ili9225.py`` module.
 
 .. code-block:: bash
 
    $ ./run_test.sh ILI9225.tests.test_ili9225:TestILI9225.test__set_window
 
-In the above only one test method **test__set_window** in the **TestILI9225**
+In the above only one test method ``test__set_window`` in the ``TestILI9225``
 class.
