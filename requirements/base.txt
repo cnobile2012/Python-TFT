@@ -16,3 +16,4 @@ nose
 esptool
 adafruit-ampy
 mpy-cross
+rshell
