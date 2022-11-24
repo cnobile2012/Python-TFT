@@ -3,6 +3,9 @@
 py_versions/circuitpython.py
 
 The CircuitPython compatibility file.
+
+XIAO-RP2040 and PICO-RP2040 both gives the same error.
+RuntimeError: pystack exhausted
 """
 
 import board

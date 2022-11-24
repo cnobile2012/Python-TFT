@@ -8,6 +8,17 @@ The Python-TFT API will work with versions of python 3.5 and higher MicroPython
 and CircuitPython are based on the 3.5 C standard version of Python. On a
 Raspberry Pi it is best to use Python 3.8 or 3.9 at the time of this writing.
 
+.. warning::
+
+   As of now CircuitPython on all the boards that I have tested does not work.
+   There is an issue with blowing out the stack (RuntimeError: pystack
+   exhausted). All the suggestions I have found recommended to recompile
+   CircuitPython with a larger stack size. I cannot expect my users to do this
+   nor will I try to do it myself. As of now my code will not work at all with
+   CircuitPython. I'm leaving all the CircuitPython code in my API with the
+   hopes that Adafruit will fix this issue on their own. Please try it yourself
+   and let me know what you find. Thanks
+
 Building Packages
 =================
 
