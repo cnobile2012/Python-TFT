@@ -275,14 +275,21 @@ class CommonMethods:
         self.orientation = old_orientation
         self.delay(10)
 
-    def set_backlight(self, flag, brightness=MAX_BRIGHTNESS):
+    def set_backlight(self, flag, brightness=None):
         """
         Set the backlight on or off and set the brightness if there
         is an LED pin.
 
         :param flag: True = backlight on and False = backlight off.
         :type flag: bool
+        :param brightness: The brightness of the display, it defaults to
+                           full brightness.
+        :type brightness: int
         """
+        # This fixes the subclass issue where MAX_BRIGHTNESS is not
+        # available until instantiation.
+        brightness = self.MAX_BRIGHTNESS if brightness is None else brightness
+
         self._bl_state = flag
 
         if self._led != -1:
