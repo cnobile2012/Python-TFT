@@ -236,7 +236,8 @@ class CommonMethods:
         """
         self.__spi_close_override = value
 
-    def clear(self, x0=None, y0=None, x1=None, y1=None, color=Colors.BLACK):
+    def clear(self, x0=None, y0=None, x1=None, y1=None,
+              color=RGB16BitColors.BLACK):
         """
         Overwrites the entire display with the color black.
 
