@@ -1,0 +1,282 @@
+# -*- coding: utf-8 -*-
+"""
+ILI9341/ili9341.py
+
+Driver for the ILI9341 chip TFT LCD displays.
+"""
+
+import os
+
+from utils.compatibility import Compatibility
+from utils.common import (Boards, TFTException, CompatibilityException,
+                          RGB16BitColor as Colors)
+
+
+
+class ILI9341(Compatibility, CommonMethods):
+    """
+    Main ILI9341 class.
+    """
+    try:
+        DEBUG = eval(os.getenv('TFT_DEBUG', default='False'))
+        TESTING = eval(os.getenv('TFT_TESTING', default='False'))
+    except AttributeError: # pragma: no cover
+        # MicroPython and CircuitPython will raise AttributeError.
+        DEBUG = False
+        TESTING = False
+
+    ERROR_MSGS = {
+        'STD_FONT': "Please set a standard font before using this method.",
+        'GFX_FONT': "Please set a GFX font before using this method.",
+        'GFX_BAD_CH': "The character '{}' is not in the current font.",
+        'BRD_UNSUP': "Error: The {} board is not supported.",
+        'INV_PORT': "Invalid port for the {} board."
+        }
+
+    LCD_WIDTH        = 240
+    LCD_HEIGHT       = 320
+    MAX_BRIGHTNESS   = 255   # 0..255
+
+    CMD_NOP          = 0x00
+    CMD_SWRESET      = 0x01
+    CMD_RDDID        = 0x04
+    CMD_RDDST        = 0x09
+    CMD_SLPIN        = 0x10
+    CMD_SLPOUT       = 0x11 # Sleep Out
+    CMD_PTLON        = 0x12
+    CMD_NORON        = 0x13
+    CMD_RDMODE       = 0x0A
+    CMD_RDMADCTL     = 0x0B
+    CMD_RDPIXFMT     = 0x0C
+    CMD_RDIMGFMT     = 0x0A
+    CMD_RDSELFDIAG   = 0x0F
+    CMD_INVOFF       = 0x20
+    CMD_INVON        = 0x21
+    CMD_GAMMASET     = 0x26 # Gamma Set
+    CMD_DISPOFF      = 0x28
+    CMD_DISPON       = 0x29 # Display ON
+    CMD_CASET        = 0x2A # Column Address Set
+    CMD_PASET        = 0x2B # Page Address Set
+    CMD_RAMWR        = 0x2C # Memory Write
+    CMD_COLSET       = 0x2D # Color Set
+    CMD_RAMRD        = 0x2E # Memory Read
+    CMD_PTLAR        = 0x30
+    CMD_MADCTL       = 0x36 # Memory Access Control
+    CMD_PIXFMT       = 0x3A # COLMOD: Pixel Format Set
+    CMD_FRMCTR1      = 0xB1 # Frame Rate Control (In Normal Mode/Full Colors)
+    CMD_FRMCTR2      = 0xB2
+    CMD_FRMCTR3      = 0xB3
+    CMD_INVCTR       = 0xB4
+    CMD_DFUNCTR      = 0xB6 # Display Function Control
+    CMD_PWCTR1       = 0xC0 # Power Control 1
+    CMD_PWCTR2       = 0xC1 # Power Control 2
+    CMD_PWCTR3       = 0xC2
+    CMD_PWCTR4       = 0xC3
+    CMD_PWCTR5       = 0xC4
+    CMD_VMCTR1       = 0xC5 # VCOM Control 1
+    CMD_VMCTR2       = 0xC7 # VCOM Control 2
+    CMD_PWCTLA       = 0xCB # Power control A
+    CMD_PWCTLB       = 0xCF # Power control B
+    CMD_RDID1        = 0xDA
+    CMD_RDID2        = 0xDB
+    CMD_RDID3        = 0xDC
+    CMD_RDID4        = 0xDD
+    CMD_GMCTRP1      = 0xE0 # Positive Gamma Correction
+    CMD_GMCTRN1      = 0xE1 # Negative Gamma Correction
+    CMD_DRTMCTLA     = 0xE8 # Driver timing control A
+    #CMD_DRTMCTLA     = 0xE9 # Driver timing control A
+    CMD_DRTMCTLB     = 0xEA # Driver timing control B
+    CMD_PWONSEQCTL   = 0xED # Power on sequence control
+    CMD_EN3GAMMA     = 0xF2 # Enable 3G
+    CMD_PUMPRATIOCTL = 0xF7 # Pump ratio control
+    CMD_PWCTR6       = 0xFC
+    CMD_UNKNOWN      = 0xEF # This is an undocumented command but must be sent.
+
+
+    def __init__(self, rst, rs, spi_port, cs=-1, mosi=-1, sck=-1, led=-1,
+                 board=None, *, brightness=MAX_BRIGHTNESS, rpi_mode=None):
+        """
+        Initialize the ILI9225 class.
+
+        :param rst: The RST (reset) pin on the display. (RTD on some devices.)
+        :type rst: int
+        :param rs: The RS (data/command or DC) pin on the display. 0: command,
+                   1: data
+        :type rs: int
+        :param spi_port: The SPI port to use on the board.
+        :type spi_port: int
+        :param cs: The CS (chip select) pin on the MCU.
+        :type cs: int
+        :param mosi: The mosi GPIO number on the MCU.
+        :type mosi: int
+        :param sck: The SCK GPIO number on the MCU.
+        :type sck: int
+        :param led: The LED pin on the display.
+        :type led: int
+        :param brightness: Set the brightness from 0..255 (default=255).
+        :type brightness: int
+        :param board: The board this will run on. e.g. Boards.ESP32
+        :type board: int
+        :param rpi_mode: Only applies to the Raspberry Pi and Computer boards.
+                         Default GPIO.BCM
+        :type rpi_mode: int
+        :raises CompatibilityException: If the board is unsupported or the
+                                        moso or sck pins are not set on some
+                                        boards.
+        """
+        super().__init__(rpi_mode=rpi_mode)
+        self._rst = rst
+        self._rs = rs # DC on some boards
+        self._spi_port = spi_port
+        self._cs = cs
+        self._sck = sck
+        self._mosi = mosi
+        self._miso = -1
+        self._led = led
+        self.__brightness = 0
+        self.brightness = brightness # Default it maximum brightness.
+        self.__orientation = 0
+        self._bl_state = True
+        self._max_x = 0
+        self._max_y = 0
+        self.__spi_close_override = False
+        self._current_font = None
+        self._cfont = CurrentFont()
+        self._gfx_font = None
+        self.set_board(board)
+
+    def begin(self):
+        # Setup MCU specific pins
+        self._spi_port_device()
+
+        # Setup reset pin.
+        self.pin_mode(self._rst, self.OUTPUT)
+        self.digital_write(self._rst, self.LOW)
+
+        # Set up backlight pin, turn off initially.
+        if self._led >= 0:
+            self.pin_mode(self._led, self.OUTPUT)
+            self.setup_pwm(self._led, self.MAX_BRIGHTNESS)
+            self.set_backlight(False)
+
+        # Control pins
+        self.pin_mode(self._rs, self.OUTPUT)
+        self.digital_write(self._rs, self.LOW)
+        self.pin_mode(self._cs, self.OUTPUT)
+        self.digital_write(self._cs, self.HIGH)
+
+        # Pull the reset pin high to release the reset.
+        self.digital_write(self._rst, self.HIGH)
+        self.delay(1)
+        # Pull the reset pin low to reset the ILI9225.
+        self.digital_write(self._rst, self.LOW)
+        self.delay(10)
+        # Pull the reset pin high to release the reset.
+        self.digital_write(self._rst, self.HIGH)
+        self.delay(50)
+
+        if self.DEBUG: # pragma: no cover
+            print("begin: Finished setting up pins.")
+
+        # Power-on sequence
+        self._start_write()
+        self.spi_close_override = True
+        self._write_register(self.CMD_UNKNOWN, bytearray((0x03, 0x80, 0x02)))
+        self._write_register(self.CMD_PWCTLB, bytearray((0x00, 0xC1, 0x30)))
+        self._write_register(self.CMD_PWONSEQCTL, bytearray(
+            (0x64, 0x03, 0x12, 0x81)))
+        self._write_register(self.CMD_DRTMCTLA, bytearray((0x85, 0x00, 0x78)))
+        self._write_register(self.CMD_PWCTLA, bytearray(
+            (0x39, 0x2C, 0x00, 0x34, 0x02)))
+        self._write_register(self.CMD_PUMPRATIOCTL, bytearray((0x20,)))
+        self._write_register(self.CMD_DRTMCTLB, bytearray((0x00, 0x00)))
+        self._write_register(self.CMD_PWCTR1, bytearray((0x23,)))
+        self._write_register(self.CMD_PWCTR2, bytearray((0x10,)))
+        self._write_register(self.CMD_VMCTR1, bytearray((0x3e, 0x28)))
+        self._write_register(self.CMD_VMCTR2, bytearray((0x86,)))
+        self._write_register(self.CMD_MADCTL, bytearray((0x48,)))
+        self._write_register(self.CMD_PIXFMT, bytearray((0x55,)))
+        self._write_register(self.CMD_FRMCTR1, bytearray((0x00, 0x18)))
+        self._write_register(self.CMD_DFUNCTR, bytearray((0x08, 0x82,0x27 )))
+        self._write_register(self.CMD_EN3GAMMA, bytearray((0x00,)))
+        self._write_register(self.CMD_GAMMASET, bytearray((0x01,)))
+        self._write_register(self.CMD_GMCTRP1, bytearray(
+            (0x0F, 0x31, 0x2B, 0x0C, 0x0E, 0x08, 0x4E, 0xF1,
+             0x37, 0x07, 0x10, 0x03, 0x0E, 0x09, 0x00)))
+        self._write_register(self.CMD_GMCTRN1, bytearray(
+            (0x00, 0x0E, 0x14, 0x03, 0x11, 0x07, 0x31, 0xC1,
+             0x48, 0x08, 0x0F, 0x0C, 0x31, 0x36, 0x0F)))
+        self._write_command(self.CMD_SLPOUT)
+        self.delay(120)
+        self._write_command(self.CMD_DISPON)
+
+        if self.DEBUG: # pragma: no cover
+            print("begin: Finished power-on sequence.")
+
+        # Turn on backlight
+        self.set_backlight(True)
+        self.orientation = 0
+
+        if self.DEBUG: # pragma: no cover
+            print("begin: Finished turning on backlight.")
+
+        self.clear()
+        self.spi_close_override = False
+        self._end_write(reuse=False)
+
+        if self.DEBUG: # pragma: no cover
+            print("begin: Finished initialize background color.")
+
+    def _set_window(self, x0, y0, x1, y1, mode=MODE_TOP_DOWN_L2R):
+        """
+        Set the window that will be drawn using the current orientation.
+
+        :param x0: Start x coordinate.
+        :type x0: int
+        :param y0: Start y continent.
+        :type y0: int
+        :param x1: End x Continent.
+        :type x1: int
+        :param y1: End y Continent.
+        :type y1: int
+        :param mode: The orientation mode.
+        :type mode: int
+        :raises TFTException: If the orientation is out of range.
+        """
+        # Clip to TFT-Dimensions
+        x0 = min(x0, self._max_x - 1)
+        x1 = min(x1, self._max_x - 1)
+        y0 = min(y0, self._max_y - 1)
+        y1 = min(y1, self._max_y - 1)
+        x0, y0 = self._orient_coordinates(x0, y0)
+        x1, y1 = self._orient_coordinates(x1, y1)
+
+        if x1 < x0: x0, x1 = x1, x0
+        if y1 < y0: y0, y1 = y1, y0
+
+        # Autoincrement mode
+        if self.__orientation > 0:
+            mode = self._MODE_TAB[self.orientation - 1][mode]
+
+        self._start_write()
+
+
+
+
+        self._end_write(reuse=False)
+
+    def _reset_window(self):
+        self._start_write()
+
+
+
+        #self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1,
+        #                     self.LCD_WIDTH - 1)
+        #self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0)
+        #self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1,
+        #                     self.LCD_HEIGHT - 1)
+        #self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0)
+        self._end_write(reuse=False)
+
+
+

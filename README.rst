@@ -40,7 +40,7 @@ building on a Raspberry PI. Follow the instructions below to install version
 
 First update and install a few system packages.
 
-.. code-block:: console
+.. code-block:: bash
 
   $ sudo apt update && apt upgrade
   $ sudo apt install libssl-dev cargo libsqlite3-dev ncurses-bin \
@@ -49,7 +49,7 @@ First update and install a few system packages.
 I usually create a directory named **src** in my user directory. Assuming you
 also do the same cd into that directory then execute the commands below.
 
-.. code-block:: console
+.. code-block:: bash
 
    $ wget https://www.python.org/ftp/python/3.9.14/Python-3.9.14.tar.xz
    $ tar -xJvf Python-3.9.14.tar.xz

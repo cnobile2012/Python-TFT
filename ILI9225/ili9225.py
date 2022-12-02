@@ -8,8 +8,8 @@ Driver for the ILI9225 chip TFT LCD displays.
 import os
 
 from utils.compatibility import Compatibility
-from utils.common import (Boards, TFTException, CompatibilityException,
-                          RGB16BitColor as Colors)
+from utils.common import (Boards, CommonMethods, TFTException,
+                          CompatibilityException, RGB16BitColor as Colors)
 
 
 class CurrentFont:
@@ -74,7 +74,7 @@ class GFXFont:
         self.y_advance = font[4] # Newline distance (y axis)
 
 
-class ILI9225(Compatibility):
+class ILI9225(Compatibility, CommonMethods):
     """
     Main ILI9225 class.
     """
@@ -175,7 +175,8 @@ class ILI9225(Compatibility):
 
         :param rst: The RST (reset) pin on the display. (RTD on some devices.)
         :type rst: int
-        :param rs: The RS (command/data) pin on the display. 0: command, 1: data
+        :param rs: The RS (data/command or DC) pin on the display. 0: command,
+                   1: data
         :type rs: int
         :param spi_port: The SPI port to use on the board.
         :type spi_port: int
@@ -200,7 +201,7 @@ class ILI9225(Compatibility):
         """
         super().__init__(rpi_mode=rpi_mode)
         self._rst = rst
-        self._rs = rs
+        self._rs = rs # DC on some boards
         self._spi_port = spi_port
         self._cs = cs
         self._sck = sck
@@ -218,28 +219,6 @@ class ILI9225(Compatibility):
         self._cfont = CurrentFont()
         self._gfx_font = None
         self.set_board(board)
-
-    @property
-    def spi_close_override(self):
-        """
-        Returns the override state of the SPI interface.
-
-        :return: If the override is active the result is True,
-                 if not active it is False.
-        :rtype: bool
-        """
-        return self.__spi_close_override
-
-    @spi_close_override.setter
-    def spi_close_override(self, value):
-        """
-        Sets the override state of the SPI interface.
-
-        :param value: If True the SPI interface close is overridden
-                      else if False it is not overridden.
-        :type value: bool
-        """
-        self.__spi_close_override = value
 
     def begin(self):
         # Setup MCU specific pins
@@ -364,175 +343,6 @@ class ILI9225(Compatibility):
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished initialize background color.")
-
-    def clear(self, x0=None, y0=None, x1=None, y1=None, color=Colors.BLACK):
-        """
-        Overwrites the entire display with the color black.
-
-        .. note::
-
-          This method can be used to clear, to the previously set
-          background color, a rectilinear area to clear a previous object
-          on the display. Circles can be cleared however the area must be
-          rectilinear. Any intersecting lines or objects will also be cleared.
-
-        :param x0: Start x coordinate.
-        :type x0: int
-        :param y0, Start y coordinate.
-        :type y0: int
-        :param x1: End x coordinate.
-        :type x1: int
-        :param y1, End y coordinate.
-        :type y1: int
-        """
-        if any([True for v in (x0, y0, x1, y1) if v is None]):
-            self.set_display_background(color)
-        else:
-            self.fill_rectangle(x0, y0, x1, y1, color)
-
-    def set_display_background(self, color):
-        """
-        Set the background color of the display.
-
-        :param color: The RGB color for the display, default is black.
-        :type color: int
-        """
-        old_orientation = self.orientation
-        self.orientation = 0
-        self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1, color)
-        self.orientation = old_orientation
-        self.delay(10)
-
-    def set_backlight(self, flag, brightness=MAX_BRIGHTNESS):
-        """
-        Set the backlight on or off and set the brightness if there
-        is an LED pin.
-
-        :param flag: True = backlight on and False = backlight off.
-        :type flag: bool
-        """
-        self._bl_state = flag
-
-        if self._led != -1:
-            self.brightness = brightness
-            self.change_led_duty_cycle(
-                self.brightness if self._bl_state else 0)
-
-    @property
-    def brightness(self):
-        """
-        Get the current brightness.
-        """
-        return self.__brightness
-
-    @brightness.setter
-    def brightness(self, brightness):
-        """
-        Set a different brightness.
-
-        :param brightness: The brightness value to set (0 .. 255)
-        """
-        self.__brightness = brightness % (self.MAX_BRIGHTNESS + 1)
-
-    def set_display(self, flag):
-        """
-        Set the display on or off.
-
-        :param flag: True = display on and False = display off.
-        :type flag: bool
-        """
-        if flag:
-            self._start_write()
-            self._write_register(0x00ff, 0x0000)
-            self._write_register(self.CMD_POWER_CTRL1, 0x0000)
-            self.delay(50)
-            self._write_register(self.CMD_DISP_CTRL1, 0x1017)
-            self._end_write(reuse=False)
-            self.delay(200)
-        else:
-            self._start_write()
-            self._write_register(0x00ff, 0x0000)
-            self._write_register(self.CMD_DISP_CTRL1, 0x0000)
-            self.delay(50)
-            self._write_register(self.CMD_POWER_CTRL1, 0x0003)
-            self._end_write(reuse=False)
-            self.delay(200)
-
-    @property
-    def orientation(self):
-        """
-        Get the orientation.
-
-        :return: Return the current orientation.
-        :rtype: int
-        """
-        return self.__orientation
-
-    @orientation.setter
-    def orientation(self, orientation):
-        """
-        Set the orientation.
-
-        :param orientation: 0=portrait, 1=right rotated landscape,
-                            2=reverse portrait, 3=left rotated landscape
-        :type orientation: int
-        """
-        self.__orientation = orientation % 4
-
-        if self.__orientation == 0: # 0=portrait
-            self._max_x = self.LCD_WIDTH
-            self._max_y = self.LCD_HEIGHT
-        elif self.__orientation == 1: # 1=right rotated landscape
-            self._max_x = self.LCD_HEIGHT
-            self._max_y = self.LCD_WIDTH
-        elif self.__orientation == 2: # 2=reverse portrait
-            self._max_x = self.LCD_WIDTH
-            self._max_y = self.LCD_HEIGHT
-        elif self.__orientation == 3: # 3=left rotated landscape
-            self._max_x = self.LCD_HEIGHT
-            self._max_y = self.LCD_WIDTH
-
-    def _orient_coordinates(self, x, y):
-        if self.__orientation == 1:
-            y = self._max_y - y - 1
-            x, y = y, x
-        elif self.__orientation == 2:
-            x = self._max_x - x - 1
-            y = self._max_y - y - 1
-        elif self.__orientation == 3:
-            x = self._max_x - x - 1
-            x, y = y, x
-
-        # if self.__orientation == 0: We fall through.
-        return x, y
-
-    @property
-    def display_max_x(self):
-        """
-        Get the display max x size (based on orientation).
-
-        .. note::
-
-          Either 0..176 or 0..220 depending on orientation.
-
-        :return: Horizontal size of the display in pixels.
-        :rtype: int
-        """
-        return self._max_x
-
-    @property
-    def display_max_y(self):
-        """
-        Get the display max y size (based on orientation).
-
-        .. note::
-
-          Either 0..176 or 0..220 depending on orientation.
-
-        :return: Vertical size of the display in pixels.
-        :rtype: int
-        """
-        return self._max_y
 
     #
     # Beginning of standard font methods.
@@ -1336,52 +1146,6 @@ class ILI9225(Compatibility):
     ##     self.spi_close_override = False
     ##     self._end_write(reuse=False)
 
-    def rgb16_to_bgr16(self, color):
-        """
-        Convert 16-bit RGB to 16-bit BGR color format.
-
-        :param color: A 16-bit RGB color.
-        :type color: int
-        :return A 16-bit BGR color.
-        :rtype: int
-        """
-        return (
-            ((color & 0b1111100000000000) >> 11)
-            | (color & 0b0000011111100000)
-            | ((color & 0b0000000000011111) << 11)
-            )
-
-    def rgb24_to_rgb16(self, red, green, blue):
-        """
-        Convert 24-bit RGB color components to a 16-bit RGB color.
-
-        :param red: The RED component in the RGB color.
-        :type red: int
-        :param green: The GREEN component in the RGB color.
-        :type green: int
-        :param blue: The BLUE component in the RGB color.
-        :type blue: int
-        :return: An 16-bit RGB color.
-        :rtype: int
-        """
-        return ((round((0x1F * (red + 4)) / 0xFF) << 11) |
-                (round((0x3F * (green + 2)) / 0xFF) << 5) |
-                round((0x1F * (blue + 4)) / 0xFF))
-
-    def rgb16_to_rgb24(self, color):
-        """
-        Convert 16-bit RGB color to a 24-bit RGB color components.
-
-        :param color: An RGB 16-bit color.
-        :type color: int
-        :return: A tuple of the RGB 8-bit components, (red, grn, blu).
-        :rtype: tuple
-        """
-        red = round((0xFF * ((color & 0b1111100000000000) + 4)) / 0x1F) >> 11
-        grn = round((0xFF * ((color & 0b0000011111100000) + 2)) / 0x3F) >> 5
-        blu = round((0xFF * (color & 0b0000000000011111)) / 0x1F)
-        return red, grn, blu
-
     def _set_window(self, x0, y0, x1, y1, mode=MODE_TOP_DOWN_L2R):
         """
         Set the window that will be drawn using the current orientation.
@@ -1411,7 +1175,7 @@ class ILI9225(Compatibility):
 
         # Autoincrement mode
         if self.__orientation > 0:
-            mode = self._MODE_TAB[self.__orientation - 1][mode]
+            mode = self._MODE_TAB[self.orientation - 1][mode]
 
         self._start_write()
         self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3))
@@ -1448,39 +1212,6 @@ class ILI9225(Compatibility):
                              self.LCD_HEIGHT - 1)
         self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0)
         self._end_write(reuse=False)
-
-    def _write_register(self, command, data):
-        self._write_command(command)
-        self._write_data(data)
-
-    def _write_command(self, command):
-        try:
-            self.digital_write(self._rs, self.LOW) # Command
-            result = self.spi_write(command)
-        except CompatibilityException as e: # pragma: no cover
-            self._end_write(reuse=False)
-            raise e
-
-    def _write_data(self, data):
-        try:
-            self.digital_write(self._rs, self.HIGH) # Data
-            result = self.spi_write(data)
-        except CompatibilityException as e: # pragma: no cover
-            self._end_write(reuse=False)
-            raise e
-
-    def _start_write(self):
-        if not self.is_spi_connected:
-            self.spi_start_transaction()
-            self.digital_write(self._cs, self.LOW)
-
-    def _end_write(self, reuse=True):
-        if self.spi_close_override:
-            reuse = True
-
-        if not reuse and self.is_spi_connected:
-            self.digital_write(self._cs, self.HIGH)
-            self.spi_end_transaction()
 
     def __repr__(self):
         return "<{} object using the {} platform>".format(
