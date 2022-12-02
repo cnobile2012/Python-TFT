@@ -261,8 +261,29 @@ class ILI9341(Compatibility, CommonMethods):
         self._start_write()
 
 
+        #self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3))
+        #self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, x1)
+        #self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, x0)
+        #self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, y1)
+        #self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, y0)
 
+        # Starting position within window and increment/decrement direction
+        #pos = mode >> 1
 
+        #if pos == 0:
+        #    self._write_register(self.CMD_RAM_ADDR_SET1, x1)
+        #    self._write_register(self.CMD_RAM_ADDR_SET2, y1)
+        #elif pos == 1:
+        #    self._write_register(self.CMD_RAM_ADDR_SET1, x0)
+        #    self._write_register(self.CMD_RAM_ADDR_SET2, y1)
+        #elif pos == 2:
+        #    self._write_register(self.CMD_RAM_ADDR_SET1, x1)
+        #    self._write_register(self.CMD_RAM_ADDR_SET2, y0)
+        #elif pos == 3:
+        #    self._write_register(self.CMD_RAM_ADDR_SET1, x0)
+        #    self._write_register(self.CMD_RAM_ADDR_SET2, y0)
+
+        #self._write_command(self.CMD_GRAM_DATA_REG)
         self._end_write(reuse=False)
 
     def _reset_window(self):
