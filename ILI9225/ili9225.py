@@ -199,7 +199,8 @@ class ILI9225(Compatibility, CommonMethods):
                                         moso or sck pins are not set on some
                                         boards.
         """
-        super().__init__(rpi_mode=rpi_mode)
+        Compatibility.__init__(self, rpi_mode=rpi_mode)
+        CommonMethods.__init__(self)
         self._rst = rst
         self._rs = rs # DC on some boards
         self._spi_port = spi_port
@@ -208,13 +209,10 @@ class ILI9225(Compatibility, CommonMethods):
         self._mosi = mosi
         self._miso = -1
         self._led = led
-        self.__brightness = 0
         self.brightness = brightness # Default it maximum brightness.
-        self.__orientation = 0
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
-        self.__spi_close_override = False
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
@@ -1174,7 +1172,7 @@ class ILI9225(Compatibility, CommonMethods):
         if y1 < y0: y0, y1 = y1, y0
 
         # Autoincrement mode
-        if self.__orientation > 0:
+        if self.orientation > 0:
             mode = self._MODE_TAB[self.orientation - 1][mode]
 
         self._start_write()

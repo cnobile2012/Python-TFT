@@ -8,9 +8,8 @@ Driver for the ILI9341 chip TFT LCD displays.
 import os
 
 from utils.compatibility import Compatibility
-from utils.common import (Boards, TFTException, CompatibilityException,
-                          RGB16BitColor as Colors)
-
+from utils.common import (Boards, CommonMethods, TFTException,
+                          CompatibilityException, RGB16BitColor as Colors)
 
 
 class ILI9341(Compatibility, CommonMethods):
@@ -124,7 +123,8 @@ class ILI9341(Compatibility, CommonMethods):
                                         moso or sck pins are not set on some
                                         boards.
         """
-        super().__init__(rpi_mode=rpi_mode)
+        Compatibility.__init__(self, rpi_mode=rpi_mode)
+        CommonMethods.__init__(self)
         self._rst = rst
         self._rs = rs # DC on some boards
         self._spi_port = spi_port
@@ -133,13 +133,10 @@ class ILI9341(Compatibility, CommonMethods):
         self._mosi = mosi
         self._miso = -1
         self._led = led
-        self.__brightness = 0
         self.brightness = brightness # Default it maximum brightness.
-        self.__orientation = 0
         self._bl_state = True
         self._max_x = 0
         self._max_y = 0
-        self.__spi_close_override = False
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
@@ -227,7 +224,7 @@ class ILI9341(Compatibility, CommonMethods):
         if self.DEBUG: # pragma: no cover
             print("begin: Finished initialize background color.")
 
-    def _set_window(self, x0, y0, x1, y1, mode=MODE_TOP_DOWN_L2R):
+    def _set_window(self, x0, y0, x1, y1): #, mode=MODE_TOP_DOWN_L2R): # 7
         """
         Set the window that will be drawn using the current orientation.
 
@@ -255,17 +252,21 @@ class ILI9341(Compatibility, CommonMethods):
         if y1 < y0: y0, y1 = y1, y0
 
         # Autoincrement mode
-        if self.__orientation > 0:
-            mode = self._MODE_TAB[self.orientation - 1][mode]
+        #if self.orientation > 0:
+        #    mode = self._MODE_TAB[self.orientation - 1][mode]
 
         self._start_write()
-
-
-        #self._write_register(self.CMD_ENTRY_MODE, 0x1000 | (mode << 3))
-        #self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1, x1)
-        #self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, x0)
-        #self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1, y1)
-        #self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, y0)
+        self.command(CMD_CASET)  # Column addr set
+        self.data(x0 >> 8)
+        self.data(x0)            # XSTART
+        self.data(x1 >> 8)
+        self.data(x1)            # XEND
+        self.command(CMD_PASET)  # Row addr set
+        self.data(y0 >> 8)
+        self.data(y0)            # YSTART
+        self.data(y1 >> 8)
+        self.data(y1)            # YEND
+        self.command(CMD_RAMWR)  # write to RAM
 
         # Starting position within window and increment/decrement direction
         #pos = mode >> 1
@@ -287,17 +288,6 @@ class ILI9341(Compatibility, CommonMethods):
         self._end_write(reuse=False)
 
     def _reset_window(self):
-        self._start_write()
-
-
-
-        #self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR1,
-        #                     self.LCD_WIDTH - 1)
-        #self._write_register(self.CMD_HORIZONTAL_WINDOW_ADDR2, 0)
-        #self._write_register(self.CMD_VERTICAL_WINDOW_ADDR1,
-        #                     self.LCD_HEIGHT - 1)
-        #self._write_register(self.CMD_VERTICAL_WINDOW_ADDR2, 0)
-        self._end_write(reuse=False)
-
+        self._set_window(0, 0, self.LCD_WIDTH-1, self.LCD_HEIGHT-1)
 
 

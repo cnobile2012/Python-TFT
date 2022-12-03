@@ -191,31 +191,11 @@ class CommonMethods:
     """
     These are common method accross all display types.
     """
-    # Orientation modes
-    MODE_R2L_BOTTOM_UP = 0
-    MODE_BOTTOM_UP_R2L = 1
-    MODE_L2R_BOTTOM_UP = 2
-    MODE_BOTTOM_UP_L2R = 3
-    MODE_R2L_TOP_DOWN = 4
-    MODE_TOP_DOWN_R2L = 5
-    MODE_L2R_TOP_DOWN = 6
-    MODE_TOP_DOWN_L2R = 7
 
-    # Corresponding modes when orientation changes.
-    _MODE_TAB = (
-        (MODE_BOTTOM_UP_L2R, MODE_L2R_BOTTOM_UP,
-         MODE_TOP_DOWN_L2R, MODE_L2R_TOP_DOWN,
-         MODE_BOTTOM_UP_R2L, MODE_R2L_BOTTOM_UP,
-         MODE_TOP_DOWN_R2L, MODE_R2L_TOP_DOWN), # 90°
-        (MODE_L2R_TOP_DOWN, MODE_TOP_DOWN_L2R,
-         MODE_R2L_TOP_DOWN, MODE_TOP_DOWN_R2L,
-         MODE_L2R_BOTTOM_UP, MODE_BOTTOM_UP_L2R,
-         MODE_R2L_BOTTOM_UP, MODE_BOTTOM_UP_R2L), # 180°
-        (MODE_TOP_DOWN_R2L, MODE_R2L_TOP_DOWN,
-         MODE_BOTTOM_UP_R2L, MODE_R2L_BOTTOM_UP,
-         MODE_TOP_DOWN_L2R, MODE_L2R_TOP_DOWN,
-         MODE_BOTTOM_UP_L2R, MODE_L2R_BOTTOM_UP) # 270°
-        )
+    def __init__(self):
+        self.__orientation = 0
+        self.__brightness = 0
+        self.__spi_close_override = False
 
     @property
     def spi_close_override(self):
