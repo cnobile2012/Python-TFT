@@ -114,7 +114,7 @@ class ILI9225(Compatibility, CommonMethods):
     CMD_VCI_RECYCLING           = 0x15  # VCI Recycling
     CMD_RAM_ADDR_SET1           = 0x20  # Horizontal GRAM Address Set
     CMD_RAM_ADDR_SET2           = 0x21  # Vertical GRAM Address Set
-    CMD_GRAM_DATA_REG           = 0x22  # GRAM Data Register
+    CMD_GRAM_DATA_REG           = 0x22  # Write to GRAM Data Register
     CMD_GATE_SCAN_CTRL          = 0x30  # Gate Scan Control Register
     CMD_VERTICAL_SCROLL_CTRL1   = 0x31  # Vertical Scroll Control 1 Register
     CMD_VERTICAL_SCROLL_CTRL2   = 0x32  # Vertical Scroll Control 2 Register
@@ -341,6 +341,29 @@ class ILI9225(Compatibility, CommonMethods):
 
         if self.DEBUG: # pragma: no cover
             print("begin: Finished initialize background color.")
+
+    def set_display(self, flag):
+        """
+        Set the display on or off.
+
+        :param flag: True = display on and False = display off.
+        :type flag: bool
+        """
+        self._start_write()
+
+        if flag:
+            self._write_register(0x00ff, 0x0000)
+            self._write_register(self.CMD_POWER_CTRL1, 0x0000)
+            self.delay(50)
+            self._write_register(self.CMD_DISP_CTRL1, 0x1017)
+        else:
+            self._write_register(0x00ff, 0x0000)
+            self._write_register(self.CMD_DISP_CTRL1, 0x0000)
+            self.delay(50)
+            self._write_register(self.CMD_POWER_CTRL1, 0x0003)
+
+        self._end_write(reuse=False)
+        self.delay(200)
 
     #
     # Beginning of standard font methods.
@@ -705,349 +728,6 @@ class ILI9225(Compatibility, CommonMethods):
     # End of GFX font methods.
     #
 
-    def draw_rectangle(self, x0, y0, x1, y1, color):
-        """
-        Draw a rectangle using rectangular coordinates.
-
-        :param x0: Start point coordinate (x0-axis).
-        :type x0: int
-        :param y0: Center point coordinate (y0-axis).
-        :type y0: int
-        :param x1: Center point coordinate (x1-axis).
-        :type x1: int
-        :param y1: Center point coordinate (y1-axis).
-        :type y1: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        self._start_write()
-        self.draw_line(x0, y0, x0, y1, color)
-        self.draw_line(x0, y0, x1, y0, color)
-        self.draw_line(x0, y1, x1, y1, color)
-        self.draw_line(x1, y0, x1, y1, color)
-        self._end_write(reuse=False)
-
-    def fill_rectangle(self, x0, y0, x1, y1, color):
-        """
-        Fill a rectangle using rectangular coordinates.
-
-        :param x0: Start point coordinate (x0-axis).
-        :type x0: int
-        :param y0: Center point coordinate (y0-axis).
-        :type y0: int
-        :param x1: Center point coordinate (x1-axis).
-        :type x1: int
-        :param y1: Center point coordinate (y1-axis).
-        :type y1: int
-        :param color: A 16-bit RGB color
-        :type color: int
-        """
-        self.spi_close_override = True
-        self._start_write()
-        self._set_window(x0, y0, x1, y1)
-        array = bytearray()
-        c_hi = color >> 8
-        c_lo = color & 0xFF
-
-        # Count backwards from (y1 - y0 + 1) * (x1 - x0 + 1)) + 1 ending at 1.
-        for t in reversed(range(1, round((y1 - y0 + 1) * (x1 - x0 + 1)) + 1)):
-            if (hasattr(self, '_need_chunking')
-                and self._need_chunking(array)): # pragma: no cover
-                self._write_data(array)
-                array = bytearray()
-
-            array.append(c_hi)
-            array.append(c_lo)
-
-        self._write_data(array)
-        self._reset_window()
-        self.spi_close_override = False
-        self._end_write(reuse=False)
-
-    def draw_circle(self, x0, y0, radius, color):
-        """
-        Draw a circle.
-
-        :param x0: Center point coordinate (x-axis).
-        :type x0: int
-        :param y0: Center point coordinate (y-axis).
-        :type y0: int
-        :param radius: The radius of the circle.
-        :type radius: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        f = 1 - radius
-        ddf_x = 1
-        ddf_y = -2 * radius
-        x = 0
-        y = radius
-        pixels = []
-        self.spi_close_override = True
-        self._start_write()
-
-        pixels.append((x0, y0 + radius, color))
-        pixels.append((x0, y0 - radius, color))
-        pixels.append((x0 + radius, y0, color))
-        pixels.append((x0 - radius, y0, color))
-
-        while x < y:
-            if f >= 0:
-                y -= 1
-                ddf_y += 2
-                f += ddf_y
-
-            x += 1
-            ddf_x += 2
-            f += ddf_x
-
-            pixels.append((x0 + x, y0 + y, color))
-            pixels.append((x0 - x, y0 + y, color))
-            pixels.append((x0 + x, y0 - y, color))
-            pixels.append((x0 - x, y0 - y, color))
-            pixels.append((x0 + y, y0 + x, color))
-            pixels.append((x0 - y, y0 + x, color))
-            pixels.append((x0 + y, y0 - x, color))
-            pixels.append((x0 - y, y0 - x, color))
-
-        self.draw_pixel_alt(pixels)
-        self._end_write(reuse=False)
-        self.spi_close_override = False
-
-    def fill_circle(self, x0, y0, radius, color):
-        """
-        Fill a circle.
-
-        :param x0: Center point coordinate (x-axis).
-        :type x0: int
-        :param y0: Center point coordinate (y-axis).
-        :type y0: int
-        :param radius: The radius of the circle.
-        :type radius: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        f = 1 - radius
-        ddf_x = 1
-        ddf_y = -2 * radius
-        x = 0
-        y = radius
-        self.spi_close_override = True
-        self._start_write()
-
-        while x < y:
-            if f >= 0:
-                y -= 1
-                ddf_y += 2
-                f += ddf_y
-
-            x += 1
-            ddf_x += 2
-            f += ddf_x
-
-            self.draw_line(x0 + x, y0 + y, x0 - x, y0 + y, color) # bottom
-            self.draw_line(x0 + x, y0 - y, x0 - x, y0 - y, color) # top
-            self.draw_line(x0 + y, y0 - x, x0 + y, y0 + x, color) # right
-            self.draw_line(x0 - y, y0 - x, x0 - y, y0 + x, color) # left
-
-        self.spi_close_override = False
-        self._end_write(reuse=False)
-        self.fill_rectangle(x0 - x, y0 - y, x0 + x, y0 + y, color)
-
-    def draw_triangle(self, x0, y0, x1, y1, x2, y2, color):
-        """
-        Draw a triangle using triangular coordinates.
-
-        :param x0: Corner 1 coordinate (x-axis).
-        :type x0: int
-        :param y0: Corner 1 coordinate (y-axis).
-        :type y0: int
-        :param x1: Corner 2 coordinate (x-axis).
-        :type x1: int
-        :param y1: Corner 2 coordinate (y-axis).
-        :type y1: int
-        :param x2: Corner 3 coordinate (x-axis).
-        :type x2: int
-        :param y2: Corner 3 coordinate (y-axis).
-        :type y2: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        self.spi_close_override = True
-        self._start_write()
-        self.draw_line(x0, y0, x1, y1, color)
-        self.draw_line(x1, y1, x2, y2, color)
-        self.draw_line(x2, y2, x0, y0, color)
-        self.spi_close_override = False
-        self._end_write(reuse=False)
-
-    def fill_triangle(self, x0, y0, x1, y1, x2, y2, color):
-        """
-        Fill solid triangle using triangular coordinates.
-
-        :param x0: Corner 1 coordinate (x-axis).
-        :type x0: int
-        :param y0: Corner 1 coordinate (y-axis).
-        :type y0: int
-        :param x1: Corner 2 coordinate (x-axis).
-        :type x1: int
-        :param y1: Corner 2 coordinate (y-axis).
-        :type y1: int
-        :param x2: Corner 3 coordinate (x-axis).
-        :type x2: int
-        :param y2: Corner 3 coordinate (y-axis).
-        :type y2: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        # Sort coordinates by Y order (y2 >= y1 >= y0)
-        if y0 > y1:
-            y0, y1 = y1, y0
-            x0, x1 = x1, x0
-
-        if y1 > y2:
-            y2, y1 = y1, y2
-            x2, x1 = x1, x2
-
-        # Handle awkward all-on-same-line case as its own thing.
-        if y0 == y2:
-            a = b = x0
-
-            if x1 < a: a = x1
-            elif x2 > b: b = x1
-
-            if x2 < a: a = x2
-            elif x2 > b: b = x2
-
-            self.draw_line(a, y0, b, y0, color)
-            return
-
-        dx11 = x1 - x0
-        dy11 = y1 - y0
-        dx12 = x2 - x0
-        dy12 = y2 - y0
-        dx22 = x2 - x1
-        dy22 = y2 - y1
-
-        # For upper part of triangle, find scanline crossings for segments
-        # 0-1 and 0-2. If y1=y2 (flat-bottomed triangle), the scanline y2
-        # is included here (and second loop will be skipped, avoiding a /0
-        # error there), otherwise scanline y1 is skipped here and handled
-        # in the second loop...which also avoids a /0 error here if y0=y1
-        # (flat-topped triangle).
-        if y1 == y2:
-            last = y1     # Include y1 scanline
-        else:
-            last = y1 - 1 # Skip it
-
-        y = y0
-        sa = 0
-        sb = 0
-        self.spi_close_override = True
-        self._start_write()
-
-        while y <= last:
-            a = x0 + sa / dy11
-            b = x0 + sb / dy12
-            sa += dx11
-            sb += dx12
-
-            # longhand:
-            # a = x0 + (x1 - x0) * (y - y0) / (y1 - y0)
-            # b = x0 + (x2 - x0) * (y - y0) / (y2 - y0)
-            if a > b: a, b = b, a
-            self.draw_line(a, y, b, y, color)
-            y += 1
-
-        # For lower part of triangle, find scanline crossings for segments
-        # 0-2 and 1-2.  This loop is skipped if y1=y2.
-        sa = dx22 * (y - y1)
-        sb = dx12 * (y - y0)
-
-        while y <= y2:
-            a = x1 + sa / dy22
-            b = x0 + sb / dy12
-            sa += dx22
-            sb += dx12
-
-            # longhand:
-            # a = x1 + (x2 - x1) * (y - y1) / (y2 - y1)
-            # b = x0 + (x2 - x0) * (y - y0) / (y2 - y0)
-            if a > b: a, b = b, a
-            self.draw_line(a, y, b, y, color)
-            y += 1
-
-        self.spi_close_override = False
-        self._end_write(reuse=False)
-
-    def draw_line(self, x0, y0, x1, y1, color):
-        """
-        Draw a line using rectangular coordinates.
-
-        :param x0: Start point coordinate (x0-axis).
-        :type x0: int
-        :param y0: Center point coordinate (y0-axis).
-        :type y0: int
-        :param x1: Center point coordinate (x1-axis).
-        :type x1: int
-        :param y1: Center point coordinate (y1-axis).
-        :type y1: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        # Classic Bresenham algorithm
-        steep = abs(y1 - y0) > abs(x1 - x0)
-
-        if steep:
-            x0, y0 = y0, x0
-            x1, y1 = y1, x1
-
-        if x0 > x1:
-            x0, x1 = x1, x0
-            y0, y1 = y1, y0
-
-        dx = x1 - x0
-        dy = abs(y1 - y0)
-        err = dx / 2
-
-        if y0 < y1:
-            ystep = 1
-        else:
-            ystep = -1
-
-        pixels = []
-        self._start_write()
-
-        while x0 <= x1:
-            if steep:
-                pixels.append((y0, x0, color))
-            else:
-                pixels.append((x0, y0, color))
-
-            err -= dy
-
-            if err < 0:
-                y0 += ystep
-                err += dx
-
-            x0 += 1
-
-        self.draw_pixel_alt(pixels)
-        self._end_write(reuse=False)
-
-    def draw_pixel(self, x0, y0, color):
-        """
-        Draw a pixel.
-
-        :param x0: Point coordinate (x-axis).
-        :type x0: int
-        :param y0: Point coordinate (y-axis).
-        :type y0: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        self.draw_pixel_alt(((x0, y0, color),))
-
     def draw_pixel_alt(self, pixels):
         """
         Draw a pixel.
@@ -1066,83 +746,6 @@ class ILI9225(Compatibility, CommonMethods):
                 self._write_register(self.CMD_GRAM_DATA_REG, array)
 
         self._end_write(reuse=False)
-
-    ## def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
-    ##                 transparent=False, x_bit=False):
-    ##     """
-    ##     Draw a bitmap image.
-
-    ##     :param x: Point coordinate (x-axis).
-    ##     :type x: int
-    ##     :param y: Point coordinate (y-axis).
-    ##     :type y: int
-    ##     :param bitmap: A 2D 16-bit color bitmap image to draw on the display.
-    ##     :type bitmap: int
-    ##     :param w: Width
-    ##     :type w: int
-    ##     :param h: Height
-    ##     :type h: int
-    ##     :param color: A 16-bit RGB color (default=white).
-    ##     :type color: int
-    ##     :param bg: A 16-bit RGB background color.
-    ##     :type bg: int
-    ##     :param transparent: True = transparent bitmap, False = not transparent.
-    ##     :type transparent: bool
-    ##     :param x_bit: This indicates that the left most (8th) bit is set.
-    ##     :type x_bit: bool
-    ##     """
-    ##     no_auto_inc = False # Flag set when transparent pixel was 'written'.
-    ##     byte_width = (w + 7) / 8
-    ##     byte = 0
-    ##     mask_bit = 0x01 if x_bit else 0x80
-
-    ##     # Adjust window height/width to display dimensions
-    ##     wx0 = 0 if x < 0 else x
-    ##     wy0 = 0 if y < 0 else y
-    ##     wx1 = (self._max_x if x + w > self._max_x else x + w) - 1
-    ##     wy1 = (self._max_y if y + h > self._max_y else y + h) - 1
-    ##     wh = wy1 - wy0 + 1
-
-    ##     if self.DEBUG: # pragma: no cover
-    ##         print("draw_bitmap: max_x={}, max_y={}".format(
-    ##             self._max_x, self._max_y))
-    ##         print("draw_bitmap: wx0={}, wy0={}, wx1={}, wy1={}".format(
-    ##             wx0, wy0, wx1, wy1))
-
-    ##     self.spi_close_override = True
-    ##     self._start_write()
-    ##     self._set_window(wx0, wy0, wx1, wy1, self.MODE_L2R_TOP_DOWN)
-
-    ##     # for (j = y >= 0 ? 0 : -y; j < (y >= 0 ? 0 : -y)+wh; j++) {...}
-    ##     yy = 0 if y >= 0 else -y
-
-    ##     for j in range(yy, yy + wh):
-    ##         for i in range(w):
-    ##             if i & 7:
-    ##                 if x_bit: byte >>= 1
-    ##                 else: byte <<= 1
-    ##             else:
-    ##                 byte = bitmap[j * byte_width + i // 8]
-
-    ##             if wx0 <= x + i <= wx1:
-    ##                 # Write only if pixel is within window.
-    ##                 if byte & mask_bit:
-    ##                     if no_auto_inc:
-    ##                         # There was a transparent area,
-    ##                         # set pixel coordinates again.
-    ##                         self.draw_pixel(x + i, y + j, color)
-    ##                         no_auto_inc = False
-    ##                     else:
-    ##                         self._write_data(color)
-    ##                 elif transparent:
-    ##                     # No autoincrement in transparent area!
-    ##                     no_auto_inc = True
-    ##                 else:
-    ##                     self._write_data(bg)
-
-    ##     self._reset_window()
-    ##     self.spi_close_override = False
-    ##     self._end_write(reuse=False)
 
     def _set_window(self, x0, y0, x1, y1, mode=MODE_TOP_DOWN_L2R):
         """
