@@ -24,14 +24,6 @@ class ILI9341(Compatibility, CommonMethods):
         DEBUG = False
         TESTING = False
 
-    ERROR_MSGS = {
-        'STD_FONT': "Please set a standard font before using this method.",
-        'GFX_FONT': "Please set a GFX font before using this method.",
-        'GFX_BAD_CH': "The character '{}' is not in the current font.",
-        'BRD_UNSUP': "Error: The {} board is not supported.",
-        'INV_PORT': "Invalid port for the {} board."
-        }
-
     LCD_WIDTH        = 240
     LCD_HEIGHT       = 320
     MAX_BRIGHTNESS   = 255   # 0..255

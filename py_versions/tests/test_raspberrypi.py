@@ -7,9 +7,10 @@ import io
 import math
 import time
 import unittest
+
 from contextlib import redirect_stdout
 
-from ILI9225 import ILI9225, Boards, CompatibilityException
+from utils.common import CommonMethods, Boards, CompatibilityException
 from py_versions.raspberrypi import PiVersion
 
 from RPi import GPIO
@@ -63,7 +64,7 @@ class TestPiVersion(unittest.TestCase):
 
     def setUp(self):
         PiVersion.TESTING = True
-        PiVersion.ERROR_MSGS = ILI9225.ERROR_MSGS
+        PiVersion.ERROR_MSGS = CommonMethods.ERROR_MSGS
         PiVersion.BOARD = Boards.RASPI
         PiVersion.MAX_BRIGHTNESS = 255
         self._pyv = PiVersion()

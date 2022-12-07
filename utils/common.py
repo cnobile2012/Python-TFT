@@ -192,6 +192,14 @@ class CommonMethods:
     These are common method accross all display types.
     """
 
+    ERROR_MSGS = {
+        'STD_FONT': "Please set a standard font before using this method.",
+        'GFX_FONT': "Please set a GFX font before using this method.",
+        'GFX_BAD_CH': "The character '{}' is not in the current font.",
+        'BRD_UNSUP': "Error: The {} board is not supported.",
+        'INV_PORT': "Invalid port for the {} board."
+        }
+
     def __init__(self):
         self.__orientation = 0
         self.__brightness = 0
