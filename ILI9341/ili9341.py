@@ -64,7 +64,7 @@ class ILI9341(Compatibility, CommonMethods):
     CMD_WTMEMCONT    = 0x3C # Write Memory Continue
     CMD_RDMEMCONT    = 0x3E # Read Memory Continue
     CMD_SETSCANLN    = 0x44 # Set Tear Scanline
-    CMD GETSCANLN    = 0x45 # Get Scanline
+    CMD_GETSCANLN    = 0x45 # Get Scanline
     CMD_WRDSPBRT     = 0x51 # Write Display Brightness
     CMD_RDDSPBRT     = 0x52 # Read Display Brightness
     CMD_WRCTRLDSP    = 0x53 # Write CTRL Display
