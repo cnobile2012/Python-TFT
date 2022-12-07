@@ -173,7 +173,9 @@ class CreatePackages:
         self.__fix_imports(process_path, fix, change)
 
     def _fix_ili9341(self, process_path):
-        pass
+        fix = "from utils."
+        change = "from ."
+        self.__fix_imports(process_path, fix, change)
 
     def _fix_init(self, process_path):
         fix = "from utils."
