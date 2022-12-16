@@ -26,7 +26,7 @@ class ILI9341(Compatibility, CommonMethods):
 
     LCD_WIDTH        = 240
     LCD_HEIGHT       = 320
-    MAX_BRIGHTNESS   = 255   # 0..255
+    MAX_BRIGHTNESS   = 255  # 0..255
 
     CMD_NOP          = 0x00 # NOOP
     CMD_SWRESET      = 0x01 # Software Reset
@@ -106,14 +106,13 @@ class ILI9341(Compatibility, CommonMethods):
     CMD_GMCTL1       = 0xE2 # Digital Gamma Control 1
     CMD_GMCTL2       = 0xE3 # Digital Gamma Control 2
     CMD_DRTMCTLA     = 0xE8 # Driver timing control A
-    #CMD_DRTMCTLA     = 0xE9 # Driver timing control A ??? It's in the docs
+    #CMD_DRTMCTLA     = 0xE9 # Driver timing control A ?? It's in the datasheet
     CMD_DRTMCTLB     = 0xEA # Driver timing control B
     CMD_PWONSEQCTL   = 0xED # Power on sequence control
     CMD_EN3GAMMA     = 0xF2 # Enable 3G
     CMD_IFACECTL     = 0xF6 # Interface Control
     CMD_PUMPRATIOCTL = 0xF7 # Pump ratio control
     CMD_UNKNOWN      = 0xEF # This is an undocumented command but must be sent
-
 
     def __init__(self, rst, rs, spi_port, cs=-1, mosi=-1, sck=-1, led=-1,
                  board=None, *, brightness=MAX_BRIGHTNESS, rpi_mode=None):
