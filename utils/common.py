@@ -201,6 +201,8 @@ class CommonMethods:
         }
 
     def __init__(self):
+        self._max_x = 0
+        self._max_y = 0
         self.__orientation = 0
         self.__brightness = 0
         self.__spi_close_override = False
@@ -261,7 +263,7 @@ class CommonMethods:
         """
         old_orientation = self.orientation
         self.orientation = 0
-        self.fill_rectangle(0, 0, self._max_x - 1, self._max_y - 1, color)
+        self.fill_rectangle(0, 0, self.max_x - 1, self.max_y - 1, color)
         self.orientation = old_orientation
         self.delay(10)
 
@@ -339,22 +341,22 @@ class CommonMethods:
 
     def _orient_coordinates(self, x, y):
         if self.__orientation == 1:
-            y = self._max_y - y - 1
+            y = self.max_y - y - 1
             x, y = y, x
         elif self.__orientation == 2:
-            x = self._max_x - x - 1
-            y = self._max_y - y - 1
+            x = self.max_x - x - 1
+            y = self.max_y - y - 1
         elif self.__orientation == 3:
-            x = self._max_x - x - 1
+            x = self.max_x - x - 1
             x, y = y, x
 
         # if self.__orientation == 0: We fall through.
         return x, y
 
     @property
-    def display_max_x(self):
+    def max_x(self):
         """
-        Get the display max x size (based on orientation).
+        Get the display max x size. The valueis based on the orientation.
 
         .. note::
 
@@ -366,9 +368,9 @@ class CommonMethods:
         return self._max_x
 
     @property
-    def display_max_y(self):
+    def max_y(self):
         """
-        Get the display max y size (based on orientation).
+        Get the display max y size. The value is based on the orientation.
 
         .. note::
 
@@ -709,19 +711,6 @@ class CommonMethods:
         self.draw_pixel_alt(pixels)
         self._end_write(reuse=False)
 
-    def draw_pixel(self, x0, y0, color):
-        """
-        Draw a pixel.
-
-        :param x0: Point coordinate (x-axis).
-        :type x0: int
-        :param y0: Point coordinate (y-axis).
-        :type y0: int
-        :param color: A 16-bit RGB color.
-        :type color: int
-        """
-        self.draw_pixel_alt(((x0, y0, color),))
-
     ## def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,
     ##                 transparent=False, x_bit=False):
     ##     """
@@ -754,13 +743,13 @@ class CommonMethods:
     ##     # Adjust window height/width to display dimensions
     ##     wx0 = 0 if x < 0 else x
     ##     wy0 = 0 if y < 0 else y
-    ##     wx1 = (self._max_x if x + w > self._max_x else x + w) - 1
-    ##     wy1 = (self._max_y if y + h > self._max_y else y + h) - 1
+    ##     wx1 = (self.max_x if x + w > self.max_x else x + w) - 1
+    ##     wy1 = (self.max_y if y + h > self.max_y else y + h) - 1
     ##     wh = wy1 - wy0 + 1
 
     ##     if self.DEBUG: # pragma: no cover
     ##         print("draw_bitmap: max_x={}, max_y={}".format(
-    ##             self._max_x, self._max_y))
+    ##             self.max_x, self.max_y))
     ##         print("draw_bitmap: wx0={}, wy0={}, wx1={}, wy1={}".format(
     ##             wx0, wy0, wx1, wy1))
 

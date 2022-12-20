@@ -203,8 +203,6 @@ class ILI9225(Compatibility, CommonMethods):
         self._led = led
         self.brightness = brightness # Default it maximum brightness.
         self._bl_state = True
-        self._max_x = 0
-        self._max_y = 0
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
@@ -413,8 +411,8 @@ class ILI9225(Compatibility, CommonMethods):
         char_offset += 1
         # Use autoincrement/decrement feature, if character fits
         # completely on the screen.
-        fast_mode = ((x + char_width + 1) < self._max_x
-                     and (y + self._cfont.height - 1) < self._max_y)
+        fast_mode = ((x + char_width + 1) < self.max_x
+                     and (y + self._cfont.height - 1) < self.max_y)
 
         # Set character window.
         if fast_mode:
@@ -720,6 +718,19 @@ class ILI9225(Compatibility, CommonMethods):
     # End of GFX font methods.
     #
 
+    def draw_pixel(self, x0, y0, color):
+        """
+        Draw a pixel.
+
+        :param x0: Point coordinate (x-axis).
+        :type x0: int
+        :param y0: Point coordinate (y-axis).
+        :type y0: int
+        :param color: A 16-bit RGB color.
+        :type color: int
+        """
+        self.draw_pixel_alt(((x0, y0, color),))
+
     def draw_pixel_alt(self, pixels):
         """
         Draw a pixel.
@@ -730,7 +741,7 @@ class ILI9225(Compatibility, CommonMethods):
         self._start_write()
 
         for x, y, color in pixels:
-            if not ((x >= self._max_x) or (y >= self._max_y)):
+            if not ((x >= self.max_x) or (y >= self.max_y)):
                 x, y = self._orient_coordinates(x, y )
                 self._write_register(self.CMD_RAM_ADDR_SET1, x)
                 self._write_register(self.CMD_RAM_ADDR_SET2, y)
@@ -756,10 +767,10 @@ class ILI9225(Compatibility, CommonMethods):
         :raises TFTException: If the orientation is out of range.
         """
         # Clip to TFT-Dimensions
-        x0 = min(x0, self._max_x - 1)
-        x1 = min(x1, self._max_x - 1)
-        y0 = min(y0, self._max_y - 1)
-        y1 = min(y1, self._max_y - 1)
+        x0 = min(x0, self.max_x - 1)
+        x1 = min(x1, self.max_x - 1)
+        y0 = min(y0, self.max_y - 1)
+        y1 = min(y1, self.max_y - 1)
         x0, y0 = self._orient_coordinates(x0, y0)
         x1, y1 = self._orient_coordinates(x1, y1)
 

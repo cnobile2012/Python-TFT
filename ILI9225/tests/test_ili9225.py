@@ -424,11 +424,11 @@ class TestILI9225(unittest.TestCase):
             for orientation in orient:
                 self._tft.orientation = orientation
                 msg = (f"Should be orientation {orientation}: '{x}' "
-                       f"found '{self._tft._max_x}'")
-                self.assertEqual(x, self._tft._max_x, msg=msg)
+                       f"found '{self._tft.max_x}'")
+                self.assertEqual(x, self._tft.max_x, msg=msg)
                 msg = (f"Should be orientation {orientation}: '{y}' "
-                       f"found '{self._tft._max_y}'")
-                self.assertEqual(y, self._tft._max_y, msg=msg)
+                       f"found '{self._tft.max_y}'")
+                self.assertEqual(y, self._tft.max_y, msg=msg)
 
     #@unittest.skip("Temporary")
     def test_get_orientation(self):
@@ -467,7 +467,7 @@ class TestILI9225(unittest.TestCase):
             self.assertEqual(yy, yyy, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_display_max_x(self):
+    def test_max_x(self):
         """
         Test that the max x is correct depending on the set orientation.
         """
@@ -481,12 +481,12 @@ class TestILI9225(unittest.TestCase):
 
         for orientation, xx in tests:
             self._tft.orientation = orientation
-            xxx = self._tft.display_max_x
+            xxx = self._tft.max_x
             msg = f"Expect x = {xx} found x = {xxx}"
             self.assertEqual(xx, xxx, msg=msg)
 
     #@unittest.skip("Temporary")
-    def test_display_max_y(self):
+    def test_max_y(self):
         """
         Test that the max y is correct depending on the set orientation.
         """
@@ -500,7 +500,7 @@ class TestILI9225(unittest.TestCase):
 
         for orientation, yy in tests:
             self._tft.orientation = orientation
-            yyy = self._tft.display_max_y
+            yyy = self._tft.max_y
             msg = f"Expect y = {yy} found y = {yyy}"
             self.assertEqual(yy, yyy, msg=msg)
 
@@ -553,8 +553,8 @@ class TestILI9225(unittest.TestCase):
         Test that this method correctly draws standard characters
         to the display.
         """
-        x = self._tft.display_max_x / 2 # Origin = 0 (88 = 176 / 2)
-        y = self._tft.display_max_y / 2 # Origin = 0 (110 = 220 / 2)
+        x = self._tft.max_x / 2 # Origin = 0 (88 = 176 / 2)
+        y = self._tft.max_y / 2 # Origin = 0 (110 = 220 / 2)
 
         # Test that an exception is raised when a font is not set first.
         with self.assertRaises(TFTException) as cm:
@@ -593,8 +593,8 @@ class TestILI9225(unittest.TestCase):
         """
         Test that a string of text is drawn to the display correctly.
         """
-        x = self._tft.display_max_x / 2
-        y = self._tft.display_max_y / 2
+        x = self._tft.max_x / 2
+        y = self._tft.max_y / 2
         st = 'ABC'
         self._tft.set_font(Terminal12x16)
         st_len = len(st)
@@ -651,8 +651,8 @@ class TestILI9225(unittest.TestCase):
         """
         Test that a GFX character can be drawn to the display properly.
         """
-        x = self._tft.display_max_x / 2
-        y = self._tft.display_max_y / 2
+        x = self._tft.max_x / 2
+        y = self._tft.max_y / 2
         ch = 'A'
 
         # Test that an exception is raised when a font is not set first.
@@ -690,8 +690,8 @@ class TestILI9225(unittest.TestCase):
         """
         Test that a string of text is drawn to the display correctly.
         """
-        x = self._tft.display_max_x / 2
-        y = self._tft.display_max_y / 2
+        x = self._tft.max_x / 2
+        y = self._tft.max_y / 2
         self._tft.set_gfx_font(FreeSerifItalic18pt7b)
         st = 'ABC'
         first = FreeSerifItalic18pt7b[2] # GFXFont.first
@@ -792,8 +792,8 @@ class TestILI9225(unittest.TestCase):
         """
         Test that a circle is drawn on the display.
         """
-        x = self._tft.display_max_x / 2
-        y = self._tft.display_max_y / 2
+        x = self._tft.max_x / 2
+        y = self._tft.max_y / 2
         radius = 50
         self._tft.draw_circle(x, y, radius, Colors.BLUE)
         expect = self._read_data_file('draw_circle.txt')
@@ -804,8 +804,8 @@ class TestILI9225(unittest.TestCase):
         """
         Test that a filled circle is drawn on the display.
         """
-        x = self._tft.display_max_x / 2
-        y = self._tft.display_max_y / 2
+        x = self._tft.max_x / 2
+        y = self._tft.max_y / 2
         radius = 50
         self._tft.fill_circle(x, y, radius, Colors.BLUE)
         expect = self._read_data_file('fill_circle.txt')

@@ -157,8 +157,6 @@ class ILI9341(Compatibility, CommonMethods):
         self._led = led
         self.brightness = brightness # Default it maximum brightness.
         self._bl_state = True
-        self._max_x = 0
-        self._max_y = 0
         self._current_font = None
         self._cfont = CurrentFont()
         self._gfx_font = None
@@ -277,7 +275,7 @@ class ILI9341(Compatibility, CommonMethods):
         # CMD_RAMWR (D1[17:0], D2[17:0] ... Dn[17:0])
 
         for x, y, color in pixels:
-            if not ((x >= self._max_x) or (y >= self._max_y)):
+            if not ((x >= self.max_x) or (y >= self.max_y)):
                 x, y = self._orient_coordinates(x, y )
                 ## self._write_register(self.CMD_RAM_ADDR_SET1, x)
                 ## self._write_register(self.CMD_RAM_ADDR_SET2, y)
@@ -303,10 +301,10 @@ class ILI9341(Compatibility, CommonMethods):
         :raises TFTException: If the orientation is out of range.
         """
         # Clip to TFT-Dimensions
-        x0 = min(x0, self._max_x - 1)
-        x1 = min(x1, self._max_x - 1)
-        y0 = min(y0, self._max_y - 1)
-        y1 = min(y1, self._max_y - 1)
+        x0 = min(x0, self.max_x - 1)
+        x1 = min(x1, self.max_x - 1)
+        y0 = min(y0, self.max_y - 1)
+        y1 = min(y1, self.max_y - 1)
         x0, y0 = self._orient_coordinates(x0, y0)
         x1, y1 = self._orient_coordinates(x1, y1)
 

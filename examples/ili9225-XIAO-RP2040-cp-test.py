@@ -51,9 +51,9 @@ try:
     msg = "Standard font (Terminal6x8)"
     width, height = tft.get_text_extent(msg)
     print("Text width:", width, "Text height:", height,
-          "Max screen width:", tft.display_max_x)
+          "Max screen width:", tft.max_x)
     x0 = 0
-    y0 = tft.display_max_y / 2
+    y0 = tft.max_y / 2
     tft.draw_text(x0, y0, msg, color=Color.MAGENTA, bg_color=Color.YELLOW)
     time.sleep(5)
     x1 = x0 + width
@@ -70,9 +70,9 @@ try:
     tft.set_gfx_font(SansSerif_plain_10)
     width, height = tft.get_gfx_text_extent(msg)
     print("GFX font width:", width, "Text height:", height,
-          "Max screen width:", tft.display_max_x)
+          "Max screen width:", tft.max_x)
     x0 = 0
-    y0 = tft.display_max_y / 2
+    y0 = tft.max_y / 2
     tft.draw_gfx_text(x0, y0, msg)
     time.sleep(5)
     x1 = x0 + width
@@ -84,9 +84,9 @@ try:
     tft.set_gfx_font(FreeMonoBoldOblique12pt7b)
     width, height = tft.get_gfx_text_extent(msg)
     print("GFX font width:", width, "Text height:", height,
-          "Max screen width:", tft.display_max_x)
+          "Max screen width:", tft.max_x)
     x0 = 0
-    y0 = tft.display_max_y / 2
+    y0 = tft.max_y / 2
     tft.draw_gfx_text(x0, y0, msg)
     time.sleep(5)
     x1 = x0 + width
