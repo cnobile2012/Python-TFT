@@ -47,6 +47,17 @@ x1 = 168
 y1 = 190
 tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
 
+# Test orientation
+for i in range(4):
+    tft.orientation = i
+    x0 = tft.max_x // 2 - 20
+    y0 = tft.max_y // 2 - 20
+    x1 = tft.max_x // 2 + 20
+    y1 = tft.max_y // 2 + 20
+    tft.draw_rectangle(x0, y0, x1, y1, Color.BLUEVIOLET)
+    time.sleep(5)
+    tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
+
 try:
     tft.orientation = 1
     tft.set_font(Terminal6x8)

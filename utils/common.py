@@ -356,11 +356,11 @@ class CommonMethods:
     @property
     def max_x(self):
         """
-        Get the display max x size. The valueis based on the orientation.
+        Get the display max x size. The value is based on the orientation.
 
         .. note::
 
-          Either 0..176 or 0..220 depending on orientation.
+          Either 0..LCD_WIDTH or 0..LCD_HEIGHT depending on orientation.
 
         :return: Horizontal size of the display in pixels.
         :rtype: int
@@ -374,7 +374,7 @@ class CommonMethods:
 
         .. note::
 
-          Either 0..176 or 0..220 depending on orientation.
+          Either 0..LCD_WIDTH or 0..LCD_HEIGHT depending on orientation.
 
         :return: Vertical size of the display in pixels.
         :rtype: int
