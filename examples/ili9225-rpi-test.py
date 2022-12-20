@@ -52,10 +52,11 @@ for i in range(4):
     tft.orientation = i
     x0 = tft.max_x // 2 - 20
     y0 = tft.max_y // 2 - 20
-    x1 = tft.max_x // 2 + 20
-    y1 = tft.max_y // 2 + 20
+    x1 = tft.max_x // 2 + 30
+    y1 = tft.max_y // 2 + 30
     tft.draw_rectangle(x0, y0, x1, y1, Color.BLUEVIOLET)
-    time.sleep(5)
+    time.sleep(2.5)
+    print("orientation", i, "x0:", x0, "y0:", y0, "x1:", x1, "y1:", y1)
     tft.clear(x0=x0, y0=y0, x1=x1, y1=y1)
 
 try:
