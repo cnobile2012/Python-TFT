@@ -459,7 +459,7 @@ class ILI9225(Compatibility, CommonMethods):
             self._write_data(array)
             self._reset_window()
         else:
-            self.draw_pixel_alt(pixels)
+            self.draw_pixels(pixels)
 
         self._end_write(reuse=False)
         return char_width
@@ -614,7 +614,7 @@ class ILI9225(Compatibility, CommonMethods):
 
                 bits <<= 1
 
-        self.draw_pixel_alt(pixels)
+        self.draw_pixels(pixels)
         return xa
 
     def draw_gfx_text(self, x, y, s, color=Colors.WHITE, *, add_pixels=0):
@@ -729,11 +729,11 @@ class ILI9225(Compatibility, CommonMethods):
         :param color: A 16-bit RGB color.
         :type color: int
         """
-        self.draw_pixel_alt(((x0, y0, color),))
+        self.draw_pixels(((x0, y0, color),))
 
-    def draw_pixel_alt(self, pixels):
+    def draw_pixels(self, pixels):
         """
-        Draw a pixel.
+        Draw a sequence of pixels.
 
         :param pixels: A list of tuples: [(x, y, color),...].
         :type pixels: list

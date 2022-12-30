@@ -486,7 +486,7 @@ class CommonMethods:
             pixels.append((x0 + y, y0 - x, color))
             pixels.append((x0 - y, y0 - x, color))
 
-        self.draw_pixel_alt(pixels)
+        self.draw_pixels(pixels)
         self._end_write(reuse=False)
         self.spi_close_override = False
 
@@ -708,7 +708,7 @@ class CommonMethods:
 
             x0 += 1
 
-        self.draw_pixel_alt(pixels)
+        self.draw_pixels(pixels)
         self._end_write(reuse=False)
 
     ## def draw_bitmap(self, x, y, bitmap, w, h, color, bg=Colors.BLACK,

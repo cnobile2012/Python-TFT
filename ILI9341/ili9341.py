@@ -276,11 +276,11 @@ class ILI9341(Compatibility, CommonMethods):
         :param color: A 16-bit RGB color.
         :type color: int
         """
-        self.draw_pixel_alt(((x0, y0, x1, y1, color),))
+        self.draw_pixels(((x0, y0, x1, y1, color),))
 
-    def draw_pixel_alt(self, pixels):
+    def draw_pixels(self, pixels):
         """
-        Draw a pixel.
+        Draw a sequence of pixels.
 
         :param pixels: A list of tuples: [(x0, y0, x1, y1, color),...].
         :type pixels: list
