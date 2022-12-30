@@ -261,26 +261,39 @@ class ILI9341(Compatibility, CommonMethods):
         self._end_write(reuse=False)
         self.delay(200)
 
+    def draw_pixel(self, x0, y0, x1, y1, color):
+        """
+        Draw a pixel.
+
+        :param x0: Left column (x-axis).
+        :type x0: int
+        :param y0: Top row (y-axis).
+        :type y0: int
+        :param x1: Right column (x-axis).
+        :type x1: int
+        :param y1: Bottom row (y-axis).
+        :type y1: int
+        :param color: A 16-bit RGB color.
+        :type color: int
+        """
+        self.draw_pixel_alt(((x0, y0, x1, y1, color),))
+
     def draw_pixel_alt(self, pixels):
         """
         Draw a pixel.
 
-        :param pixels: A list of tuples: [(x, y, color),...].
+        :param pixels: A list of tuples: [(x0, y0, x1, y1, color),...].
         :type pixels: list
         """
         self._start_write()
 
-        # CMD_CASET (SC[15:8], (SC[7:0], EC[15:8], EC[7:0])
-        # CMD_RWSET (SC[15:8], (SC[7:0], EC[15:8], EC[7:0])
-        # CMD_RAMWR (D1[17:0], D2[17:0] ... Dn[17:0])
-
-        for x, y, color in pixels:
+        for x0, y0, x1, y1, color in pixels:
             if not ((x >= self.max_x) or (y >= self.max_y)):
                 x, y = self._orient_coordinates(x, y )
-                ## self._write_register(self.CMD_RAM_ADDR_SET1, x)
-                ## self._write_register(self.CMD_RAM_ADDR_SET2, y)
+                self._write_register(self.CMD_CASET, bytearray((x0, x1)))
+                self._write_register(self.CMD_RWSET, bytearray((y0, y1)))
                 array = bytearray((color >> 8, color & 0xFF))
-                ## self._write_register(self.CMD_GRAM_DATA_REG, array)
+                self._write_register(self.CMD_RAMWR, array)
 
         self._end_write(reuse=False)
 
