@@ -4,3 +4,4 @@
 RPi.GPIO
 gpiozero
 spidev
+numpy
